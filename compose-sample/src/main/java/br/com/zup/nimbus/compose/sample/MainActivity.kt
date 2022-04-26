@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.sample
+package br.com.zup.nimbus.compose.sample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,9 +7,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import br.zup.com.nimbus.compose.NimbusProvider
 import br.zup.com.nimbus.compose.components.components
-import br.zup.com.nimbus.compose.sample.components.customComponents
+import br.com.zup.nimbus.compose.sample.components.customComponents
 import br.zup.com.nimbus.compose.serverdriven.NimbusService
-import com.zup.beagle.android.ui.theme.BeagleTheme
+import br.com.zup.nimbus.compose.sample.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     private val config = NimbusService(baseUrl = "http://10.0.2.2:8080",
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            BeagleTheme {
+            AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     NimbusProvider(json1, config)

@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 
 @Composable
-fun BeagleContainer(children: @Composable () -> Unit) {
+fun NimbusContainer(children: @Composable () -> Unit) {
     Column() {
         children()
     }

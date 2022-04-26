@@ -27,7 +27,7 @@ dependencies {
 android {
     compileSdkVersion(30)
     defaultConfig {
-        applicationId = "com.zup.beagle.android"
+        applicationId = "br.com.zup.nimbus.android"
         minSdkVersion(21)
         targetSdkVersion(30)
         versionCode = 1
