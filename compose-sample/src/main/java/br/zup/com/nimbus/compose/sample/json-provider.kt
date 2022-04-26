@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose
+package br.zup.com.nimbus.compose.sample
 
 val json1 = """
     {

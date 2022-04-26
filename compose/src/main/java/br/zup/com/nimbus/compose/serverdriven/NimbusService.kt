@@ -15,14 +15,14 @@ class NimbusService(
     private lateinit var nimbus: Nimbus
 
     fun start() {
-        val serverDrivenConfig = configureService()
+        val serverDrivenConfig = createServerDrivenConfig()
 
-        nimbus = Nimbus(config = ServerDrivenConfig(baseUrl, platform = "android"))
+        nimbus = Nimbus(config = serverDrivenConfig)
     }
 
-    private fun configureService(): ServerDrivenConfig {
+    private fun createServerDrivenConfig(): ServerDrivenConfig {
 
-        return ServerDrivenConfig("", "")
+        return ServerDrivenConfig(baseUrl, platform = "android")
     }
 
 

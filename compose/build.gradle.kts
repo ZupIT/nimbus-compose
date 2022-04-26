@@ -8,7 +8,7 @@ val serializationVersion = "1.3.2"
 val ktorVersion = "1.6.8"
 
 dependencies {
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+    api(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
     //FIXME understand how to inherit this config from nimbus-core
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")

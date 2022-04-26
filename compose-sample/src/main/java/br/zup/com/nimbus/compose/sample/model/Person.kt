@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.model
+package br.zup.com.nimbus.compose.sample.model
 
 data class Person(
     val name: String,

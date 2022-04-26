@@ -8,14 +8,8 @@ val serializationVersion = "1.3.2"
 val ktorVersion = "1.6.8"
 
 dependencies {
+    //FIXME replace here with the published compose library of nimbus
     implementation(project(":compose"))
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-
-    //FIXME understand how to inherit this config from nimbus-core
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-serialization:$ktorVersion")
 
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.appcompat:appcompat:1.2.0")

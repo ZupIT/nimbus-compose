@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.components
+package br.zup.com.nimbus.compose.sample.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import br.zup.com.nimbus.compose.model.PersonCardModel
+import br.zup.com.nimbus.compose.sample.model.PersonCardModel
 
 @Composable
 fun PersonCardComponent(params: PersonCardModel) {
