@@ -5,12 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import br.zup.com.nimbus.compose.components.components
-import br.zup.com.nimbus.compose.serverdriven.NimbusService
 import com.zup.beagle.android.ui.theme.BeagleTheme
+import com.zup.nimbus.core.ServerDrivenConfig
 
 class MainActivity : ComponentActivity() {
-    private val config = NimbusService(baseUrl = "http://10.0.2.2:8080", components = components)
+    private val config = ServerDrivenConfig(baseUrl = "http://10.0.2.2:8080", platform = "android")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

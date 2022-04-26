@@ -9,3 +9,4 @@ pluginManagement {
 
 rootProject.name = "Nimbus Compose"
 include(":compose")
+include(":compose-sample")
