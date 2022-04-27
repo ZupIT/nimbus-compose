@@ -42,8 +42,6 @@ fun ProvideNimbus(
 ) {
     nimbus.start()
     val nimbusComposeState = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colors]
-        // provided, and overwrite the values set in it.
         nimbus
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
