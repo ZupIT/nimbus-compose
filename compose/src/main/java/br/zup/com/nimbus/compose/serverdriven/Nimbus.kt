@@ -12,17 +12,29 @@ import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
+import com.zup.nimbus.core.log.Logger
+import com.zup.nimbus.core.network.HttpClient
+import com.zup.nimbus.core.network.UrlBuilder
+import com.zup.nimbus.core.network.ViewClient
+import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import br.zup.com.nimbus.compose.serverdriven.Nimbus as NimbusCompose
 
 typealias ComponentHandler = (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit
+
+const val PLATFORM_NAME = "android"
 
 @Stable
 class Nimbus(
     baseUrl: String,
     components: Map<String, @Composable ComponentHandler>,
     actions: Map<String, ActionHandler>? = null,
-    operations: Map<String, OperationHandler>? = null
+    operations: Map<String, OperationHandler>? = null,
+    logger: Logger? = null,
+    urlBuilder: UrlBuilder? = null,
+    httpClient: HttpClient? = null,
+    viewClient: ViewClient? = null,
+    idManager: IdManager? = null,
 ) {
 
     var baseUrl by mutableStateOf(baseUrl)
@@ -34,27 +46,53 @@ class Nimbus(
     var operations by mutableStateOf(operations)
         private set
 
-    var core by mutableStateOf(Nimbus(config = createServerDrivenConfig()))
+    var logger by mutableStateOf(logger)
         private set
+
+    var urlBuilder by mutableStateOf(urlBuilder)
+        private set
+
+    var httpClient by mutableStateOf(httpClient)
+        private set
+
+    var viewClient by mutableStateOf(viewClient)
+        private set
+
+    var idManager by mutableStateOf(idManager)
+        private set
+
+    var core by mutableStateOf(
+        createNimbus()
+    )
+
+    private fun createNimbus() = Nimbus(config = createServerDrivenConfig())
 
     fun addOperations(operations: Map<String, OperationHandler>) {
         this.operations = this.operations?.plus(operations) ?: operations
+        core = createNimbus()
     }
 
     fun addComponents(components: Map<String, @Composable ComponentHandler>) {
         this.components = this.components.plus(components)
+        core = createNimbus()
     }
 
     fun addActions(actions: Map<String, ActionHandler>) {
         this.actions = this.actions?.plus(actions) ?: actions
+        core = createNimbus()
     }
 
     private fun createServerDrivenConfig(): ServerDrivenConfig {
         return ServerDrivenConfig(
-            platform = "android",
+            platform = PLATFORM_NAME,
             baseUrl = baseUrl,
-            operations = operations,
             actions = actions,
+            operations = operations,
+            logger = logger,
+            urlBuilder = urlBuilder,
+            httpClient = httpClient,
+            viewClient = viewClient,
+            idManager = idManager
         )
     }
 }
