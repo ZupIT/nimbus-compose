@@ -3,53 +3,81 @@ package br.zup.com.nimbus.compose.serverdriven
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.Nimbus
+import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import br.zup.com.nimbus.compose.serverdriven.Nimbus as NimbusCompose
 
+typealias ComponentHandler = (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit
+
 @Stable
 class Nimbus(
-    //TODO fill in the other properties
-    val baseUrl: String,
-    val components: Map<String, @Composable (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit>,
+    baseUrl: String,
+    components: Map<String, @Composable ComponentHandler>,
+    actions: Map<String, ActionHandler>? = null,
+    operations: Map<String, OperationHandler>? = null
 ) {
 
-    lateinit var core: Nimbus
+    var baseUrl by mutableStateOf(baseUrl)
+        private set
+    var components by mutableStateOf(components)
+        private set
+    var actions by mutableStateOf(actions)
+        private set
+    var operations by mutableStateOf(operations)
+        private set
 
-    fun start() {
-        val serverDrivenConfig = createServerDrivenConfig()
+    var core by mutableStateOf(Nimbus(config = createServerDrivenConfig()))
+        private set
 
-        core = Nimbus(config = serverDrivenConfig)
+    fun addOperations(operations: Map<String, OperationHandler>) {
+        this.operations = this.operations?.plus(operations) ?: operations
+    }
+
+    fun addComponents(components: Map<String, @Composable ComponentHandler>) {
+        this.components = this.components.plus(components)
+    }
+
+    fun addActions(actions: Map<String, ActionHandler>) {
+        this.actions = this.actions?.plus(actions) ?: actions
     }
 
     private fun createServerDrivenConfig(): ServerDrivenConfig {
-
-        return ServerDrivenConfig(baseUrl, platform = "android")
+        return ServerDrivenConfig(
+            platform = "android",
+            baseUrl = baseUrl,
+            operations = operations,
+            actions = actions,
+        )
     }
 }
 
 private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {
-    error("No NimbusService provided")
+    error("No Nimbus provided")
 }
 
 @Composable
 fun ProvideNimbus(
-    nimbus: NimbusCompose,
+    nimbusCompose: NimbusCompose,
     content: @Composable () -> Unit
 ) {
-    nimbus.start()
+
     val nimbusComposeState = remember {
-        nimbus
+        nimbusCompose
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
 
 object NimbusTheme {
-    val nimbus: br.zup.com.nimbus.compose.serverdriven.Nimbus
+    val nimbus: NimbusCompose
         @Composable
         get() = LocalNimbus.current
 }
