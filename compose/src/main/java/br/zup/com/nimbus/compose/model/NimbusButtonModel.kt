@@ -3,7 +3,7 @@ package br.zup.com.nimbus.compose.model
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class PersonCardModel(
-    val person: Person,
-    val address: Address,
+data class NimbusButtonModel(
+    val text: String,
+    val onPress: () -> Unit,
 )

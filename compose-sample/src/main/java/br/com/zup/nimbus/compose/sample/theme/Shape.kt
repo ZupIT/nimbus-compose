@@ -1,4 +1,4 @@
-package com.zup.beagle.android.ui.theme
+package br.com.zup.nimbus.compose.sample.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

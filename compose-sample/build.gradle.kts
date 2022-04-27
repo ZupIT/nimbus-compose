@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library")
+    id("com.android.application")
     kotlin("android")
     id("kotlin-android")
 }
@@ -8,13 +8,8 @@ val serializationVersion = "1.3.2"
 val ktorVersion = "1.6.8"
 
 dependencies {
-    api(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
-
-    //FIXME understand how to inherit this config from nimbus-core
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-serialization:$ktorVersion")
+    //FIXME replace here with the published compose library of nimbus
+    implementation(project(":compose"))
 
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
@@ -30,10 +25,13 @@ dependencies {
 }
 
 android {
-    compileSdk = 31
+    compileSdkVersion(30)
     defaultConfig {
-        minSdk = 21
-        targetSdk = 31
+        applicationId = "br.com.zup.nimbus.android"
+        minSdkVersion(21)
+        targetSdkVersion(30)
+        versionCode = 1
+        versionName = "1.0"
         vectorDrawables {
             useSupportLibrary = true
         }

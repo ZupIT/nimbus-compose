@@ -1,4 +1,4 @@
-package com.zup.beagle.android.ui.theme
+package br.zup.com.nimbus.compose.sample.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
