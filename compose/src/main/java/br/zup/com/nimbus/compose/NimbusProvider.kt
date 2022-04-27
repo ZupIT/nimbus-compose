@@ -5,28 +5,39 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import br.zup.com.nimbus.compose.serverdriven.NimbusService
+import br.zup.com.nimbus.compose.serverdriven.Nimbus
+import br.zup.com.nimbus.compose.serverdriven.NimbusTheme.nimbus
+import br.zup.com.nimbus.compose.serverdriven.ProvideNimbus
 import com.zup.nimbus.core.action.ServerDrivenNavigator
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
-class MyNavigator: ServerDrivenNavigator {
+class MyNavigator : ServerDrivenNavigator {
 
 }
+
 val serverDrivenNavigator = MyNavigator()
 
 @Composable
-fun NimbusProvider(json: String, serverDrivenConfig: NimbusService) {
+fun NimbusProvider(json: String, serverDrivenConfig: Nimbus) {
     NimbusProvider(json, serverDrivenConfig, null)
 }
 
 @Composable
-fun NimbusProvider(json: String, nimbusService: NimbusService, ref: Ref<ServerDrivenView?>?) {
-    nimbusService.start()
-    val initialTree = nimbusService.createNodeFromJson(json = json)
-    //TODO provide nimbusService to the UI tree using Composition Local
-    //https://developer.android.com/jetpack/compose/compositionlocal
-    val view = remember {  nimbusService.createView(serverDrivenNavigator) }
+fun NimbusProvider(json: String, nimbus: Nimbus, ref: Ref<ServerDrivenView?>?) {
+    ProvideNimbus(nimbus) {
+        NimbusView(json, serverDrivenNavigator, ref)
+    }
+}
+
+@Composable
+fun NimbusView(
+    json: String,
+    serverDrivenNavigator: ServerDrivenNavigator,
+    ref: Ref<ServerDrivenView?>? = null
+) {
+    val initialTree = nimbus.core.createNodeFromJson(json = json)
+    val view = nimbus.core.createView(serverDrivenNavigator)
 
     val (currentTree, setCurrentTree) = remember { mutableStateOf(view.getCurrentTree()) }
 
@@ -39,19 +50,19 @@ fun NimbusProvider(json: String, nimbusService: NimbusService, ref: Ref<ServerDr
     }
 
     currentTree?.let {
-        NimbusView(viewTree = it, nimbusService)
+        RenderTree(viewTree = it)
     }
 }
 
 @Composable
-fun NimbusView(viewTree: ServerDrivenNode, nimbusService: NimbusService) {
-    if (!nimbusService.components.containsKey(viewTree.component)) {
+fun RenderTree(viewTree: ServerDrivenNode) {
+    if (!nimbus.components.containsKey(viewTree.component)) {
         throw Error("Component with type ${viewTree.component} is not registered")
     }
     key(viewTree.id) {
-        nimbusService.components[viewTree.component]!!(element = viewTree, children = {
+        nimbus.components[viewTree.component]!!(element = viewTree, children = {
             viewTree.children?.forEach {
-                NimbusView(it, nimbusService = nimbusService)
+                RenderTree(it)
             }
         })
     }

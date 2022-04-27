@@ -8,11 +8,11 @@ import androidx.compose.material.Surface
 import br.zup.com.nimbus.compose.NimbusProvider
 import br.zup.com.nimbus.compose.components.components
 import br.com.zup.nimbus.compose.sample.components.customComponents
-import br.zup.com.nimbus.compose.serverdriven.NimbusService
+import br.zup.com.nimbus.compose.serverdriven.Nimbus
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
-    private val config = NimbusService(baseUrl = "http://10.0.2.2:8080",
+    private val config = Nimbus(baseUrl = "http://10.0.2.2:8080",
         components = components + customComponents
     )
     override fun onCreate(savedInstanceState: Bundle?) {
