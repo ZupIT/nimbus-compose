@@ -25,11 +25,11 @@ dependencies {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 31
     defaultConfig {
         applicationId = "br.com.zup.nimbus.android"
-        minSdkVersion(21)
-        targetSdkVersion(30)
+        minSdk = 21
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
         vectorDrawables {
