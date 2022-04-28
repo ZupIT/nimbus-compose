@@ -25,7 +25,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 31
     defaultConfig {
         applicationId = "br.com.zup.nimbus.android"
         minSdk = 21
