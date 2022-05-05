@@ -13,7 +13,7 @@ import br.zup.com.nimbus.compose.serverdriven.Nimbus
 
 class MainActivity : ComponentActivity() {
     private val config = Nimbus(
-        baseUrl = "http://10.0.2.2:8080",
+        baseUrl = "https://private-0ba4eb-hernandazevedo1.apiary-mock.com",
         components = components + customComponents,
         logger = AppLogger()
     )
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    NimbusProvider(json1, config)
+                    NimbusProvider("/screen1", config)
                 }
             }
         }

@@ -1,28 +1,103 @@
 package br.zup.com.nimbus.compose.serverdriven
 
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination
+import androidx.navigation.NavGraph
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import br.zup.com.nimbus.compose.NimbusComposeNavigator
 import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
+import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import kotlinx.coroutines.CoroutineScope
 import br.zup.com.nimbus.compose.serverdriven.Nimbus as NimbusCompose
 
 typealias ComponentHandler = (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit
 
 const val PLATFORM_NAME = "android"
+
+@Stable
+class NimbusComposeAppState(
+    val scaffoldState: ScaffoldState,
+    val nimbusCompose: NimbusCompose,
+    val navController: NavHostController,
+    val serverDrivenNavigator: ServerDrivenNavigator,
+    val coroutineScope: CoroutineScope
+) {
+    val currentRoute: String?
+        get() = navController.currentDestination?.route
+
+    fun pop() {
+        navController.navigateUp()
+    }
+
+    fun popTo(url: String) {
+        if (removeFromStackMatchingArg(
+                navController = navController,
+                arg = "viewId",
+                argValue = url,
+                inclusive = true
+            )
+        ) {
+            navController.navigate("showScreen?viewId=${url}")
+        }
+    }
+
+    fun push(url: String) {
+        navController.navigate("showScreen?viewId=${url}")
+    }
+
+    private fun removeFromStackMatchingArg(
+        navController: NavHostController,
+        arg: String,
+        argValue: Any?,
+        inclusive: Boolean = false
+    ): Boolean {
+        var elementFound = false
+        val removeList = mutableListOf<NavBackStackEntry>()
+        for (item in navController.backQueue.reversed()) {
+            if (item.destination.route == navController.graph.startDestinationRoute) {
+                if (item.arguments?.getString(
+                        arg
+                    ) == argValue
+                ) {
+                    if(inclusive) {
+                        removeList.add(item)
+                    }
+                    elementFound = true
+                    break
+                } else {
+                    removeList.add(item)
+                }
+            }
+        }
+
+        if(elementFound) {
+            navController.backQueue.removeAll(removeList)
+        }
+        return elementFound
+    }
+
+}
 
 @Stable
 class Nimbus(
@@ -97,25 +172,45 @@ class Nimbus(
     }
 }
 
-private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {
+private val LocalNimbus = staticCompositionLocalOf<NimbusComposeAppState> {
     error("No Nimbus provided")
 }
 
 @Composable
-fun ProvideNimbus(
+fun ProvideNimbusAppState(
+    initialUrl: String,
     nimbusCompose: NimbusCompose,
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
+    navController: NavHostController = rememberNavController(),
+    serverDrivenNavigator: ServerDrivenNavigator = NimbusComposeNavigator(
+        initialUrl = initialUrl,
+        navController = navController
+    ),
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit
 ) {
 
-    val nimbusComposeState = remember {
-        nimbusCompose
+    val nimbusComposeState = remember(
+        nimbusCompose,
+        navController,
+        scaffoldState,
+        coroutineScope,
+        serverDrivenNavigator
+    ) {
+        NimbusComposeAppState(
+            nimbusCompose = nimbusCompose,
+            navController = navController,
+            serverDrivenNavigator = serverDrivenNavigator,
+            scaffoldState = scaffoldState,
+            coroutineScope = coroutineScope
+        )
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
 
 object NimbusTheme {
-    val nimbus: NimbusCompose
+    val nimbusAppState: NimbusComposeAppState
         @Composable
         get() = LocalNimbus.current
 }

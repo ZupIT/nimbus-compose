@@ -5,12 +5,13 @@ plugins {
 }
 
 val serializationVersion = "1.3.2"
-val ktorVersion = "1.6.8"
+val ktorVersion = "2.0.0"
 
 dependencies {
     //FIXME replace here with the published compose library of nimbus
     implementation(project(":compose"))
 
+    implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
