@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import br.com.zup.nimbus.compose.sample.components.customComponents
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
 import br.zup.com.nimbus.compose.NimbusProvider
@@ -15,6 +16,7 @@ class MainActivity : ComponentActivity() {
     private val config = Nimbus(
         baseUrl = "https://private-0ba4eb-hernandazevedo1.apiary-mock.com",
         components = components + customComponents,
+        loadingView = { Text("Custom Loading") },
         logger = AppLogger()
     )
 
