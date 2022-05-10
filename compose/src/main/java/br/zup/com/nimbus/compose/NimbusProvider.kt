@@ -34,7 +34,7 @@ class NimbusComposeNavigator(
     }
 
     override fun popTo(url: String) {
-        TODO("Not yet implemented")
+        navigatorListener?.onPopTo(url)
     }
 
     override fun present(request: ViewRequest) {
@@ -79,6 +79,7 @@ class NimbusComposeNavigator(
     interface NavigatorListener {
         fun onPush(request: ViewRequest, pages: List<Page>, view: ServerDrivenView, initialRequest: Boolean)
         fun onPop()
+        fun onPopTo(url: String)
 
         //TODO fill in other methods
     }

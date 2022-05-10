@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.tree.ServerDrivenNode
 
 class NimbusViewModel
     (
@@ -51,11 +50,19 @@ class NimbusViewModel
 
         if (!initialRequest) {
             navController.navigate(
-                "${ViewConstants.SHOW_VIEW}?${ViewConstants.VIEW_INDEX}=${nimbusComposeNavigator.pages.lastIndex}")
+                "${ViewConstants.SHOW_VIEW}?${ViewConstants.VIEW_INDEX}=${nimbusComposeNavigator.pages.lastIndex}"
+            )
         }
     }
 
     override fun onPop() {
         navController.navigateUp()
+    }
+
+    override fun onPopTo(url: String) {
+        val pageIndex = nimbusComposeNavigator.pages.indexOfFirst {
+            it.id == url
+        }
+        navController.nimbusPopTo(pageIndex)
     }
 }

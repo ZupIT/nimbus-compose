@@ -12,12 +12,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.zup.com.nimbus.compose.NimbusComposeNavigator
 import br.zup.com.nimbus.compose.NimbusViewModel
-import br.zup.com.nimbus.compose.ViewConstants
 import br.zup.com.nimbus.compose.components.ErrorDefault
 import br.zup.com.nimbus.compose.components.LoadingDefault
 import com.zup.nimbus.core.ActionHandler
@@ -49,61 +47,6 @@ class NimbusComposeAppState(
     init {
         nimbusViewModel.initFirstView()
     }
-
-    val currentRoute: String?
-        get() = navController.currentDestination?.route
-
-    fun pop() {
-        navController.navigateUp()
-    }
-
-    fun popTo(url: String) {
-        if (removeFromStackMatchingArg(
-                navController = navController,
-                arg = "viewId",
-                argValue = url,
-                inclusive = true
-            )
-        ) {
-            navController.navigate("${ViewConstants.SHOW_VIEW}?${ViewConstants.VIEW_INDEX}=${url}")
-        }
-    }
-
-    fun push(url: String) {
-        navController.navigate("${ViewConstants.SHOW_VIEW}?${ViewConstants.VIEW_INDEX}=${url}")
-    }
-
-    private fun removeFromStackMatchingArg(
-        navController: NavHostController,
-        arg: String,
-        argValue: Any?,
-        inclusive: Boolean = false
-    ): Boolean {
-        var elementFound = false
-        val removeList = mutableListOf<NavBackStackEntry>()
-        for (item in navController.backQueue.reversed()) {
-            if (item.destination.route == navController.graph.startDestinationRoute) {
-                if (item.arguments?.getString(
-                        arg
-                    ) == argValue
-                ) {
-                    if (inclusive) {
-                        removeList.add(item)
-                    }
-                    elementFound = true
-                    break
-                } else {
-                    removeList.add(item)
-                }
-            }
-        }
-
-        if (elementFound) {
-            navController.backQueue.removeAll(removeList)
-        }
-        return elementFound
-    }
-
 }
 
 @Stable
