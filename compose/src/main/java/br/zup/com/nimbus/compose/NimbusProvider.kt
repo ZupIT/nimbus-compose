@@ -19,6 +19,7 @@ import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.MalformedComponentError
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class NimbusComposeNavigator(
@@ -54,10 +55,9 @@ class NimbusComposeNavigator(
         val page = Page(
             id = request.url, view = view)
         pages.add(page)
-
-        coroutineScope.launch {
+        navigatorListener?.onPush(request, pages, view, initialRequest)
+        coroutineScope.launch(Dispatchers.IO) {
             try {
-                navigatorListener?.onPush(request, pages, view, initialRequest)
                 val tree = nimbusCompose.core.viewClient.fetch(request)
                 view.renderer.paint(tree)
             } catch (e: NetworkError) {
