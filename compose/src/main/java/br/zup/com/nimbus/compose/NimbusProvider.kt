@@ -8,16 +8,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import br.zup.com.nimbus.compose.ViewConstants.SHOW_VIEW_DESTINATION
-import br.zup.com.nimbus.compose.ViewConstants.VIEW_INDEX
 import br.zup.com.nimbus.compose.serverdriven.Nimbus
 import br.zup.com.nimbus.compose.serverdriven.NimbusTheme.nimbusAppState
 import br.zup.com.nimbus.compose.serverdriven.ProvideNimbusAppState
 import com.zup.nimbus.core.ServerDrivenNavigator
-import com.zup.nimbus.core.network.NetworkError
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.tree.MalformedComponentError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,19 +48,16 @@ class NimbusComposeNavigator(
 
     fun doPush(request: ViewRequest, initialRequest: Boolean = false) {
         val view = nimbusCompose.core.createView(this)
+        val url = if (initialRequest) VIEW_INITIAL_URL else request.url
         val page = Page(
-            id = request.url, view = view)
+            id = url, view = view)
         pages.add(page)
         navigatorListener?.onPush(request, pages, view, initialRequest)
         coroutineScope.launch(Dispatchers.IO) {
             try {
                 val tree = nimbusCompose.core.viewClient.fetch(request)
                 view.renderer.paint(tree)
-            } catch (e: NetworkError) {
-                page.content = NimbusPageState.PageStateOnError(
-                    e
-                )
-            } catch (e: MalformedComponentError) {
+            } catch (e: Throwable) {
                 page.content = NimbusPageState.PageStateOnError(
                     e
                 )
@@ -87,13 +80,12 @@ class NimbusComposeNavigator(
 
 //FIXME this should be passed as a parameter to the navigation
 //var viewRequest: ViewRequest? = null
-object ViewConstants {
 
-    const val SHOW_VIEW = "showView"
-    const val VIEW_INDEX = "viewIndex"
 
-    const val SHOW_VIEW_DESTINATION = "${SHOW_VIEW}?${VIEW_INDEX}={${VIEW_INDEX}}"
-}
+const val SHOW_VIEW = "showView"
+const val VIEW_URL = "viewUrl"
+const val VIEW_INITIAL_URL = "root"
+const val SHOW_VIEW_DESTINATION = "${SHOW_VIEW}?${VIEW_URL}={${VIEW_URL}}"
 
 @Composable
 fun NimbusProvider(
@@ -109,14 +101,18 @@ fun NimbusProvider(
             ) {
                 composable(
                     route = SHOW_VIEW_DESTINATION,
-                    arguments = listOf(navArgument(VIEW_INDEX) {
-                        type = NavType.IntType
-                        defaultValue = 0
+                    arguments = listOf(navArgument(VIEW_URL) {
+                        type = NavType.StringType
+                        defaultValue = VIEW_INITIAL_URL
                     })
                 ) { backStackEntry ->
                     val arguments = requireNotNull(backStackEntry.arguments)
-                    val currentPageIndex = arguments.getInt(VIEW_INDEX)
-                    val currentPage = nimbusAppState.nimbusViewModel.getPageBy(currentPageIndex)
+                    val currentPageUrl = arguments.getString(VIEW_URL)
+                    val currentPage = currentPageUrl?.let {
+                        nimbusAppState.nimbusViewModel.getPageBy(
+                            it
+                        )
+                    }
                     currentPage?.content?.let {
                         when(it) {
                             is NimbusPageState.PageStateOnLoading -> {

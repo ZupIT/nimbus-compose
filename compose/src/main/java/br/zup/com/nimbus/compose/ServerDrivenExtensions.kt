@@ -11,15 +11,15 @@ fun <T>ServerDrivenNode.parse(typeRef: TypeReference<T>): T {
     return mapper.convertValue(this.properties, typeRef)
 }
 
-internal fun NavHostController.nimbusPopTo(index: Int) {
+internal fun NavHostController.nimbusPopTo(url: String) {
     if (removeFromStackMatchingArg(
             navController = this,
-            arg = ViewConstants.VIEW_INDEX,
-            argValue = index,
+            arg = VIEW_URL,
+            argValue = url,
             inclusive = true
         )
     ) {
-        this.navigate("${ViewConstants.SHOW_VIEW}?${ViewConstants.VIEW_INDEX}=${index}")
+        this.navigate("${SHOW_VIEW}?${VIEW_URL}=${url}")
     }
 }
 
@@ -33,7 +33,7 @@ private fun removeFromStackMatchingArg(
     val removeList = mutableListOf<NavBackStackEntry>()
     for (item in navController.backQueue.reversed()) {
         if (item.destination.route == navController.graph.startDestinationRoute) {
-            if (item.arguments?.getString(
+            if (item.arguments?.get(
                     arg
                 ) == argValue
             ) {

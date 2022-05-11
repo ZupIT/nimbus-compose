@@ -14,9 +14,9 @@ import br.zup.com.nimbus.compose.serverdriven.Nimbus
 
 class MainActivity : ComponentActivity() {
     private val config = Nimbus(
-        baseUrl = "https://private-0ba4eb-hernandazevedo1.apiary-mock.com",
+        baseUrl = BASE_URL,
         components = components + customComponents,
-        loadingView = { Text("Custom Loading") },
+        loadingView = { Text("Custom Loading from app") },
         logger = AppLogger()
     )
 
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    NimbusProvider("/screen1", config)
+                    NimbusProvider("/screen1.json", config)
                 }
             }
         }

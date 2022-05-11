@@ -37,8 +37,8 @@ class NimbusViewModel
         nimbusComposeNavigator.doPush(ViewRequest(url = initialUrl), initialRequest = true)
     }
 
-    fun getPageBy(index: Int): Page? {
-        return nimbusComposeNavigator.pages.elementAtOrNull(index)
+    fun getPageBy(url: String): Page? {
+        return nimbusComposeNavigator.pages.firstOrNull { it.id == url}
     }
 
     override fun onPush(
@@ -50,7 +50,9 @@ class NimbusViewModel
 
         if (!initialRequest) {
             navController.navigate(
-                "${ViewConstants.SHOW_VIEW}?${ViewConstants.VIEW_INDEX}=${nimbusComposeNavigator.pages.lastIndex}"
+                "${SHOW_VIEW}?${VIEW_URL}=${
+                    nimbusComposeNavigator.pages.last().id
+                }"
             )
         }
     }
@@ -60,9 +62,12 @@ class NimbusViewModel
     }
 
     override fun onPopTo(url: String) {
-        val pageIndex = nimbusComposeNavigator.pages.indexOfFirst {
+        val page = nimbusComposeNavigator.pages.firstOrNull {
             it.id == url
         }
-        navController.nimbusPopTo(pageIndex)
+        page?.let {
+            navController.nimbusPopTo(page.id)
+        }
+
     }
 }
