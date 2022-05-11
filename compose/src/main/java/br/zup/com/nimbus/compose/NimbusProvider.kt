@@ -46,6 +46,11 @@ class NimbusComposeNavigator(
         doPush(request)
     }
 
+    fun cleanUp() {
+        pages.clear()
+        navigatorListener = null
+    }
+
     fun doPush(request: ViewRequest, initialRequest: Boolean = false) {
         val view = nimbusCompose.core.createView(this)
         val url = if (initialRequest) VIEW_INITIAL_URL else request.url
