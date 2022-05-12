@@ -1,5 +1,6 @@
 package br.zup.com.nimbus.compose
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
@@ -23,8 +24,6 @@ class NimbusComposeNavigator(
     private val coroutineScope: CoroutineScope) : ServerDrivenNavigator {
     private var navigatorListener: NavigatorListener? = null
 
-    val pages = ArrayList<Page>()
-
     override fun dismiss() {
         TODO("Not yet implemented")
     }
@@ -38,7 +37,6 @@ class NimbusComposeNavigator(
     }
 
     override fun pop() {
-        pages.removeLast()
         navigatorListener?.onPop()
     }
 
@@ -47,7 +45,6 @@ class NimbusComposeNavigator(
     }
 
     fun cleanUp() {
-        pages.clear()
         navigatorListener = null
     }
 
@@ -56,8 +53,7 @@ class NimbusComposeNavigator(
         val url = if (initialRequest) VIEW_INITIAL_URL else request.url
         val page = Page(
             id = url, view = view)
-        pages.add(page)
-        navigatorListener?.onPush(request, pages, view, initialRequest)
+        navigatorListener?.onPush(request, page, view, initialRequest)
         coroutineScope.launch(Dispatchers.IO) {
             try {
                 val tree = nimbusCompose.core.viewClient.fetch(request)
@@ -75,7 +71,7 @@ class NimbusComposeNavigator(
     }
 
     interface NavigatorListener {
-        fun onPush(request: ViewRequest, pages: List<Page>, view: ServerDrivenView, initialRequest: Boolean)
+        fun onPush(request: ViewRequest, page: Page, view: ServerDrivenView, initialRequest: Boolean)
         fun onPop()
         fun onPopTo(url: String)
 
@@ -113,18 +109,23 @@ fun NimbusProvider(
                 ) { backStackEntry ->
                     val arguments = requireNotNull(backStackEntry.arguments)
                     val currentPageUrl = arguments.getString(VIEW_URL)
+                    val nimbusViewModel = nimbusAppState.nimbusViewModel
+                    val nimbusCompose = nimbusAppState.nimbusCompose
                     val currentPage = currentPageUrl?.let {
-                        nimbusAppState.nimbusViewModel.getPageBy(
+                        nimbusViewModel.getPageBy(
                             it
                         )
                     }
                     currentPage?.content?.let {
+                        BackHandler(enabled = true) {
+                            nimbusViewModel.onPop()
+                        }
                         when(it) {
                             is NimbusPageState.PageStateOnLoading -> {
-                                nimbusAppState.nimbusCompose.loadingView()
+                                nimbusCompose.loadingView()
                             }
                             is NimbusPageState.PageStateOnError -> {
-                                nimbusAppState.nimbusCompose.errorView(it.throwable)
+                                nimbusCompose.errorView(it.throwable)
                             }
                             is NimbusPageState.PageStateOnShowPage -> {
                                 RenderTree(viewTree = it.serverDrivenNode)        

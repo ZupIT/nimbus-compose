@@ -17,6 +17,8 @@ class NimbusViewModel
         nimbusComposeNavigator.registerNavigatorListener(this)
     }
 
+    val pages = ArrayList<Page>()
+
     companion object {
         fun provideFactory(
             navController: NavHostController,
@@ -38,41 +40,51 @@ class NimbusViewModel
     }
 
     fun getPageBy(url: String): Page? {
-        return nimbusComposeNavigator.pages.firstOrNull { it.id == url}
+        return pages.firstOrNull { it.id == url}
     }
 
     override fun onPush(
         request: ViewRequest,
-        pages: List<Page>,
+        page: Page,
         view: ServerDrivenView,
         initialRequest: Boolean
     ) {
-
+        pages.add(page)
         if (!initialRequest) {
             navController.navigate(
                 "${SHOW_VIEW}?${VIEW_URL}=${
-                    nimbusComposeNavigator.pages.last().id
+                    page.id
                 }"
             )
         }
     }
 
     override fun onPop() {
+        pages.removeLast()
         navController.navigateUp()
     }
 
     override fun onPopTo(url: String) {
-        val page = nimbusComposeNavigator.pages.firstOrNull {
+        val page = pages.firstOrNull {
             it.id == url
         }
+
         page?.let {
+            removePagesAfter(page)
             navController.nimbusPopTo(page.id)
         }
 
     }
 
+    private fun removePagesAfter(page: Page) {
+        val index = pages.indexOf(page)
+        if(index < pages.lastIndex)
+            pages.subList(index + 1, pages.size).clear()
+    }
+
     override fun onCleared() {
         super.onCleared()
+        pages.clear()
         nimbusComposeNavigator.cleanUp()
     }
 }
