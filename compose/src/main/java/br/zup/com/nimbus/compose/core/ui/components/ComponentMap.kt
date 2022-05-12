@@ -1,8 +1,8 @@
-package br.zup.com.nimbus.compose.components
+package br.zup.com.nimbus.compose.core.ui.components
 
 import androidx.compose.runtime.Composable
 import br.zup.com.nimbus.compose.model.NimbusTextModel
-import br.zup.com.nimbus.compose.parse
+import br.zup.com.nimbus.compose.core.ui.parse
 import com.fasterxml.jackson.core.type.TypeReference
 import com.zup.nimbus.core.tree.ServerDrivenNode
 

@@ -1,7 +1,9 @@
-package br.zup.com.nimbus.compose
+package br.zup.com.nimbus.compose.core.ui
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import br.zup.com.nimbus.compose.SHOW_VIEW
+import br.zup.com.nimbus.compose.VIEW_URL
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.zup.nimbus.core.tree.ServerDrivenNode
@@ -19,7 +21,7 @@ internal fun NavHostController.nimbusPopTo(url: String) {
             inclusive = true
         )
     ) {
-        this.navigate("${SHOW_VIEW}?${VIEW_URL}=${url}")
+        this.navigate("$SHOW_VIEW?$VIEW_URL=${url}")
     }
 }
 

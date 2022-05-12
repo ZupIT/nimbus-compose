@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.components
+package br.zup.com.nimbus.compose.core.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
