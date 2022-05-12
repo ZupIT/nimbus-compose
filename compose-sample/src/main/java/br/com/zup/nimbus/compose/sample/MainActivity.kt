@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import br.com.zup.nimbus.compose.sample.components.customComponents
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
 import br.zup.com.nimbus.compose.NimbusProvider
@@ -13,8 +14,9 @@ import br.zup.com.nimbus.compose.serverdriven.Nimbus
 
 class MainActivity : ComponentActivity() {
     private val config = Nimbus(
-        baseUrl = "http://10.0.2.2:8080",
+        baseUrl = BASE_URL,
         components = components + customComponents,
+        loadingView = { Text("Custom Loading from app") },
         logger = AppLogger()
     )
 
@@ -24,7 +26,7 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    NimbusProvider(json1, config)
+                    NimbusProvider("/screen1.json", config)
                 }
             }
         }

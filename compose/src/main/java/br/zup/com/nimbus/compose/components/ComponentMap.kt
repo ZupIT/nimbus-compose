@@ -16,7 +16,7 @@ val components: Map<String, @Composable (element: ServerDrivenNode, children: @C
             // can't use jackson to deserialize this, it has a function.
             NimbusButton(
                 text = element.properties?.get("text") as String,
-                onPress = element.properties!!["onPress"] as () -> Unit,
+                onPress = element.properties!!["onPress"] as (Any?) -> Unit,
             )
         },
     )

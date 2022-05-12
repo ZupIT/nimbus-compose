@@ -1,6 +1,7 @@
 package br.com.zup.nimbus.compose.sample
 
 import android.util.Log
+import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.log.Logger
 
 class AppLogger : Logger {
@@ -15,7 +16,7 @@ class AppLogger : Logger {
         isEnabled = false
     }
 
-    override fun log(message: String) {
+    override fun log(message: String, level: LogLevel) {
         if(isEnabled) {
             Log.d(LOG_TAG, message)
         }
@@ -34,7 +35,7 @@ class AppLogger : Logger {
     }
 
     override fun success(message: String) {
-        log(message)
+        log(message, LogLevel.Info)
     }
 
     override fun error(message: String) {
