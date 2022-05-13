@@ -18,12 +18,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
-import br.zup.com.nimbus.compose.core.navigator.NimbusServerDrivenNavigator
 import br.zup.com.nimbus.compose.core.ui.NimbusServerDrivenView
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import java.util.UUID
-
 
 const val SHOW_VIEW = "showView"
 const val VIEW_URL = "viewUrl"
@@ -31,7 +29,6 @@ const val VIEW_INITIAL_URL = "root"
 const val SHOW_VIEW_DESTINATION = "${SHOW_VIEW}?${VIEW_URL}={${VIEW_URL}}"
 
 object NimbusNavigator {
-
 
     @Composable
     fun Local(
@@ -81,10 +78,7 @@ object NimbusNavigator {
             key = viewModelKey,
             factory = NimbusViewModel.provideFactory(
                 navController = navController,
-                nimbusServerDrivenNavigator = NimbusServerDrivenNavigator(
-                    nimbusConfig = nimbusConfig,
-                    coroutineScope = nimbusAppState.coroutineScope
-                )
+                nimbusConfig = nimbusConfig
             )
         )
 

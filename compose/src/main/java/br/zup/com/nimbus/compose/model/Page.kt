@@ -21,3 +21,9 @@ internal data class Page(val id: String, val view: ServerDrivenView) {
         }
     }
 }
+
+internal fun Page.removePagesAfter(pages: MutableList<Page>) {
+    val index = pages.indexOf(this)
+    if (index < pages.lastIndex)
+        pages.subList(index + 1, pages.size).clear()
+}
