@@ -9,6 +9,7 @@ import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 
 internal class NimbusServerDrivenNavigator(
@@ -39,6 +40,7 @@ internal class NimbusServerDrivenNavigator(
 
     fun cleanUp() {
         navigatorListener = null
+        coroutineScope.coroutineContext.cancelChildren()
     }
 
     fun doPush(request: ViewRequest, initialRequest: Boolean = false) {
