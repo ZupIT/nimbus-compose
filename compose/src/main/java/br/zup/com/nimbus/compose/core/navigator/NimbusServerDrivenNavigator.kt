@@ -42,20 +42,26 @@ internal class NimbusServerDrivenNavigator(
     }
 
     fun doPush(request: ViewRequest, initialRequest: Boolean = false) {
-        val view = nimbusConfig.core.createView(this)
-        val url = if (initialRequest) VIEW_INITIAL_URL else request.url
-        val page = Page(
-            id = url, view = view)
-        navigatorListener?.onPush(request, page, view, initialRequest)
+
         coroutineScope.launch(Dispatchers.IO) {
-            try {
-                val tree = nimbusConfig.core.viewClient.fetch(request)
-                view.renderer.paint(tree)
-            } catch (e: Throwable) {
-                page.content = NimbusPageState.PageStateOnError(
-                    e
-                )
-            }
+
+                val view = nimbusConfig.core.createView(this@NimbusServerDrivenNavigator)
+                val url = if (initialRequest) VIEW_INITIAL_URL else request.url
+                val page = Page(
+                    id = url, view = view)
+                navigatorListener?.onPush(request, page, view, initialRequest)
+
+                val tree = kotlin.runCatching { nimbusConfig.core.viewClient.fetch(request) }
+                if(tree.isSuccess) {
+                    tree.getOrNull()?.let { view.renderer.paint(it) }
+                } else {
+                    page.content = tree.exceptionOrNull()?.let {
+                        NimbusPageState.PageStateOnError(
+                            it
+                        )
+                    }
+                }
+
         }
     }
 
@@ -65,7 +71,7 @@ internal class NimbusServerDrivenNavigator(
 
     interface NavigatorListener {
         fun onPush(request: ViewRequest, page: Page, view: ServerDrivenView, initialRequest: Boolean)
-        fun onPop(): Boolean
+        fun onPop()
         fun onPopTo(url: String)
 
         //TODO fill in other methods

@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun LoadingDefault(modifier: Modifier = Modifier) {
-    Text("Loading", modifier = modifier)
+    Text("Loading", modifier)
 }
 
 @Composable

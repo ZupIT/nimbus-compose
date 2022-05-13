@@ -2,12 +2,14 @@ package br.zup.com.nimbus.compose
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import br.zup.com.nimbus.compose.core.navigator.NimbusServerDrivenNavigator
 import br.zup.com.nimbus.compose.model.Page
 import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
+import kotlinx.coroutines.launch
 
 internal class NimbusViewModel(
     private val navController: NavHostController,
@@ -36,7 +38,7 @@ internal class NimbusViewModel(
         }
     }
 
-    fun initFirstView(initialUrl: String) {
+    fun initFirstView(initialUrl: String) = viewModelScope.launch {
         nimbusServerDrivenNavigator.doPush(ViewRequest(url = initialUrl), initialRequest = true)
     }
 
@@ -50,6 +52,12 @@ internal class NimbusViewModel(
         view: ServerDrivenView,
         initialRequest: Boolean
     ) {
+        viewModelScope.launch {
+            push(page, initialRequest)
+        }
+    }
+
+    fun push(page: Page, initialRequest: Boolean) {
         pages.add(page)
         if (!initialRequest) {
             navController.navigate(
@@ -60,16 +68,27 @@ internal class NimbusViewModel(
         }
     }
 
-    override fun onPop() : Boolean {
+    override fun onPop() {
+        viewModelScope.launch {
+            pop()
+        }
+    }
+
+    fun pop(): Boolean {
         val popped = navController.navigateUp()
         if (popped) {
             pages.removeLast()
         }
-
         return popped
     }
 
     override fun onPopTo(url: String) {
+        viewModelScope.launch {
+            popTo(url)
+        }
+    }
+
+    private fun popTo(url: String) {
         val page = pages.firstOrNull {
             it.id == url
         }
@@ -78,7 +97,6 @@ internal class NimbusViewModel(
             removePagesAfter(page)
             navController.nimbusPopTo(page.id)
         }
-
     }
 
     private fun removePagesAfter(page: Page) {

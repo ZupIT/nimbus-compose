@@ -1,7 +1,5 @@
 package br.zup.com.nimbus.compose
 
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -38,48 +36,18 @@ internal class NimbusComposeAppState(
 
 @Stable
 class NimbusConfig(
-    baseUrl: String,
-    components: Map<String, @Composable ComponentHandler>,
-    actions: Map<String, ActionHandler>? = null,
-    operations: Map<String, OperationHandler>? = null,
-    logger: Logger? = null,
-    urlBuilder: UrlBuilder? = null,
-    httpClient: HttpClient? = null,
-    viewClient: ViewClient? = null,
-    idManager: IdManager? = null,
-    loadingView: LoadingHandler = { LoadingDefault()},
-    errorView: ErrorHandler = { ErrorDefault(throwable = it)}
+    val baseUrl: String,
+    val components: Map<String, @Composable ComponentHandler>,
+    val actions: Map<String, ActionHandler>? = null,
+    val operations: Map<String, OperationHandler>? = null,
+    val logger: Logger? = null,
+    val urlBuilder: UrlBuilder? = null,
+    val httpClient: HttpClient? = null,
+    val viewClient: ViewClient? = null,
+    val idManager: IdManager? = null,
+    val loadingView: LoadingHandler = { LoadingDefault()},
+    val errorView: ErrorHandler = { ErrorDefault(throwable = it)}
 ) {
-
-    var baseUrl by mutableStateOf(baseUrl)
-        private set
-    var components by mutableStateOf(components)
-        private set
-    var actions by mutableStateOf(actions)
-        private set
-    var operations by mutableStateOf(operations)
-        private set
-
-    var logger by mutableStateOf(logger)
-        private set
-
-    var urlBuilder by mutableStateOf(urlBuilder)
-        private set
-
-    var httpClient by mutableStateOf(httpClient)
-        private set
-
-    var viewClient by mutableStateOf(viewClient)
-        private set
-
-    var idManager by mutableStateOf(idManager)
-        private set
-
-    var loadingView by mutableStateOf(loadingView)
-        private set
-
-    var errorView by mutableStateOf(errorView)
-        private set
 
     var core by mutableStateOf(
         createNimbus()
@@ -92,7 +60,7 @@ class NimbusConfig(
     }
 
     fun addComponents(components: Map<String, @Composable ComponentHandler>) {
-        this.components = this.components.plus(components)
+        this.components.plus(components)
     }
 
     fun addActions(actions: Map<String, ActionHandler>) {
@@ -121,14 +89,12 @@ private val LocalNimbus = staticCompositionLocalOf<NimbusComposeAppState> {
 @Composable
 fun Nimbus(
     nimbusConfig: NimbusConfig,
-    scaffoldState: ScaffoldState = rememberScaffoldState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit
 ) {
 
     val nimbusComposeState = remember(
         nimbusConfig,
-        scaffoldState,
         coroutineScope,
     ) {
         NimbusComposeAppState(

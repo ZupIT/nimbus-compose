@@ -34,10 +34,6 @@ class AppLogger : Logger {
         }
     }
 
-    override fun success(message: String) {
-        log(message, LogLevel.Info)
-    }
-
     override fun error(message: String) {
         if(isEnabled) {
             Log.e(LOG_TAG, message)
