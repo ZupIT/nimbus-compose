@@ -38,7 +38,6 @@ object NimbusNavigator {
         modifier: Modifier = Modifier
     ) {
         NimbusNavHost(
-            nimbusAppState = nimbusAppState,
             viewModelKey = viewModelKey,
             navController = navController,
             json = json,
@@ -54,7 +53,6 @@ object NimbusNavigator {
         modifier: Modifier = Modifier
     ) {
         NimbusNavHost(
-            nimbusAppState = nimbusAppState,
             viewModelKey = viewModelKey,
             navController = navController,
             initialUrl = initialUrl,
@@ -64,7 +62,6 @@ object NimbusNavigator {
 
     @Composable
     private fun NimbusNavHost(
-        nimbusAppState: NimbusComposeAppState,
         viewModelKey: String?,
         navController: NavHostController,
         initialUrl: String = "",
