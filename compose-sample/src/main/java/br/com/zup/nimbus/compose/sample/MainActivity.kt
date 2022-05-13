@@ -18,7 +18,6 @@ class MainActivity : ComponentActivity() {
     private val nimbusConfig = NimbusConfig(
         baseUrl = BASE_URL,
         components = components + customComponents,
-//        loadingView = { CircularProgressIndicator() },
         logger = AppLogger()
     )
 
