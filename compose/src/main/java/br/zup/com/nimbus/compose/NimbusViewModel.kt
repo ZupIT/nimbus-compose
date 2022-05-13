@@ -38,14 +38,6 @@ internal class NimbusViewModel(
         }
     }
 
-    fun initFirstView(initialUrl: String) = viewModelScope.launch {
-        nimbusServerDrivenNavigator.doPush(ViewRequest(url = initialUrl), initialRequest = true)
-    }
-
-    fun getPageBy(url: String): Page? {
-        return pages.firstOrNull { it.id == url }
-    }
-
     override fun onPush(
         request: ViewRequest,
         page: Page,
@@ -54,6 +46,18 @@ internal class NimbusViewModel(
     ) {
         viewModelScope.launch {
             push(page, initialRequest)
+        }
+    }
+
+    override fun onPop() {
+        viewModelScope.launch {
+            pop()
+        }
+    }
+
+    override fun onPopTo(url: String) {
+        viewModelScope.launch {
+            popTo(url)
         }
     }
 
@@ -68,12 +72,6 @@ internal class NimbusViewModel(
         }
     }
 
-    override fun onPop() {
-        viewModelScope.launch {
-            pop()
-        }
-    }
-
     fun pop(): Boolean {
         val popped = navController.navigateUp()
         if (popped) {
@@ -82,13 +80,7 @@ internal class NimbusViewModel(
         return popped
     }
 
-    override fun onPopTo(url: String) {
-        viewModelScope.launch {
-            popTo(url)
-        }
-    }
-
-    private fun popTo(url: String) {
+    fun popTo(url: String) {
         val page = pages.firstOrNull {
             it.id == url
         }
@@ -97,6 +89,14 @@ internal class NimbusViewModel(
             removePagesAfter(page)
             navController.nimbusPopTo(page.id)
         }
+    }
+
+    fun initFirstView(initialUrl: String) = viewModelScope.launch {
+        nimbusServerDrivenNavigator.doPush(ViewRequest(url = initialUrl), initialRequest = true)
+    }
+
+    fun getPageBy(url: String): Page? {
+        return pages.firstOrNull { it.id == url }
     }
 
     private fun removePagesAfter(page: Page) {
