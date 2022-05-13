@@ -95,6 +95,10 @@ internal class NimbusViewModel(
         nimbusServerDrivenNavigator.doPush(ViewRequest(url = initialUrl), initialRequest = true)
     }
 
+    fun initFirstViewWithJson(json: String) = viewModelScope.launch {
+        nimbusServerDrivenNavigator.doPushWithJson(json)
+    }
+
     fun getPageBy(url: String): Page? {
         return pages.firstOrNull { it.id == url }
     }

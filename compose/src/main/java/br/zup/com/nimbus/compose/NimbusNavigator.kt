@@ -30,51 +30,92 @@ const val VIEW_URL = "viewUrl"
 const val VIEW_INITIAL_URL = "root"
 const val SHOW_VIEW_DESTINATION = "${SHOW_VIEW}?${VIEW_URL}={${VIEW_URL}}"
 
-@Composable
-fun NimbusNavigator(
-    initialUrl: String,
-    navController: NavHostController = rememberNavController(),
-    viewModelKey: String? = UUID.randomUUID().toString(),
-    modifier: Modifier = Modifier
-) {
-    val nimbusConfig = nimbusAppState.nimbusConfig
+object NimbusNavigator {
 
-    val nimbusViewModel: NimbusViewModel = viewModel(
-        //Creates a new viewmodel for each unique key
-        key = viewModelKey,
-        factory = NimbusViewModel.provideFactory(
+
+    @Composable
+    fun Local(
+        json: String,
+        navController: NavHostController = rememberNavController(),
+        viewModelKey: String? = UUID.randomUUID().toString(),
+        modifier: Modifier = Modifier
+    ) {
+        NimbusNavHost(
+            nimbusAppState = nimbusAppState,
+            viewModelKey = viewModelKey,
             navController = navController,
-            nimbusServerDrivenNavigator = NimbusServerDrivenNavigator(
-                nimbusConfig = nimbusConfig,
-                coroutineScope = nimbusAppState.coroutineScope
+            json = json,
+            modifier = modifier
+        )
+    }
+
+    @Composable
+    fun Remote(
+        initialUrl: String,
+        navController: NavHostController = rememberNavController(),
+        viewModelKey: String? = UUID.randomUUID().toString(),
+        modifier: Modifier = Modifier
+    ) {
+        NimbusNavHost(
+            nimbusAppState = nimbusAppState,
+            viewModelKey = viewModelKey,
+            navController = navController,
+            initialUrl = initialUrl,
+            modifier = modifier
+        )
+    }
+
+    @Composable
+    private fun NimbusNavHost(
+        nimbusAppState: NimbusComposeAppState,
+        viewModelKey: String?,
+        navController: NavHostController,
+        initialUrl: String = "",
+        json: String = "",
+        modifier: Modifier
+    ) {
+        val nimbusConfig = nimbusAppState.nimbusConfig
+
+        val nimbusViewModel: NimbusViewModel = viewModel(
+            //Creates a new viewmodel for each unique key
+            key = viewModelKey,
+            factory = NimbusViewModel.provideFactory(
+                navController = navController,
+                nimbusServerDrivenNavigator = NimbusServerDrivenNavigator(
+                    nimbusConfig = nimbusConfig,
+                    coroutineScope = nimbusAppState.coroutineScope
+                )
             )
         )
-    )
 
-    nimbusViewModel.initFirstView(initialUrl = initialUrl)
+        if (initialUrl.isNotEmpty())
+            nimbusViewModel.initFirstView(initialUrl = initialUrl)
+        else
+            nimbusViewModel.initFirstViewWithJson(json = json)
 
-    NavHost(
-        navController = navController,
-        startDestination = SHOW_VIEW_DESTINATION,
-        modifier = modifier
-    ) {
-        composable(
-            route = SHOW_VIEW_DESTINATION,
-            arguments = listOf(navArgument(VIEW_URL) {
-                type = NavType.StringType
-                defaultValue = VIEW_INITIAL_URL
-            })
-        ) { backStackEntry ->
-            val arguments = requireNotNull(backStackEntry.arguments)
-            val currentPageUrl = arguments.getString(VIEW_URL)
-            val currentPage = currentPageUrl?.let {
-                nimbusViewModel.getPageBy(
-                    it
-                )
-            }
+        NavHost(
+            navController = navController,
+            startDestination = SHOW_VIEW_DESTINATION,
+            modifier = modifier
+        ) {
+            composable(
+                route = SHOW_VIEW_DESTINATION,
+                arguments = listOf(navArgument(VIEW_URL) {
+                    type = NavType.StringType
+                    defaultValue = VIEW_INITIAL_URL
+                })
+            ) { backStackEntry ->
+                val arguments = requireNotNull(backStackEntry.arguments)
+                val currentPageUrl = arguments.getString(VIEW_URL)
+                val currentPage = currentPageUrl?.let {
+                    nimbusViewModel.getPageBy(
+                        it
+                    )
+                }
 
-            currentPage?.let { page ->
-                NimbusView(page, nimbusViewModel)
+                currentPage?.let { page ->
+                    NimbusView(page, nimbusViewModel)
+                }
             }
         }
     }
@@ -92,7 +133,7 @@ internal fun NimbusView(
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            when(event) {
+            when (event) {
                 Lifecycle.Event.ON_START -> onStart()
                 Lifecycle.Event.ON_CREATE -> onCreate()
                 Lifecycle.Event.ON_DESTROY -> onDestroy()

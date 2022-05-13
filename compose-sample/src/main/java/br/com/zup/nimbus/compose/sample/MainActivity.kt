@@ -30,8 +30,8 @@ class MainActivity : ComponentActivity() {
                     Column {
                         Nimbus(nimbusConfig = nimbusConfig) {
                             Column {
-                                NimbusNavigator(initialUrl = "/screen1.json")
-                                NimbusNavigator(initialUrl = "/screen1.json")
+                                NimbusNavigator.Remote(initialUrl = "/screen1.json")
+                                NimbusNavigator.Local(json = SCREEN1_JSON)
                             }
                         }
                     }

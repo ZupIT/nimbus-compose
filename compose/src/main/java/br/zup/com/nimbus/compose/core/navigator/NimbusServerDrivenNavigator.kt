@@ -71,6 +71,28 @@ internal class NimbusServerDrivenNavigator(
         this.navigatorListener = navigatorListener
     }
 
+    fun doPushWithJson(json: String) {
+        coroutineScope.launch(Dispatchers.IO) {
+
+            val view = nimbusConfig.core.createView(this@NimbusServerDrivenNavigator)
+            val url = VIEW_INITIAL_URL
+            val page = Page(
+                id = url, view = view)
+            navigatorListener?.onPush(ViewRequest(url = url), page, view, true)
+
+            val tree = kotlin.runCatching { nimbusConfig.core.createNodeFromJson(json)}
+            if(tree.isSuccess) {
+                tree.getOrNull()?.let { view.renderer.paint(it) }
+            } else {
+                page.content = tree.exceptionOrNull()?.let {
+                    NimbusPageState.PageStateOnError(
+                        it
+                    )
+                }
+            }
+        }
+    }
+
     interface NavigatorListener {
         fun onPush(request: ViewRequest, page: Page, view: ServerDrivenView, initialRequest: Boolean)
         fun onPop()
