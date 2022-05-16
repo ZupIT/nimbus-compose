@@ -3,20 +3,21 @@ package br.com.zup.nimbus.compose.sample
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import br.com.zup.nimbus.compose.sample.components.customComponents
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
-import br.zup.com.nimbus.compose.NimbusProvider
-import br.zup.com.nimbus.compose.components.components
-import br.zup.com.nimbus.compose.serverdriven.Nimbus
+import br.zup.com.nimbus.compose.Nimbus
+import br.zup.com.nimbus.compose.NimbusConfig
+import br.zup.com.nimbus.compose.NimbusNavigator
+import br.zup.com.nimbus.compose.core.ui.components.components
+import com.zup.nimbus.core.network.ViewRequest
 
 class MainActivity : ComponentActivity() {
-    private val config = Nimbus(
+    private val config = NimbusConfig(
         baseUrl = BASE_URL,
         components = components + customComponents,
-        loadingView = { Text("Custom Loading from app") },
         logger = AppLogger()
     )
 
@@ -26,7 +27,15 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    NimbusProvider("/screen1.json", config)
+                    Column {
+                        Nimbus(config = config) {
+                            Column {
+                                NimbusNavigator(viewRequest = ViewRequest("/screen1.json"))
+                                NimbusNavigator(json = SCREEN1_JSON)
+                            }
+                        }
+                    }
+
                 }
             }
         }
