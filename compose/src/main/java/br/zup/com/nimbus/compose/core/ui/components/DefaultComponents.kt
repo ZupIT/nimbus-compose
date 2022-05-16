@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 @Composable
 fun LoadingDefault(modifier: Modifier = Modifier) {
     CircularProgressIndicator(modifier = modifier)
-//    Text("Loading", modifier)
 }
 
 @Composable
