@@ -30,7 +30,7 @@ const val PLATFORM_NAME = "android"
 
 @Stable
 internal class NimbusComposeAppState(
-    val nimbusConfig: NimbusConfig,
+    val config: NimbusConfig,
     val coroutineScope: CoroutineScope
 )
 
@@ -88,17 +88,17 @@ private val LocalNimbus = staticCompositionLocalOf<NimbusComposeAppState> {
 
 @Composable
 fun Nimbus(
-    nimbusConfig: NimbusConfig,
+    config: NimbusConfig,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit
 ) {
 
     val nimbusComposeState = remember(
-        nimbusConfig,
+        config,
         coroutineScope,
     ) {
         NimbusComposeAppState(
-            nimbusConfig = nimbusConfig,
+            config = config,
             coroutineScope = coroutineScope
         )
     }

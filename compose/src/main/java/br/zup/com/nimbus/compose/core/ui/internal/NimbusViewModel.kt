@@ -1,9 +1,13 @@
-package br.zup.com.nimbus.compose
+package br.zup.com.nimbus.compose.core.ui.internal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import br.zup.com.nimbus.compose.NimbusConfig
+import br.zup.com.nimbus.compose.SHOW_VIEW
+import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
+import br.zup.com.nimbus.compose.VIEW_URL
 import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
@@ -65,8 +69,8 @@ internal class NimbusViewModel(
         return popped
     }
 
-    fun initFirstView(initialUrl: String) {
-        doPushWithViewRequest(ViewRequest(url = initialUrl), initialRequest = true)
+    fun initFirstViewWithRequest(viewRequest: ViewRequest) {
+        doPushWithViewRequest(viewRequest, initialRequest = true)
     }
 
     fun initFirstViewWithJson(json: String) {
@@ -81,7 +85,7 @@ internal class NimbusViewModel(
         pages.add(page)
         if (!initialRequest) {
             navController.navigate(
-                "${SHOW_VIEW}?${VIEW_URL}=${
+                "$SHOW_VIEW?$VIEW_URL=${
                     page.id
                 }"
             )

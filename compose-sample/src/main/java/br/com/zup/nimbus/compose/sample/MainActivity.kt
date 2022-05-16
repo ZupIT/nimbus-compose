@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import br.com.zup.nimbus.compose.sample.components.customComponents
@@ -13,9 +12,10 @@ import br.zup.com.nimbus.compose.Nimbus
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.NimbusNavigator
 import br.zup.com.nimbus.compose.core.ui.components.components
+import com.zup.nimbus.core.network.ViewRequest
 
 class MainActivity : ComponentActivity() {
-    private val nimbusConfig = NimbusConfig(
+    private val config = NimbusConfig(
         baseUrl = BASE_URL,
         components = components + customComponents,
         logger = AppLogger()
@@ -28,10 +28,10 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     Column {
-                        Nimbus(nimbusConfig = nimbusConfig) {
+                        Nimbus(config = config) {
                             Column {
-                                NimbusNavigator.Remote(initialUrl = "/screen1.json")
-                                NimbusNavigator.Local(json = SCREEN1_JSON)
+                                NimbusNavigator(viewRequest = ViewRequest("/screen1.json"))
+                                NimbusNavigator(json = SCREEN1_JSON)
                             }
                         }
                     }
