@@ -2,8 +2,6 @@ package br.zup.com.nimbus.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHost

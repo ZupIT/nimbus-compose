@@ -41,9 +41,8 @@ private const val DIALOG_BUILD_TIME = 300L
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ModalTransitionDialog(
-    onBack: () -> Unit = {},
     onDismissRequest: () -> Unit,
-    onLaunch: () -> Unit = {},
+    onCanDismissRequest: () -> Boolean,
     dismissOnBackPress: Boolean = true,
     modifier: Modifier = Modifier.fillMaxSize(),
     content: @Composable (ModalTransitionDialogHelper) -> Unit
@@ -59,17 +58,18 @@ fun ModalTransitionDialog(
             animateContentBackTrigger.value = true
         }
         launch {
-            onCloseSharedFlow.asSharedFlow().collectLatest { startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest) }
+            onCloseSharedFlow.asSharedFlow().collectLatest {
+                startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
+            }
         }
     }
 
     Dialog(
-        onDismissRequest = { coroutineScope.launch { startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest) } },
+        onDismissRequest = { coroutineScope.launch { startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest, onCanDismissRequest) } },
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = dismissOnBackPress, dismissOnClickOutside = false)
     ) {
         Box(modifier = modifier) { // Required in order to occupy the whole screen before the animation is triggered
             AnimatedModalBottomSheetTransition(
-                onLaunch = onLaunch,
                 visible = animateContentBackTrigger.value) {
                 content(ModalTransitionDialogHelper(coroutineScope, onCloseSharedFlow))
             }
@@ -79,11 +79,14 @@ fun ModalTransitionDialog(
 
 private suspend fun startDismissWithExitAnimation(
     animateContentBackTrigger: MutableState<Boolean>,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onCanDismissRequest: () -> Boolean = { true }
 ) {
-    animateContentBackTrigger.value = false
-    delay(ANIMATION_TIME)
-    onDismissRequest()
+    if(onCanDismissRequest()) {
+        animateContentBackTrigger.value = false
+        delay(ANIMATION_TIME)
+        onDismissRequest()
+    }
 }
 
 /**
@@ -107,7 +110,6 @@ internal const val ANIMATION_TIME = 500L
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun AnimatedModalBottomSheetTransition(
-    onLaunch: () -> Unit = {},
     visible: Boolean,
     content: @Composable AnimatedVisibilityScope.() -> Unit
 ) {

@@ -45,7 +45,7 @@ internal class NimbusViewModel(
 
     private val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
         override fun dismiss() {
-            triggerDismissModal.invoke()
+            triggerDismissModal()
         }
 
         override fun popTo(url: String) {

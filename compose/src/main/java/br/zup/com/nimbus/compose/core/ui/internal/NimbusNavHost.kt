@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -20,8 +19,6 @@ import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_URL
 import com.zup.nimbus.core.network.ViewRequest
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import java.util.UUID
 
 @Composable
@@ -29,24 +26,26 @@ internal fun NimbusNavHost(
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
-    onDismiss: () -> Unit = {},
-    json: String = "",
-    modifier: Modifier = Modifier,
-) {
-    val nimbusConfig = NimbusTheme.nimbusAppState.config
-
-    val nimbusViewModel: NimbusViewModel = viewModel(
+    triggerDismissModal: () -> Unit = {},
+    nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
         factory = NimbusViewModel.provideFactory(
             navController = navController,
-            nimbusConfig = nimbusConfig
+            nimbusConfig = NimbusTheme.nimbusAppState.config
         )
-    )
-
+    ),
+    viewModelReference: MutableList<NimbusViewModel> = mutableListOf(),
+    json: String = "",
+    modifier: Modifier = Modifier,
+) {
+    viewModelReference.add(nimbusViewModel)
     NimbusDisposableEffect(
         onCreate = {
-            initView(nimbusViewModel, onDismiss, viewRequest, json)
+            initView(nimbusViewModel, triggerDismissModal, viewRequest, json)
+        },
+         onDispose = {
+            viewModelReference.clear()
         })
 
     NavHost(
@@ -76,37 +75,37 @@ internal fun NimbusNavHost(
                     nimbusViewModel = nimbusViewModel)
 
                 nimbusViewModel.showModalTransitionDialog?.let { viewRequest ->
+                val viewModelReference = mutableListOf<NimbusViewModel>()
                     ModalTransitionDialog(
-                        onBack = {
-                            print("back")
-                        },
-                        onDismissRequest = {
-                        nimbusViewModel.showModalTransitionDialog = null
-                    }) {
+                        onDismissRequest = { nimbusViewModel.showModalTransitionDialog = null },
+                        onCanDismissRequest = {
+                            //Can dismiss the modal if we cannot pop more pages from navigation host
+                            viewModelReference.first().pop().not()
+                        }
+                    ) {
                         NimbusNavHost(
+                            viewModelReference = viewModelReference,
                             viewRequest = viewRequest.copy(),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp)
                                 .background(Color.White)
                                 .padding(16.dp),
-                            onDismiss = it::triggerAnimatedClose)
+                            triggerDismissModal = it::triggerAnimatedClose)
                     }
                 }
             }
         }
     }
-
-
 }
 
 private fun initView(
     nimbusViewModel: NimbusViewModel,
-    onDismiss: () -> Unit,
+    triggerDismissModal: () -> Unit,
     viewRequest: ViewRequest?,
     json: String
 ) {
-    nimbusViewModel.triggerDismissModal = onDismiss
+    nimbusViewModel.triggerDismissModal = triggerDismissModal
     if (viewRequest != null)
         nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
     else
