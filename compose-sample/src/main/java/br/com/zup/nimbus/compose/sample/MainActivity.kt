@@ -30,8 +30,9 @@ class MainActivity : ComponentActivity() {
                     Column {
                         Nimbus(config = config) {
                             Column {
-                                NimbusNavigator(viewRequest = ViewRequest("/screen1.json"))
-                                NimbusNavigator(json = SCREEN1_JSON)
+//                                NimbusNavigator(viewRequest = ViewRequest("/screen1.json"))
+                                NimbusNavigator(viewRequest = ViewRequest("/present.json"))
+//                                NimbusNavigator(json = SCREEN1_JSON)
                             }
                         }
                     }

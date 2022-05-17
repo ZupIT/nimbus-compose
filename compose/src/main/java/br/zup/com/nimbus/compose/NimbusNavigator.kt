@@ -2,6 +2,8 @@ package br.zup.com.nimbus.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHost
@@ -18,7 +20,7 @@ fun NimbusNavigator(
     json: String,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     NimbusNavHost(
         viewModelKey = viewModelKey,
@@ -39,6 +41,6 @@ fun NimbusNavigator(
         viewModelKey = viewModelKey,
         navController = navController,
         viewRequest = viewRequest,
-        modifier = modifier
+        modifier = modifier,
     )
 }

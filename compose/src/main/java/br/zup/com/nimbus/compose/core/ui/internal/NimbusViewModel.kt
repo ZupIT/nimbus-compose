@@ -1,5 +1,8 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -23,7 +26,8 @@ internal class NimbusViewModel(
 ) : ViewModel() {
 
     private val pages = ArrayList<Page>()
-
+    var showModalTransitionDialog: ViewRequest? by mutableStateOf(null)
+    var triggerDismissModal: () -> Unit = {}
     companion object {
         fun provideFactory(
             navController: NavHostController,
@@ -41,7 +45,7 @@ internal class NimbusViewModel(
 
     private val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
         override fun dismiss() {
-            TODO("Not yet implemented")
+            triggerDismissModal.invoke()
         }
 
         override fun popTo(url: String) {
@@ -49,7 +53,7 @@ internal class NimbusViewModel(
         }
 
         override fun present(request: ViewRequest) {
-            TODO("Not yet implemented")
+            showModalTransitionDialog = request
         }
 
         override fun pop() {

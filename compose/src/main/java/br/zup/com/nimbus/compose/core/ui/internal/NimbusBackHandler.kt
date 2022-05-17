@@ -6,11 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-internal fun NimbusBackHandler(nimbusViewModel: NimbusViewModel) {
-    val activity = LocalContext.current as Activity
+internal fun NimbusBackHandler(onDismiss: ()-> Unit = {},
+                               nimbusViewModel: NimbusViewModel) {
+    val activity = LocalContext.current as? Activity
     BackHandler(enabled = true) {
         if (!nimbusViewModel.pop()) {
-            activity.finish()
+            activity?.finish()
+            onDismiss()
         }
     }
 }
