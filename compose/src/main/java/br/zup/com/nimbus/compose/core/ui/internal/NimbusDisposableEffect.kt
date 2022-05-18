@@ -13,12 +13,14 @@ internal fun NimbusDisposableEffect(
     onStart: () -> Unit = {},
     onCreate: () -> Unit = {},
     onDispose: () -> Unit = {},
+    onDestroy: () -> Unit = {},
 ) {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> onStart()
                 Lifecycle.Event.ON_CREATE -> onCreate()
+                Lifecycle.Event.ON_DESTROY -> onDestroy()
             }
 
         }

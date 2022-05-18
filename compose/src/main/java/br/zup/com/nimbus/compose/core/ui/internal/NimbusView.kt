@@ -11,14 +11,14 @@ internal fun NimbusView(
     page: Page,
     onStart: () -> Unit = {},
     onCreate: () -> Unit = {},
-    onDispose: () -> Unit = {},
+    onDestroy: () -> Unit = {},
 ) {
     NimbusDisposableEffect(
         onStart = onStart,
         onCreate = onCreate,
-        onDispose = {
+        onDestroy = {
             page.view.destroy()
-            onDispose()
+            onDestroy()
         })
 
     page.content.let { nimbusPageState ->
