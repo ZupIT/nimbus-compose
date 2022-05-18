@@ -170,7 +170,4 @@ internal class NimbusViewModel(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-    }
 }
