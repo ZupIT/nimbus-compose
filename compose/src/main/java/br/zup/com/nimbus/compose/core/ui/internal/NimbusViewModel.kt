@@ -20,14 +20,19 @@ import com.zup.nimbus.core.network.ViewRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+internal sealed class NimbusViewModelModalState {
+    object HiddenModalState : NimbusViewModelModalState()
+    object OnHideModalState : NimbusViewModelModalState()
+    class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
+}
+
 internal class NimbusViewModel(
     private val navController: NavHostController,
     private val nimbusConfig: NimbusConfig
 ) : ViewModel() {
 
     private val pages = ArrayList<Page>()
-    var showModalTransitionDialog: ViewRequest? by mutableStateOf(null)
-    var triggerDismissModal: () -> Unit = {}
+    var nimbusViewModelModalState: NimbusViewModelModalState by mutableStateOf(NimbusViewModelModalState.HiddenModalState)
     companion object {
         fun provideFactory(
             navController: NavHostController,
@@ -45,7 +50,7 @@ internal class NimbusViewModel(
 
     private val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
         override fun dismiss() {
-            triggerDismissModal()
+            nimbusViewModelModalState = NimbusViewModelModalState.OnHideModalState
         }
 
         override fun popTo(url: String) {
@@ -53,7 +58,7 @@ internal class NimbusViewModel(
         }
 
         override fun present(request: ViewRequest) {
-            showModalTransitionDialog = request
+            nimbusViewModelModalState = NimbusViewModelModalState.OnShowModalModalState(request)
         }
 
         override fun pop() {

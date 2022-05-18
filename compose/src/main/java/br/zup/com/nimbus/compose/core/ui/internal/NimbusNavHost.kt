@@ -26,7 +26,6 @@ internal fun NimbusNavHost(
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
-    triggerDismissModal: () -> Unit = {},
     nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
@@ -35,16 +34,14 @@ internal fun NimbusNavHost(
             nimbusConfig = NimbusTheme.nimbusAppState.config
         )
     ),
+    modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
     json: String = "",
     modifier: Modifier = Modifier,
 ) {
     NimbusDisposableEffect(
         onCreate = {
-            initNavHost(nimbusViewModel, triggerDismissModal, viewRequest, json, nimbusNavHostHelper)
-        },
-         onDispose = {
-             clearNimbusNavHost(nimbusNavHostHelper)
+            initNavHost(nimbusViewModel, viewRequest, json, nimbusNavHostHelper)
         })
 
     NavHost(
@@ -72,41 +69,45 @@ internal fun NimbusNavHost(
                 NimbusView(
                     page = page,
                     nimbusViewModel = nimbusViewModel)
-
-                nimbusViewModel.showModalTransitionDialog?.let { viewRequest ->
+                val modalTransitionDialogHelper = ModalTransitionDialogHelper()
                 val navHostHelper = NimbusNavHostHelper()
+                if (nimbusViewModel.nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
+                    val showModalState = (nimbusViewModel.nimbusViewModelModalState as? NimbusViewModelModalState.OnShowModalModalState)
                     ModalTransitionDialog(
-                        onDismissRequest = { nimbusViewModel.showModalTransitionDialog = null },
+                        modalTransitionDialogHelper = modalTransitionDialogHelper,
+                        onDismissRequest = {
+                            nimbusViewModel.nimbusViewModelModalState =
+                            NimbusViewModelModalState.HiddenModalState
+                        },
                         onCanDismissRequest = {
                             //Can dismiss the modal if we cannot pop more pages from navigation host
                             !navHostHelper.pop()
                         }
                     ) {
                         NimbusNavHost(
+                            modalParentHelper = modalTransitionDialogHelper,
                             nimbusNavHostHelper = navHostHelper,
-                            viewRequest = viewRequest.copy(),
+                            viewRequest = showModalState?.viewRequest,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp)
                                 .background(Color.White)
                                 .padding(16.dp),
-                            triggerDismissModal = it::triggerAnimatedClose)
+                        )
                     }
+                } else if (nimbusViewModel.nimbusViewModelModalState is NimbusViewModelModalState.OnHideModalState) {
+                    modalParentHelper.triggerAnimatedClose()
                 }
             }
         }
     }
 }
 
-private fun clearNimbusNavHost(nimbusNavHostHelper: NimbusNavHostHelper) {
-    nimbusNavHostHelper.clear()
-}
-
 internal class NimbusNavHostHelper {
 
     var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
 
-    interface NimbusNavHostExecutor{
+    interface NimbusNavHostExecutor {
         fun pop(): Boolean
     }
 
@@ -119,15 +120,14 @@ internal class NimbusNavHostHelper {
 
 private fun initNavHost(
     nimbusViewModel: NimbusViewModel,
-    triggerDismissModal: () -> Unit,
     viewRequest: ViewRequest?,
     json: String,
-    navHostHelper: NimbusNavHostHelper
+    navHostHelper: NimbusNavHostHelper,
 ) {
-    nimbusViewModel.triggerDismissModal = triggerDismissModal
     navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
         override fun pop(): Boolean = nimbusViewModel.pop()
     }
+
     if (viewRequest != null)
         nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
     else

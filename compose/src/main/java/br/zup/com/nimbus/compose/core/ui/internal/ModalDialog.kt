@@ -45,6 +45,7 @@ internal fun ModalTransitionDialog(
     onCanDismissRequest: () -> Boolean,
     dismissOnBackPress: Boolean = true,
     modifier: Modifier = Modifier.fillMaxSize(),
+    modalTransitionDialogHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     content: @Composable (ModalTransitionDialogHelper) -> Unit
 ) {
 
@@ -71,7 +72,9 @@ internal fun ModalTransitionDialog(
         Box(modifier = modifier) { // Required in order to occupy the whole screen before the animation is triggered
             AnimatedModalBottomSheetTransition(
                 visible = animateContentBackTrigger.value) {
-                content(ModalTransitionDialogHelper(coroutineScope, onCloseSharedFlow))
+                modalTransitionDialogHelper.coroutineScope = coroutineScope
+                modalTransitionDialogHelper.onCloseFlow = onCloseSharedFlow
+                content(modalTransitionDialogHelper)
             }
         }
     }
@@ -94,13 +97,12 @@ private suspend fun startDismissWithExitAnimation(
  * composables that implement the [ModalTransitionDialog] to hide
  * the [Dialog] with a modal transition animation
  */
-class ModalTransitionDialogHelper(
-    private val coroutineScope: CoroutineScope,
-    private val onCloseFlow: MutableSharedFlow<Unit>
-) {
+class ModalTransitionDialogHelper{
+    var coroutineScope: CoroutineScope ? = null
+    var onCloseFlow: MutableSharedFlow<Unit>? = null
     fun triggerAnimatedClose() {
-        coroutineScope.launch {
-            onCloseFlow.emit(Unit)
+        coroutineScope?.launch {
+            onCloseFlow?.emit(Unit)
         }
     }
 }
