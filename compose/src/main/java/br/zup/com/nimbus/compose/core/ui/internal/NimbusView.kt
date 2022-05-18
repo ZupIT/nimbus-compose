@@ -21,7 +21,7 @@ internal fun NimbusView(
             onDispose()
         })
 
-    page.content?.let { nimbusPageState ->
+    page.content.let { nimbusPageState ->
         when (nimbusPageState) {
             is NimbusPageState.PageStateOnLoading -> {
                 NimbusTheme.nimbusAppState.config.loadingView()

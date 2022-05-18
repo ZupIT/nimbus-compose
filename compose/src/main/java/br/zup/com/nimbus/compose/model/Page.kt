@@ -13,9 +13,8 @@ internal sealed class NimbusPageState {
 }
 
 internal data class Page(val id: String, val view: ServerDrivenView) {
-    var content: NimbusPageState? by mutableStateOf(null)
+    var content: NimbusPageState by mutableStateOf(NimbusPageState.PageStateOnLoading)
     init {
-        content = NimbusPageState.PageStateOnLoading
         view.onChange {
             content = NimbusPageState.PageStateOnShowPage(it)
         }
