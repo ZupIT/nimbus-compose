@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
@@ -32,11 +33,12 @@ internal fun NimbusNavHost(
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
+    nimbusConfig: NimbusConfig = nimbusAppState.config,
     nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
         factory = NimbusViewModel.provideFactory(
-            nimbusConfig = nimbusAppState.config
+            nimbusConfig = nimbusConfig
         )
     ),
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
