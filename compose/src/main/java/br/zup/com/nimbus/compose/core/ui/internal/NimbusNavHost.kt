@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -14,11 +15,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import br.zup.com.nimbus.compose.NimbusTheme
+import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
+import br.zup.com.nimbus.compose.SHOW_VIEW
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_URL
+import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
 import com.zup.nimbus.core.network.ViewRequest
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 @Composable
@@ -30,8 +35,7 @@ internal fun NimbusNavHost(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
         factory = NimbusViewModel.provideFactory(
-            navController = navController,
-            nimbusConfig = NimbusTheme.nimbusAppState.config
+            nimbusConfig = nimbusAppState.config
         )
     ),
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
@@ -39,9 +43,34 @@ internal fun NimbusNavHost(
     json: String = "",
     modifier: Modifier = Modifier,
 ) {
+
+    LaunchedEffect(key1 = true) {
+        this.launch {
+            nimbusViewModel.nimbusViewNavigationState.collect { navigationState ->
+                when (navigationState) {
+                    is NimbusViewModelNavigationState.Pop -> {
+                        navController.navigateUp()
+                    }
+                    is NimbusViewModelNavigationState.PopTo -> {
+                        navController.nimbusPopTo(navigationState.url)
+                    }
+                    is NimbusViewModelNavigationState.Push -> {
+                        navController.navigate(
+                            "$SHOW_VIEW?$VIEW_URL=${
+                                navigationState.url
+                            }"
+                        )
+                    }
+                    else -> {
+                    }
+                }
+            }
+        }
+    }
+
     NimbusDisposableEffect(
         onCreate = {
-            initNavHost(nimbusViewModel, viewRequest, json, nimbusNavHostHelper)
+            initNavHost(nimbusViewModel, viewRequest, json, nimbusNavHostHelper, navController)
         })
 
     NavHost(
@@ -72,12 +101,12 @@ internal fun NimbusNavHost(
                 val modalTransitionDialogHelper = ModalTransitionDialogHelper()
                 val navHostHelper = NimbusNavHostHelper()
                 if (nimbusViewModel.nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
-                    val showModalState = (nimbusViewModel.nimbusViewModelModalState as? NimbusViewModelModalState.OnShowModalModalState)
+                    val showModalState =
+                        (nimbusViewModel.nimbusViewModelModalState as? NimbusViewModelModalState.OnShowModalModalState)
                     ModalTransitionDialog(
                         modalTransitionDialogHelper = modalTransitionDialogHelper,
                         onDismissRequest = {
-                            nimbusViewModel.nimbusViewModelModalState =
-                            NimbusViewModelModalState.HiddenModalState
+                            nimbusViewModel.setModalHiddenState()
                         },
                         onCanDismissRequest = {
                             //Can dismiss the modal if we cannot pop more pages from navigation host
@@ -123,6 +152,7 @@ private fun initNavHost(
     viewRequest: ViewRequest?,
     json: String,
     navHostHelper: NimbusNavHostHelper,
+    navController: NavHostController,
 ) {
     navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
         override fun pop(): Boolean = nimbusViewModel.pop()
@@ -132,4 +162,5 @@ private fun initNavHost(
         nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
     else
         nimbusViewModel.initFirstViewWithJson(json = json)
+
 }

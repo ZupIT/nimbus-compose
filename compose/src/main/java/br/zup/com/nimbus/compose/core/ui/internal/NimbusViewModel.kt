@@ -6,18 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import br.zup.com.nimbus.compose.NimbusConfig
-import br.zup.com.nimbus.compose.SHOW_VIEW
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
-import br.zup.com.nimbus.compose.VIEW_URL
-import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import br.zup.com.nimbus.compose.model.removePagesAfter
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 internal sealed class NimbusViewModelModalState {
@@ -26,23 +24,35 @@ internal sealed class NimbusViewModelModalState {
     class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
 }
 
+
+internal sealed class NimbusViewModelNavigationState {
+    object RootState : NimbusViewModelNavigationState()
+    class Push(val url: String) : NimbusViewModelNavigationState()
+    class Pop : NimbusViewModelNavigationState()
+    class PopTo(val url: String) : NimbusViewModelNavigationState()
+}
+
 internal class NimbusViewModel(
-    private val navController: NavHostController,
     private val nimbusConfig: NimbusConfig
 ) : ViewModel() {
 
     private val pages = ArrayList<Page>()
     var nimbusViewModelModalState: NimbusViewModelModalState by mutableStateOf(NimbusViewModelModalState.HiddenModalState)
+        private set
+
+    private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> = MutableStateFlow(NimbusViewModelNavigationState.RootState)
+
+    val nimbusViewNavigationState : StateFlow<NimbusViewModelNavigationState>
+        get() = _nimbusViewNavigationState
+
     companion object {
         fun provideFactory(
-            navController: NavHostController,
             nimbusConfig: NimbusConfig
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return NimbusViewModel(
-                    nimbusConfig = nimbusConfig,
-                    navController = navController
+                    nimbusConfig = nimbusConfig
                 ) as T
             }
         }
@@ -70,12 +80,19 @@ internal class NimbusViewModel(
         }
     }
 
+    fun setModalHiddenState() {
+        nimbusViewModelModalState = NimbusViewModelModalState.HiddenModalState
+    }
+
     fun pop(): Boolean {
-        val popped = navController.navigateUp()
-        if (popped) {
-            pages.removeLast()
+        if(pages.size <= 1) {
+            return false
         }
-        return popped
+
+        pages.removeLast()
+        _nimbusViewNavigationState.value = NimbusViewModelNavigationState.Pop()
+
+        return true
     }
 
     fun initFirstViewWithRequest(viewRequest: ViewRequest) {
@@ -93,11 +110,7 @@ internal class NimbusViewModel(
     private fun pushNavigation(page: Page, initialRequest: Boolean) = viewModelScope.launch {
         pages.add(page)
         if (!initialRequest) {
-            navController.navigate(
-                "$SHOW_VIEW?$VIEW_URL=${
-                    page.id
-                }"
-            )
+            _nimbusViewNavigationState.value = NimbusViewModelNavigationState.Push(page.id)
         }
     }
 
@@ -112,7 +125,7 @@ internal class NimbusViewModel(
 
         page?.let {
             page.removePagesAfter(pages)
-            navController.nimbusPopTo(page.id)
+            _nimbusViewNavigationState.value = NimbusViewModelNavigationState.PopTo(url)
         }
     }
 
