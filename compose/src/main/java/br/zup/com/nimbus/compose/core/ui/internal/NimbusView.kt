@@ -17,9 +17,8 @@ internal fun NimbusView(
         onStart = onStart,
         onCreate = onCreate,
         onDispose = {
-            onDispose().also {
-                page.view.destroy()
-            }
+            page.view.destroy()
+            onDispose()
         })
 
     page.content?.let { nimbusPageState ->
