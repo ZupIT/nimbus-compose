@@ -25,6 +25,7 @@ internal sealed class NimbusViewModelModalState {
 }
 
 
+@Suppress("CanSealedSubClassBeObject")
 internal sealed class NimbusViewModelNavigationState {
     object RootState : NimbusViewModelNavigationState()
     class Push(val url: String) : NimbusViewModelNavigationState()
