@@ -24,7 +24,6 @@ internal sealed class NimbusViewModelModalState {
     class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
 }
 
-
 @Suppress("CanSealedSubClassBeObject")
 internal sealed class NimbusViewModelNavigationState {
     object RootState : NimbusViewModelNavigationState()
