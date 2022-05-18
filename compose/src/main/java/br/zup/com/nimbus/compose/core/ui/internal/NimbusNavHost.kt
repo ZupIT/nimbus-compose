@@ -1,13 +1,7 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -16,15 +10,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
-import br.zup.com.nimbus.compose.SHOW_VIEW
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_URL
-import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
 import com.zup.nimbus.core.network.ViewRequest
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import java.util.UUID
+
+internal class NimbusNavHostHelper {
+
+    var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
+
+    interface NimbusNavHostExecutor {
+        fun pop(): Boolean
+    }
+
+    fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
+}
 
 @Composable
 internal fun NimbusNavHost(
@@ -44,33 +45,11 @@ internal fun NimbusNavHost(
     modifier: Modifier = Modifier,
 ) {
 
-    LaunchedEffect(key1 = true) {
-        this.launch {
-            nimbusViewModel.nimbusViewNavigationState.collect { navigationState ->
-                when (navigationState) {
-                    is NimbusViewModelNavigationState.Pop -> {
-                        navController.navigateUp()
-                    }
-                    is NimbusViewModelNavigationState.PopTo -> {
-                        navController.nimbusPopTo(navigationState.url)
-                    }
-                    is NimbusViewModelNavigationState.Push -> {
-                        navController.navigate(
-                            "$SHOW_VIEW?$VIEW_URL=${
-                                navigationState.url
-                            }"
-                        )
-                    }
-                    else -> {
-                    }
-                }
-            }
-        }
-    }
+    NimbusNavigationEffect(nimbusViewModel, navController)
 
     NimbusDisposableEffect(
         onCreate = {
-            initNavHost(nimbusViewModel, viewRequest, json, nimbusNavHostHelper, navController)
+            initNavHost(nimbusViewModel, viewRequest, json, nimbusNavHostHelper)
         })
 
     NavHost(
@@ -92,58 +71,15 @@ internal fun NimbusNavHost(
                     it
                 )
             }
-
             currentPage?.let { page ->
                 NimbusBackHandler(nimbusViewModel = nimbusViewModel)
-                NimbusView(
-                    page = page,
-                    nimbusViewModel = nimbusViewModel)
-                val modalTransitionDialogHelper = ModalTransitionDialogHelper()
-                val navHostHelper = NimbusNavHostHelper()
-                if (nimbusViewModel.nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
-                    val showModalState =
-                        (nimbusViewModel.nimbusViewModelModalState as? NimbusViewModelModalState.OnShowModalModalState)
-                    ModalTransitionDialog(
-                        modalTransitionDialogHelper = modalTransitionDialogHelper,
-                        onDismissRequest = {
-                            nimbusViewModel.setModalHiddenState()
-                        },
-                        onCanDismissRequest = {
-                            //Can dismiss the modal if we cannot pop more pages from navigation host
-                            !navHostHelper.pop()
-                        }
-                    ) {
-                        NimbusNavHost(
-                            modalParentHelper = modalTransitionDialogHelper,
-                            nimbusNavHostHelper = navHostHelper,
-                            viewRequest = showModalState?.viewRequest,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                                .background(Color.White)
-                                .padding(16.dp),
-                        )
-                    }
-                } else if (nimbusViewModel.nimbusViewModelModalState is NimbusViewModelModalState.OnHideModalState) {
-                    modalParentHelper.triggerAnimatedClose()
-                }
+                NimbusView(page = page)
+                NimbusModalView(
+                    nimbusViewModel = nimbusViewModel,
+                    modalParentHelper = modalParentHelper
+                )
             }
         }
-    }
-}
-
-internal class NimbusNavHostHelper {
-
-    var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
-
-    interface NimbusNavHostExecutor {
-        fun pop(): Boolean
-    }
-
-    fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
-
-    fun clear() {
-        nimbusNavHostExecutor = null
     }
 }
 
@@ -151,9 +87,7 @@ private fun initNavHost(
     nimbusViewModel: NimbusViewModel,
     viewRequest: ViewRequest?,
     json: String,
-    navHostHelper: NimbusNavHostHelper,
-    navController: NavHostController,
-) {
+    navHostHelper: NimbusNavHostHelper) {
     navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
         override fun pop(): Boolean = nimbusViewModel.pop()
     }

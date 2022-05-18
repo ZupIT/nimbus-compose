@@ -9,17 +9,17 @@ import br.zup.com.nimbus.compose.model.Page
 @Composable
 internal fun NimbusView(
     page: Page,
-    nimbusViewModel: NimbusViewModel,
     onStart: () -> Unit = {},
     onCreate: () -> Unit = {},
-    onDestroy: () -> Unit = {},
+    onDispose: () -> Unit = {},
 ) {
     NimbusDisposableEffect(
         onStart = onStart,
         onCreate = onCreate,
-        onDestroy = onDestroy,
         onDispose = {
-            page.view.destroy()
+            onDispose().also {
+                page.view.destroy()
+            }
         })
 
     page.content?.let { nimbusPageState ->

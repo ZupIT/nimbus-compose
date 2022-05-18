@@ -97,7 +97,7 @@ private suspend fun startDismissWithExitAnimation(
  * composables that implement the [ModalTransitionDialog] to hide
  * the [Dialog] with a modal transition animation
  */
-class ModalTransitionDialogHelper{
+internal class ModalTransitionDialogHelper{
     var coroutineScope: CoroutineScope ? = null
     var onCloseFlow: MutableSharedFlow<Unit>? = null
     fun triggerAnimatedClose() {

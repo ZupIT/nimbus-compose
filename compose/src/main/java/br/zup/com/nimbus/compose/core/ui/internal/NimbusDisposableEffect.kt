@@ -12,7 +12,6 @@ internal fun NimbusDisposableEffect(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     onStart: () -> Unit = {},
     onCreate: () -> Unit = {},
-    onDestroy: () -> Unit = {},
     onDispose: () -> Unit = {},
 ) {
     DisposableEffect(lifecycleOwner) {
@@ -20,7 +19,6 @@ internal fun NimbusDisposableEffect(
             when (event) {
                 Lifecycle.Event.ON_START -> onStart()
                 Lifecycle.Event.ON_CREATE -> onCreate()
-                Lifecycle.Event.ON_DESTROY -> onDestroy()
             }
 
         }
