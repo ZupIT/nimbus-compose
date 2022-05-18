@@ -40,7 +40,7 @@ private const val DIALOG_BUILD_TIME = 300L
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ModalTransitionDialog(
+internal fun ModalTransitionDialog(
     onDismissRequest: () -> Unit,
     onCanDismissRequest: () -> Boolean,
     dismissOnBackPress: Boolean = true,

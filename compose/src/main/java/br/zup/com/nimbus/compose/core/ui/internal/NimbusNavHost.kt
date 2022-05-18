@@ -35,17 +35,16 @@ internal fun NimbusNavHost(
             nimbusConfig = NimbusTheme.nimbusAppState.config
         )
     ),
-    viewModelReference: MutableList<NimbusViewModel> = mutableListOf(),
+    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
     json: String = "",
     modifier: Modifier = Modifier,
 ) {
-    viewModelReference.add(nimbusViewModel)
     NimbusDisposableEffect(
         onCreate = {
-            initView(nimbusViewModel, triggerDismissModal, viewRequest, json)
+            initNavHost(nimbusViewModel, triggerDismissModal, viewRequest, json, nimbusNavHostHelper)
         },
          onDispose = {
-            viewModelReference.clear()
+             clearNimbusNavHost(nimbusNavHostHelper)
         })
 
     NavHost(
@@ -75,16 +74,16 @@ internal fun NimbusNavHost(
                     nimbusViewModel = nimbusViewModel)
 
                 nimbusViewModel.showModalTransitionDialog?.let { viewRequest ->
-                val viewModelReference = mutableListOf<NimbusViewModel>()
+                val navHostHelper = NimbusNavHostHelper()
                     ModalTransitionDialog(
                         onDismissRequest = { nimbusViewModel.showModalTransitionDialog = null },
                         onCanDismissRequest = {
                             //Can dismiss the modal if we cannot pop more pages from navigation host
-                            viewModelReference.first().pop().not()
+                            !navHostHelper.pop()
                         }
                     ) {
                         NimbusNavHost(
-                            viewModelReference = viewModelReference,
+                            nimbusNavHostHelper = navHostHelper,
                             viewRequest = viewRequest.copy(),
                             modifier = Modifier
                                 .fillMaxSize()
@@ -99,13 +98,36 @@ internal fun NimbusNavHost(
     }
 }
 
-private fun initView(
+private fun clearNimbusNavHost(nimbusNavHostHelper: NimbusNavHostHelper) {
+    nimbusNavHostHelper.clear()
+}
+
+internal class NimbusNavHostHelper {
+
+    var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
+
+    interface NimbusNavHostExecutor{
+        fun pop(): Boolean
+    }
+
+    fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
+
+    fun clear() {
+        nimbusNavHostExecutor = null
+    }
+}
+
+private fun initNavHost(
     nimbusViewModel: NimbusViewModel,
     triggerDismissModal: () -> Unit,
     viewRequest: ViewRequest?,
-    json: String
+    json: String,
+    navHostHelper: NimbusNavHostHelper
 ) {
     nimbusViewModel.triggerDismissModal = triggerDismissModal
+    navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
+        override fun pop(): Boolean = nimbusViewModel.pop()
+    }
     if (viewRequest != null)
         nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
     else
