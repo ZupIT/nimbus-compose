@@ -3,11 +3,7 @@ package br.zup.com.nimbus.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import br.zup.com.nimbus.compose.core.ui.components.ErrorDefault
 import br.zup.com.nimbus.compose.core.ui.components.LoadingDefault
@@ -21,7 +17,6 @@ import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.ServerDrivenNode
-import kotlinx.coroutines.CoroutineScope
 
 typealias ComponentHandler = (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit
 typealias LoadingHandler = @Composable() () -> Unit
@@ -30,9 +25,7 @@ const val PLATFORM_NAME = "android"
 
 @Stable
 internal class NimbusComposeAppState(
-    val config: NimbusConfig,
-    val coroutineScope: CoroutineScope
-)
+    val config: NimbusConfig)
 
 @Stable
 class NimbusConfig(
@@ -49,9 +42,7 @@ class NimbusConfig(
     val errorView: ErrorHandler = { ErrorDefault(throwable = it)}
 ) {
 
-    var core by mutableStateOf(
-        createNimbus()
-    )
+    val core = createNimbus()
 
     private fun createNimbus() = Nimbus(config = createServerDrivenConfig())
 
@@ -89,17 +80,14 @@ private val LocalNimbus = staticCompositionLocalOf<NimbusComposeAppState> {
 @Composable
 fun Nimbus(
     config: NimbusConfig,
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit
 ) {
 
     val nimbusComposeState = remember(
-        config,
-        coroutineScope,
+        config
     ) {
         NimbusComposeAppState(
-            config = config,
-            coroutineScope = coroutineScope
+            config = config
         )
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)

@@ -18,7 +18,7 @@ fun NimbusNavigator(
     json: String,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     NimbusNavHost(
         viewModelKey = viewModelKey,
@@ -39,6 +39,6 @@ fun NimbusNavigator(
         viewModelKey = viewModelKey,
         navController = navController,
         viewRequest = viewRequest,
-        modifier = modifier
+        modifier = modifier,
     )
 }

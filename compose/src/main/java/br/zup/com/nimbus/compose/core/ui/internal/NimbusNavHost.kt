@@ -7,36 +7,52 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import br.zup.com.nimbus.compose.NimbusTheme
+import br.zup.com.nimbus.compose.NimbusConfig
+import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_URL
 import com.zup.nimbus.core.network.ViewRequest
+import java.util.UUID
+
+internal class NimbusNavHostHelper {
+
+    var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
+
+    interface NimbusNavHostExecutor {
+        fun pop(): Boolean
+    }
+
+    fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
+}
 
 @Composable
 internal fun NimbusNavHost(
-    viewModelKey: String,
-    navController: NavHostController,
+    navController: NavHostController = rememberNavController(),
+    viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
-    json: String = "",
-    modifier: Modifier
-) {
-    val nimbusConfig = NimbusTheme.nimbusAppState.config
-
-    val nimbusViewModel: NimbusViewModel = viewModel(
+    nimbusConfig: NimbusConfig = nimbusAppState.config,
+    nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
         factory = NimbusViewModel.provideFactory(
-            navController = navController,
             nimbusConfig = nimbusConfig
         )
-    )
+    ),
+    modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
+    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
+    json: String = "",
+    modifier: Modifier = Modifier,
+) {
 
-    if (viewRequest != null)
-        nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
-    else
-        nimbusViewModel.initFirstViewWithJson(json = json)
+    NimbusNavigationEffect(nimbusViewModel, navController)
+
+    NimbusDisposableEffect(
+        onCreate = {
+            initNavHost(nimbusViewModel, viewRequest, json, nimbusNavHostHelper)
+        })
 
     NavHost(
         navController = navController,
@@ -57,10 +73,30 @@ internal fun NimbusNavHost(
                     it
                 )
             }
-
             currentPage?.let { page ->
-                NimbusView(page, nimbusViewModel)
+                NimbusBackHandler(nimbusViewModel = nimbusViewModel)
+                NimbusView(page = page)
+                NimbusModalView(
+                    nimbusViewModel = nimbusViewModel,
+                    modalParentHelper = modalParentHelper
+                )
             }
         }
     }
+}
+
+private fun initNavHost(
+    nimbusViewModel: NimbusViewModel,
+    viewRequest: ViewRequest?,
+    json: String,
+    navHostHelper: NimbusNavHostHelper) {
+    navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
+        override fun pop(): Boolean = nimbusViewModel.pop()
+    }
+
+    if (viewRequest != null)
+        nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
+    else
+        nimbusViewModel.initFirstViewWithJson(json = json)
+
 }
