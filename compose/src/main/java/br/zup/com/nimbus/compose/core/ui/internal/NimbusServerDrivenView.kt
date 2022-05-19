@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui
+package br.zup.com.nimbus.compose.core.ui.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key

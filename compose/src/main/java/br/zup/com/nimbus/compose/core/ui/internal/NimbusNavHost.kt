@@ -17,15 +17,20 @@ import br.zup.com.nimbus.compose.VIEW_URL
 import com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 
+/**
+ * This helper can be used to control some behaviour from outside the NimbusNavHost composable
+ */
 internal class NimbusNavHostHelper {
 
     var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
 
     interface NimbusNavHostExecutor {
         fun pop(): Boolean
+        fun dispose()
     }
 
     fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
+    fun dispose() = nimbusNavHostExecutor?.dispose()
 }
 
 @Composable
@@ -92,6 +97,7 @@ private fun initNavHost(
     navHostHelper: NimbusNavHostHelper) {
     navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
         override fun pop(): Boolean = nimbusViewModel.pop()
+        override fun dispose() = nimbusViewModel.dispose()
     }
 
     if (viewRequest != null)

@@ -28,6 +28,10 @@ internal fun NimbusModalView(
                 !navHostHelper.pop()
             }
         ) {
+            NimbusDisposableEffect(
+                onDispose = {
+                    navHostHelper.dispose()
+                })
             NimbusNavHost(
                 modalParentHelper = modalTransitionDialogHelper,
                 nimbusNavHostHelper = navHostHelper,
