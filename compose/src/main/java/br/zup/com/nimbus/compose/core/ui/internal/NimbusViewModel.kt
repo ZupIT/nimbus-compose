@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
+import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import br.zup.com.nimbus.compose.model.removeAllPages
@@ -159,7 +160,10 @@ internal class NimbusViewModel(
 
     private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
         viewModelScope.launch(Dispatchers.IO) {
-            val view = nimbusConfig.core.createView(serverDrivenNavigator)
+            val view = nimbusConfig.core.createView(
+                getNavigator = { serverDrivenNavigator },
+                description = request.url
+            )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
             val page = Page(
                 id = url, view = view
@@ -179,7 +183,10 @@ internal class NimbusViewModel(
         }
 
     private fun doPushWithJson(json: String) = viewModelScope.launch(Dispatchers.IO) {
-        val view = nimbusConfig.core.createView(serverDrivenNavigator)
+        val view = nimbusConfig.core.createView(
+            getNavigator = { serverDrivenNavigator },
+            description = VIEW_JSON_DESCRIPTION
+        )
         val url = VIEW_INITIAL_URL
         val page = Page(
             id = url, view = view
