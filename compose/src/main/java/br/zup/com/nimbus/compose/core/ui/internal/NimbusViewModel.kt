@@ -10,9 +10,6 @@ import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.Page
-import br.zup.com.nimbus.compose.model.removeAllPages
-import br.zup.com.nimbus.compose.model.removeLastPage
-import br.zup.com.nimbus.compose.model.removePagesAfter
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
@@ -37,9 +34,8 @@ internal sealed class NimbusViewModelNavigationState {
 
 internal class NimbusViewModel(
     private val nimbusConfig: NimbusConfig,
+    private val pagesManager: PagesManager = PagesManager()
 ) : ViewModel() {
-
-    private val pages = ArrayList<Page>()
     var nimbusViewModelModalState: NimbusViewModelModalState by
     mutableStateOf(NimbusViewModelModalState.HiddenModalState)
         private set
@@ -90,15 +86,12 @@ internal class NimbusViewModel(
     }
 
     fun pop(): Boolean {
-        if (pages.size <= 1) {
-            return false
+        return if(pagesManager.popLastPage()) {
+            setNavigationState(NimbusViewModelNavigationState.Pop())
+            true
+        } else{
+            false
         }
-
-        removeLastPage()
-
-        setNavigationState(NimbusViewModelNavigationState.Pop())
-
-        return true
     }
 
     fun initFirstViewWithRequest(viewRequest: ViewRequest) {
@@ -110,17 +103,17 @@ internal class NimbusViewModel(
     }
 
     fun getPageBy(url: String): Page? {
-        return pages.firstOrNull { it.id == url }
+        return pagesManager.getPageBy(url)
     }
 
     fun dispose() = viewModelScope.launch(Dispatchers.IO) {
-        removeAllPages()
+        pagesManager.removeAllPages()
     }
 
     override fun onCleared() {
         super.onCleared()
         //Cannot call coroutines at this moment, should run everything on main thread
-        removeAllPages()
+        pagesManager.removeAllPages()
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) = viewModelScope.launch(Dispatchers.IO) {
@@ -129,7 +122,7 @@ internal class NimbusViewModel(
 
     private fun pushNavigation(page: Page, initialRequest: Boolean) =
         viewModelScope.launch(Dispatchers.Default) {
-            pages.add(page)
+            pagesManager.add(page)
             if (!initialRequest) {
                 setNavigationState(NimbusViewModelNavigationState.Push(page.id))
             }
@@ -139,21 +132,11 @@ internal class NimbusViewModel(
         pop()
     }
 
-    private fun removeAllPages() {
-        pages.removeAllPages()
-    }
-
-    private fun removeLastPage() = viewModelScope.launch(Dispatchers.IO) {
-        pages.removeLastPage()
-    }
-
     private fun popNavigationTo(url: String) = viewModelScope.launch(Dispatchers.IO) {
-        val page = pages.firstOrNull {
-            it.id == url
-        }
+        val page = pagesManager.findPage(url)
 
         page?.let {
-            page.removePagesAfter(pages)
+            pagesManager.removePagesAfter(page)
             setNavigationState(NimbusViewModelNavigationState.PopTo(url))
         }
     }
@@ -234,5 +217,4 @@ internal class NimbusViewModel(
             )
         }
     }
-
 }
