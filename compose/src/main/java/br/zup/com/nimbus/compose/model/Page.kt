@@ -8,16 +8,31 @@ import com.zup.nimbus.core.tree.ServerDrivenNode
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
-    class PageStateOnError(val throwable: Throwable) : NimbusPageState()
+    class PageStateOnError(val throwable: Throwable, val retry: () -> Unit) : NimbusPageState()
     class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
 internal data class Page(val id: String, val view: ServerDrivenView) {
     var content: NimbusPageState by mutableStateOf(NimbusPageState.PageStateOnLoading)
+        private set
+
     init {
         view.onChange {
-            content = NimbusPageState.PageStateOnShowPage(it)
+            setState(NimbusPageState.PageStateOnShowPage(it))
         }
+    }
+
+    private fun setState(nimbusPageState: NimbusPageState) {
+        content = nimbusPageState
+    }
+
+    fun setLoading() {
+        if (content !is NimbusPageState.PageStateOnLoading)
+            setState(NimbusPageState.PageStateOnLoading)
+    }
+
+    fun setError(throwable: Throwable, retry: () -> Unit) {
+        setState(NimbusPageState.PageStateOnError(throwable = throwable, retry = retry))
     }
 }
 

@@ -15,7 +15,10 @@ internal fun NimbusView(
                 NimbusTheme.nimbusAppState.config.loadingView()
             }
             is NimbusPageState.PageStateOnError -> {
-                NimbusTheme.nimbusAppState.config.errorView(nimbusPageState.throwable)
+                NimbusTheme.nimbusAppState.config.errorView(
+                    nimbusPageState.throwable,
+                    nimbusPageState.retry
+                )
             }
             is NimbusPageState.PageStateOnShowPage -> {
                 NimbusServerDrivenView(viewTree = nimbusPageState.serverDrivenNode)

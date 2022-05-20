@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import br.com.zup.nimbus.compose.sample.components.CustomError
 import br.com.zup.nimbus.compose.sample.components.customComponents
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
 import br.zup.com.nimbus.compose.Nimbus
@@ -18,7 +19,10 @@ class MainActivity : ComponentActivity() {
     private val config = NimbusConfig(
         baseUrl = BASE_URL,
         components = components + customComponents,
-        logger = AppLogger()
+        logger = AppLogger(),
+        errorView = { throwable: Throwable, retry: () -> Unit ->
+            CustomError(throwable = throwable, retry = retry)
+        }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

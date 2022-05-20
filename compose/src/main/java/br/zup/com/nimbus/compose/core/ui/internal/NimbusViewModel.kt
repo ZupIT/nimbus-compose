@@ -9,13 +9,13 @@ import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
-import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import br.zup.com.nimbus.compose.model.removeAllPages
 import br.zup.com.nimbus.compose.model.removeLastPage
 import br.zup.com.nimbus.compose.model.removePagesAfter
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
+import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -170,17 +170,33 @@ internal class NimbusViewModel(
             )
             pushNavigation(page, initialRequest)
 
+            loadViewRequest(request, view, page)
+        }
+
+    private fun loadViewRequest(
+        request: ViewRequest,
+        view: ServerDrivenView,
+        page: Page,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
+                page.setLoading()
                 val tree = nimbusConfig.core.viewClient.fetch(request)
                 view.renderer.paint(tree)
             } catch (e: Throwable) {
-                page.content = NimbusPageState.PageStateOnError(
-                    e
+                page.setError(
+                    throwable = e,
+                    retry = {
+                        loadViewRequest(
+                            request = request,
+                            view = view,
+                            page = page
+                        )
+                    }
                 )
             }
-
-
         }
+    }
 
     private fun doPushWithJson(json: String) = viewModelScope.launch(Dispatchers.IO) {
         val view = nimbusConfig.core.createView(
@@ -193,12 +209,28 @@ internal class NimbusViewModel(
         )
         pushNavigation(page, true)
 
+        loadJson(json, view, page)
+    }
+
+    private fun loadJson(
+        json: String,
+        view: ServerDrivenView,
+        page: Page,
+    ) {
         try {
+            page.setLoading()
             val tree = nimbusConfig.core.createNodeFromJson(json)
             view.renderer.paint(tree)
         } catch (e: Throwable) {
-            page.content = NimbusPageState.PageStateOnError(
-                e
+            page.setError(
+                throwable = e,
+                retry = {
+                    loadJson(
+                        json = json,
+                        view = view,
+                        page = page
+                    )
+                }
             )
         }
     }
