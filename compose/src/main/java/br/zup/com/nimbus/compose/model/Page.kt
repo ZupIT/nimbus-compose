@@ -8,7 +8,7 @@ import com.zup.nimbus.core.tree.ServerDrivenNode
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
-    class PageStateOnError(val throwable: Throwable) : NimbusPageState()
+    class PageStateOnError(val throwable: Throwable, val retry: () -> Unit) : NimbusPageState()
     class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
@@ -18,6 +18,10 @@ internal data class Page(val id: String, val view: ServerDrivenView) {
         view.onChange {
             content = NimbusPageState.PageStateOnShowPage(it)
         }
+    }
+
+    fun setLoading() {
+        content = NimbusPageState.PageStateOnLoading
     }
 }
 
