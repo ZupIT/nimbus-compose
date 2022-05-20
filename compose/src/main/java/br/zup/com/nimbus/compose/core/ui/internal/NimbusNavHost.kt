@@ -97,7 +97,9 @@ private fun initNavHost(
     navHostHelper: NimbusNavHostHelper) {
     navHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
         override fun pop(): Boolean = nimbusViewModel.pop()
-        override fun dispose() = nimbusViewModel.dispose()
+        override fun dispose() {
+            nimbusViewModel.dispose()
+        }
     }
 
     if (viewRequest != null)

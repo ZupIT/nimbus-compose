@@ -112,14 +112,14 @@ internal class NimbusViewModel(
         return pages.firstOrNull { it.id == url }
     }
 
-    fun dispose() {
+    fun dispose() = viewModelScope.launch(Dispatchers.IO) {
         removeAllPages()
     }
 
     override fun onCleared() {
         super.onCleared()
         //Cannot call coroutines at this moment, should run everything on main thread
-        pages.removeAllPages()
+        removeAllPages()
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) = viewModelScope.launch(Dispatchers.IO) {
@@ -138,7 +138,7 @@ internal class NimbusViewModel(
         pop()
     }
 
-    private fun removeAllPages() = viewModelScope.launch(Dispatchers.IO) {
+    private fun removeAllPages() {
         pages.removeAllPages()
     }
 
