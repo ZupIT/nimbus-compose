@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
-import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import br.zup.com.nimbus.compose.model.removeAllPages
 import br.zup.com.nimbus.compose.model.removeLastPage
@@ -185,7 +184,7 @@ internal class NimbusViewModel(
                 val tree = nimbusConfig.core.viewClient.fetch(request)
                 view.renderer.paint(tree)
             } catch (e: Throwable) {
-                page.content = NimbusPageState.PageStateOnError(
+                page.setError(
                     throwable = e,
                     retry = {
                         loadViewRequest(
@@ -223,7 +222,7 @@ internal class NimbusViewModel(
             val tree = nimbusConfig.core.createNodeFromJson(json)
             view.renderer.paint(tree)
         } catch (e: Throwable) {
-            page.content = NimbusPageState.PageStateOnError(
+            page.setError(
                 throwable = e,
                 retry = {
                     loadJson(
