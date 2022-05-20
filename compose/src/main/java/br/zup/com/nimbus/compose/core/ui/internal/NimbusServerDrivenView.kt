@@ -11,7 +11,7 @@ internal fun NimbusServerDrivenView(
 ) {
 
     if (!NimbusTheme.nimbusAppState.config.components.containsKey(viewTree.component)) {
-        throw Error("Component with type ${viewTree.component} is not registered")
+        throw IllegalArgumentException("Component with type ${viewTree.component} is not registered")
     }
     key(viewTree.id) {
         NimbusTheme.nimbusAppState.config.components[viewTree.component]!!(

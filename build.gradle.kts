@@ -1,3 +1,7 @@
+plugins{
+    id("io.gitlab.arturbosch.detekt") version "1.20.0"
+}
+
 buildscript {
     val compose_version by extra("1.0.0")
     repositories {
@@ -12,6 +16,7 @@ buildscript {
 }
 
 allprojects {
+    apply("$rootDir/detekt.gradle")
     repositories {
         google()
         mavenCentral()

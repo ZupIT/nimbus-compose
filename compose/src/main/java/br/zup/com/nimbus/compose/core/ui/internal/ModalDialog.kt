@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-//https://gist.githubusercontent.com/Kaspic/cedb67c68c62526bd14536eae1120f75/raw/9149ab3866ac3fea5121f9d3ac7822e22d9dbae9/ModalTransitionDialog.kt
 /**
  * Figured out by trial and error
  */
@@ -44,7 +43,7 @@ internal fun ModalTransitionDialog(
     dismissOnBackPress: Boolean = true,
     modifier: Modifier = Modifier.fillMaxSize(),
     modalTransitionDialogHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
-    content: @Composable (ModalTransitionDialogHelper) -> Unit
+    content: @Composable (ModalTransitionDialogHelper) -> Unit,
 ) {
 
     val onCloseSharedFlow: MutableSharedFlow<Unit> = remember { MutableSharedFlow() }
@@ -64,10 +63,18 @@ internal fun ModalTransitionDialog(
     }
 
     Dialog(
-        onDismissRequest = { coroutineScope.launch { startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest, onCanDismissRequest) } },
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = dismissOnBackPress, dismissOnClickOutside = false)
+        onDismissRequest = {
+            coroutineScope.launch {
+                startDismissWithExitAnimation(animateContentBackTrigger,
+                    onDismissRequest,
+                    onCanDismissRequest)
+            }
+        },
+        properties = DialogProperties(usePlatformDefaultWidth = false,
+            dismissOnBackPress = dismissOnBackPress,
+            dismissOnClickOutside = false)
     ) {
-        Box(modifier = modifier) { // Required in order to occupy the whole screen before the animation is triggered
+        Box(modifier = modifier) {
             AnimatedModalBottomSheetTransition(
                 visible = animateContentBackTrigger.value) {
                 modalTransitionDialogHelper.coroutineScope = coroutineScope
@@ -81,9 +88,9 @@ internal fun ModalTransitionDialog(
 private suspend fun startDismissWithExitAnimation(
     animateContentBackTrigger: MutableState<Boolean>,
     onDismissRequest: () -> Unit,
-    onCanDismissRequest: () -> Boolean = { true }
+    onCanDismissRequest: () -> Boolean = { true },
 ) {
-    if(onCanDismissRequest()) {
+    if (onCanDismissRequest()) {
         animateContentBackTrigger.value = false
         delay(ANIMATION_TIME)
         onDismissRequest()
@@ -95,8 +102,8 @@ private suspend fun startDismissWithExitAnimation(
  * composables that implement the [ModalTransitionDialog] to hide
  * the [Dialog] with a modal transition animation
  */
-internal class ModalTransitionDialogHelper{
-    var coroutineScope: CoroutineScope ? = null
+internal class ModalTransitionDialogHelper {
+    var coroutineScope: CoroutineScope? = null
     var onCloseFlow: MutableSharedFlow<Unit>? = null
     fun triggerAnimatedClose() {
         coroutineScope?.launch {
@@ -111,10 +118,10 @@ internal const val ANIMATION_TIME = 500L
 @Composable
 internal fun AnimatedModalBottomSheetTransition(
     visible: Boolean,
-    content: @Composable AnimatedVisibilityScope.() -> Unit
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
     var animateContentShowTrigger by remember { mutableStateOf(false) }
-    if(visible) {
+    if (visible) {
         LaunchedEffect(key1 = Unit) {
             delay(ANIMATION_TIME)
             animateContentShowTrigger = true
@@ -131,7 +138,7 @@ internal fun AnimatedModalBottomSheetTransition(
             targetOffsetY = { fullHeight -> fullHeight }
         ),
         content = {
-            if(animateContentShowTrigger)
+            if (animateContentShowTrigger)
                 content()
         }
     )

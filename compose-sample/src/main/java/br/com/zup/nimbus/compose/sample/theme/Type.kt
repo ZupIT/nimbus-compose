@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.sample.theme
+package br.com.zup.nimbus.compose.sample.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
