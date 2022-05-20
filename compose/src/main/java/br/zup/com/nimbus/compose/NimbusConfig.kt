@@ -20,7 +20,7 @@ import com.zup.nimbus.core.tree.ServerDrivenNode
 
 typealias ComponentHandler = (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit
 typealias LoadingHandler = @Composable() () -> Unit
-typealias ErrorHandler = @Composable() (throwable: Throwable) -> Unit
+typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) -> Unit
 const val PLATFORM_NAME = "android"
 
 @Stable
@@ -38,8 +38,10 @@ class NimbusConfig(
     val httpClient: HttpClient? = null,
     val viewClient: ViewClient? = null,
     val idManager: IdManager? = null,
-    val loadingView: LoadingHandler = { LoadingDefault()},
-    val errorView: ErrorHandler = { ErrorDefault(throwable = it)}
+    val loadingView: LoadingHandler = { LoadingDefault() },
+    val errorView: ErrorHandler = { throwable: Throwable, retry: () -> Unit ->
+        ErrorDefault(throwable = throwable, retry = retry)
+    },
 ) {
 
     val core = createNimbus()
