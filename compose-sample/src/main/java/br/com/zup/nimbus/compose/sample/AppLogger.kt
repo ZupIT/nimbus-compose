@@ -3,9 +3,9 @@ package br.com.zup.nimbus.compose.sample
 import android.util.Log
 import com.zup.nimbus.core.log.LogLevel
 import com.zup.nimbus.core.log.Logger
+const val LOG_TAG = "NIMBUS"
 
 class AppLogger : Logger {
-    private var LOG_TAG = "NIMBUS"
     private var isEnabled = true
 
     override fun enable() {
@@ -39,5 +39,4 @@ class AppLogger : Logger {
             Log.e(LOG_TAG, message)
         }
     }
-
 }

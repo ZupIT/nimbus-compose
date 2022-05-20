@@ -116,7 +116,8 @@ internal class NimbusViewModel(
         pagesManager.removeAllPages()
     }
 
-    private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) = viewModelScope.launch(Dispatchers.IO) {
+    private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
+        viewModelScope.launch(Dispatchers.IO) {
         _nimbusViewNavigationState.value = nimbusViewModelNavigationState
     }
 

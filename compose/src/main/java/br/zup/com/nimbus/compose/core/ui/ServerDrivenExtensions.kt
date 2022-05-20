@@ -17,9 +17,7 @@ internal fun NavHostController.nimbusPopTo(url: String) {
     if (removeFromStackMatchingArg(
             navController = this,
             arg = VIEW_URL,
-            argValue = url,
-            inclusive = true
-        )
+            argValue = url)
     ) {
         this.navigate("$SHOW_VIEW?$VIEW_URL=${url}")
     }
@@ -28,9 +26,7 @@ internal fun NavHostController.nimbusPopTo(url: String) {
 private fun removeFromStackMatchingArg(
     navController: NavHostController,
     arg: String,
-    argValue: Any?,
-    inclusive: Boolean = false
-): Boolean {
+    argValue: Any?): Boolean {
     var elementFound = false
     val removeList = mutableListOf<NavBackStackEntry>()
     for (item in navController.backQueue.reversed()) {
@@ -39,9 +35,7 @@ private fun removeFromStackMatchingArg(
                     arg
                 ) == argValue
             ) {
-                if (inclusive) {
-                    removeList.add(item)
-                }
+                removeList.add(item)
                 elementFound = true
                 break
             } else {
