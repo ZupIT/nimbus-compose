@@ -24,5 +24,21 @@ internal data class Page(val id: String, val view: ServerDrivenView) {
 internal fun Page.removePagesAfter(pages: MutableList<Page>) {
     val index = pages.indexOf(this)
     if (index < pages.lastIndex)
-        pages.subList(index + 1, pages.size).clear()
+        pages.subList(index + 1, pages.size).dispose().clear()
+}
+
+
+internal fun MutableList<Page>.removeLastPage(): Page = removeLast().also { page -> page.dispose() }
+internal fun MutableList<Page>.removeAllPages(): Unit = this.dispose().clear()
+
+internal fun MutableList<Page>.dispose(): MutableList<Page> {
+    return this.also {
+        forEach {
+            it.dispose()
+        }
+    }
+}
+
+internal fun Page.dispose(): Page = this.also {
+    view.destroy()
 }
