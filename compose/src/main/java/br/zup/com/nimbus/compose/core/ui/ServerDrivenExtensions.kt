@@ -4,14 +4,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import br.zup.com.nimbus.compose.SHOW_VIEW
 import br.zup.com.nimbus.compose.VIEW_URL
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.zup.nimbus.core.tree.ServerDrivenNode
-
-fun <T>ServerDrivenNode.parse(typeRef: TypeReference<T>): T {
-    val mapper = jacksonObjectMapper()
-    return mapper.convertValue(this.properties, typeRef)
-}
 
 internal fun NavHostController.nimbusPopTo(url: String) {
     if (removeFromStackMatchingArg(
