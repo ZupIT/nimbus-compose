@@ -12,13 +12,12 @@ import br.com.zup.nimbus.compose.sample.theme.AppTheme
 import br.zup.com.nimbus.compose.Nimbus
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.NimbusNavigator
-import br.zup.com.nimbus.compose.core.ui.components.components
 import com.zup.nimbus.core.network.ViewRequest
 
 class MainActivity : ComponentActivity() {
     private val config = NimbusConfig(
         baseUrl = BASE_URL,
-        components = components + customComponents,
+        components = customComponents,
         logger = AppLogger(),
         errorView = { throwable: Throwable, retry: () -> Unit ->
             CustomError(throwable = throwable, retry = retry)
