@@ -4,9 +4,6 @@ import androidx.compose.runtime.Composable
 import br.com.zup.nimbus.compose.sample.model.PersonCardModel
 import br.zup.com.nimbus.compose.model.NimbusTextModel
 import br.zup.com.nimbus.compose.ComponentHandler
-import br.zup.com.nimbus.compose.core.ui.components.NimbusButton
-import br.zup.com.nimbus.compose.core.ui.components.NimbusContainer
-import br.zup.com.nimbus.compose.core.ui.components.NimbusText
 import com.fasterxml.jackson.core.type.TypeReference
 
 val customComponents: Map<String, @Composable ComponentHandler> = mapOf(
