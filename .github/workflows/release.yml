@@ -1,0 +1,46 @@
+name: Nimbus Compose Release
+
+on:
+    push:
+        tags:
+            - '*'
+jobs:
+    generate-release:
+        name: Generate release
+        runs-on: macos-latest
+        steps:
+          - name: Checkout repo
+            uses: actions/checkout@v3
+          - name: Get the tag name
+            run: echo "TAGNAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+          - name: Stup Java version
+            uses: actions/setup-java@v3
+            with:
+              distribution: 'zulu'
+              java-version: '11'
+
+          - name: Generate sign gpg file on .gradle folder
+            run: bash publication/maven_signing.sh
+            env:
+              ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+              ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+              GPG_KEY_CONTENTS: ${{ secrets.GPG_KEY_CONTENTS }}
+
+          - name: Generate release artifact
+            uses: gradle/gradle-build-action@v2
+            env:
+              VERSION_NAME: ${{ env.TAGNAME }}
+            with:
+              arguments: assembleRelease
+
+          - name: Publish the artifact
+            uses: gradle/gradle-build-action@v2
+            env:
+              VERSION_NAME: ${{ env.TAGNAME }}
+              ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+              ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+              ORG_GRADLE_PROJECT_SIGNINGKEYID: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
+              ORG_GRADLE_PROJECT_SIGNINGPASSWORD: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
+            with:
+              arguments: uploadArchives --no-daemon --no-parallel

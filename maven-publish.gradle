@@ -1,0 +1,12 @@
+apply plugin: "com.vanniktech.maven.publish"
+
+def versionName = System.env.VERSION_NAME != null ? System.env.VERSION_NAME : VERSION_NAME ?: ""
+
+version = versionName
+
+mavenPublish {
+    releaseSigningEnabled = System.env.VERSION_NAME != null ? true : false
+    nexus {
+        stagingProfile = "br.com.zup"
+    }
+}
