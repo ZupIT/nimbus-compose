@@ -7,15 +7,15 @@ import br.zup.com.nimbus.compose.ComponentHandler
 import com.fasterxml.jackson.core.type.TypeReference
 
 val customComponents: Map<String, @Composable ComponentHandler> = mapOf(
-    "custom:text" to @Composable { element, _ ->
+    "custom:text" to @Composable { element, _ , _->
         CustomText(element.parse(object : TypeReference<NimbusTextModel>() {})) },
-    "custom:personCard" to @Composable { element, _ ->
+    "custom:personCard" to @Composable { element, _ , _->
         PersonCardComponent(element.parse(object : TypeReference<PersonCardModel>() {})) },
-    "material:text" to @Composable { element, _ ->
+    "material:text" to @Composable { element, _ , _->
         NimbusText(element.parse(object : TypeReference<NimbusTextModel>() {}))
     },
-    "layout:container" to @Composable { _, children -> NimbusContainer(children) },
-    "material:button" to @Composable { element, _ ->
+    "layout:container" to @Composable { _, children, _ -> NimbusContainer(children) },
+    "material:button" to @Composable { element, _ , _->
         // can't use jackson to deserialize this, it has a function.
         NimbusButton(
             text = element.properties?.get("text") as String,

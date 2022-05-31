@@ -18,7 +18,11 @@ import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
-typealias ComponentHandler = (element: ServerDrivenNode, children: @Composable () -> Unit) -> Unit
+typealias ComponentHandler = (
+    element: ServerDrivenNode,
+    children: @Composable () -> Unit,
+    parentElement: ServerDrivenNode?,
+) -> Unit
 typealias LoadingHandler = @Composable() () -> Unit
 typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) -> Unit
 const val PLATFORM_NAME = "android"
