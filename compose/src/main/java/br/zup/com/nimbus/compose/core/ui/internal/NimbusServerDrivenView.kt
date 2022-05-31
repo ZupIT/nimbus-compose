@@ -8,6 +8,7 @@ import com.zup.nimbus.core.tree.ServerDrivenNode
 @Composable
 internal fun NimbusServerDrivenView(
     viewTree: ServerDrivenNode,
+    parentViewTree: ServerDrivenNode? = null
 ) {
 
     if (!NimbusTheme.nimbusAppState.config.components.containsKey(viewTree.component)) {
@@ -18,9 +19,9 @@ internal fun NimbusServerDrivenView(
             element = viewTree,
             children = {
                 viewTree.children?.forEach {
-                    NimbusServerDrivenView(it)
+                    NimbusServerDrivenView(it, parentViewTree = viewTree)
                 }
-            })
+            }, parentElement = parentViewTree)
     }
 }
 
