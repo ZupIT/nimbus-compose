@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
+import br.zup.com.nimbus.compose.ScreenLoadingHandler
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_URL
 import com.zup.nimbus.core.network.ViewRequest
@@ -19,6 +20,7 @@ import java.util.UUID
 
 @Composable
 internal fun NimbusNavHost(
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
@@ -33,7 +35,7 @@ internal fun NimbusNavHost(
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
     json: String = "",
-    modifier: Modifier = Modifier,
+    screenLoadingHandler: ScreenLoadingHandler = {}
 ) {
 
     NimbusNavigationEffect(nimbusViewModel, navController)
@@ -64,7 +66,7 @@ internal fun NimbusNavHost(
             }
             currentPage?.let { page ->
                 NimbusBackHandler(nimbusViewModel = nimbusViewModel)
-                NimbusView(page = page)
+                NimbusView(page = page, screenLoadingHandler = screenLoadingHandler)
                 NimbusModalView(
                     nimbusViewModel = nimbusViewModel,
                     modalParentHelper = modalParentHelper

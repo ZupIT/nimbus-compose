@@ -17,29 +17,33 @@ const val SHOW_VIEW_DESTINATION = "${SHOW_VIEW}?${VIEW_URL}={${VIEW_URL}}"
 @Composable
 fun NimbusNavigator(
     json: String,
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
-    modifier: Modifier = Modifier,
+    screenLoadingHandler: ScreenLoadingHandler = {}
 ) {
     NimbusNavHost(
         viewModelKey = viewModelKey,
         navController = navController,
         json = json,
-        modifier = modifier
+        modifier = modifier,
+        screenLoadingHandler = screenLoadingHandler
     )
 }
 
 @Composable
 fun NimbusNavigator(
     viewRequest: ViewRequest,
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
-    modifier: Modifier = Modifier
+    screenLoadingHandler: ScreenLoadingHandler = {}
 ) {
     NimbusNavHost(
         viewModelKey = viewModelKey,
         navController = navController,
         viewRequest = viewRequest,
         modifier = modifier,
+        screenLoadingHandler = screenLoadingHandler
     )
 }
