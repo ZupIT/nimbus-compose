@@ -22,6 +22,7 @@ internal fun NimbusView(
             }
             is NimbusPageState.PageStateOnShowPage -> {
                 NimbusServerDrivenView(viewTree = nimbusPageState.serverDrivenNode)
+                NimbusTheme.nimbusAppState.config.loadDone()
             }
         }
     }

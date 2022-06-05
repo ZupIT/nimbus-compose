@@ -23,6 +23,7 @@ typealias ComponentHandler = (
     children: @Composable () -> Unit,
     parentElement: ServerDrivenNode?,
 ) -> Unit
+typealias LoadingDoneHandler = () -> Unit
 typealias LoadingHandler = @Composable() () -> Unit
 typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) -> Unit
 const val PLATFORM_NAME = "android"
@@ -42,6 +43,7 @@ class NimbusConfig(
     val httpClient: HttpClient? = null,
     val viewClient: ViewClient? = null,
     val idManager: IdManager? = null,
+    val loadingDone: LoadingDoneHandler = { },
     val loadingView: LoadingHandler = { LoadingDefault() },
     val errorView: ErrorHandler = { throwable: Throwable, retry: () -> Unit ->
         ErrorDefault(throwable = throwable, retry = retry)
