@@ -20,14 +20,12 @@ fun NimbusNavigator(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
-    screenLoadingHandler: ScreenLoadingHandler = {}
 ) {
     NimbusNavHost(
         viewModelKey = viewModelKey,
         navController = navController,
         json = json,
         modifier = modifier,
-        screenLoadingHandler = screenLoadingHandler
     )
 }
 
@@ -37,13 +35,11 @@ fun NimbusNavigator(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
-    screenLoadingHandler: ScreenLoadingHandler = {}
 ) {
     NimbusNavHost(
         viewModelKey = viewModelKey,
         navController = navController,
         viewRequest = viewRequest,
         modifier = modifier,
-        screenLoadingHandler = screenLoadingHandler
     )
 }
