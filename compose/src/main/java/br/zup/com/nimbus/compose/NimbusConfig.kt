@@ -23,6 +23,7 @@ typealias ComponentHandler = (
     children: @Composable () -> Unit,
     parentElement: ServerDrivenNode?,
 ) -> Unit
+
 typealias LoadingHandler = @Composable() () -> Unit
 typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) -> Unit
 const val PLATFORM_NAME = "android"

@@ -19,6 +19,7 @@ import java.util.UUID
 
 @Composable
 internal fun NimbusNavHost(
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
@@ -33,7 +34,6 @@ internal fun NimbusNavHost(
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
     json: String = "",
-    modifier: Modifier = Modifier,
 ) {
 
     NimbusNavigationEffect(nimbusViewModel, navController)
