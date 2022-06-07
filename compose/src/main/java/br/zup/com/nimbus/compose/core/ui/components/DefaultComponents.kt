@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun LoadingDefault(modifier: Modifier = Modifier) {
+internal fun LoadingDefault(modifier: Modifier = Modifier) {
     CircularProgressIndicator(modifier = modifier)
 }
 
 @Composable
-fun ErrorDefault(throwable: Throwable, retry: () -> Unit, modifier: Modifier = Modifier) {
+internal fun ErrorDefault(throwable: Throwable, retry: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text("Error ${throwable.message}")
         Button(onClick = retry) {

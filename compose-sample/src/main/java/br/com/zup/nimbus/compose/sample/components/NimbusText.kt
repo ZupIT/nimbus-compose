@@ -2,7 +2,7 @@ package br.com.zup.nimbus.compose.sample.components
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import br.zup.com.nimbus.compose.model.NimbusTextModel
+import br.com.zup.nimbus.compose.sample.model.NimbusTextModel
 
 @Composable
 fun NimbusText(props: NimbusTextModel) {

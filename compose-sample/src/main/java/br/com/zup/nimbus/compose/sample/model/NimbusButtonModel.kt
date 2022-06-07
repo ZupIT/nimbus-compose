@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.model
+package br.com.zup.nimbus.compose.sample.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
