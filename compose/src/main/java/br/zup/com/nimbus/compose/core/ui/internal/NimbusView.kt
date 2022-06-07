@@ -14,10 +14,10 @@ internal fun NimbusView(
     page: Page
 ) {
     var loading by remember { mutableStateOf(false) }
+    if (loading) {
+        NimbusTheme.nimbusAppState.config.loadingView()
+    }
     page.content.let { nimbusPageState ->
-        if (loading) {
-            NimbusTheme.nimbusAppState.config.loadingView()
-        }
         when (nimbusPageState) {
             is NimbusPageState.PageStateOnLoading -> {
                 loading = true
