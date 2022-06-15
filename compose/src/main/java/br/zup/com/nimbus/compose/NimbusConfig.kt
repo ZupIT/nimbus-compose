@@ -1,5 +1,8 @@
 package br.zup.com.nimbus.compose
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -12,11 +15,17 @@ import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.log.Logger
+import com.zup.nimbus.core.network.DefaultHttpClient
 import com.zup.nimbus.core.network.HttpClient
+import com.zup.nimbus.core.network.ServerDrivenHttpMethod
+import com.zup.nimbus.core.network.ServerDrivenRequest
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 typealias ComponentHandler = (
     element: ServerDrivenNode,
@@ -29,8 +38,9 @@ typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) 
 const val PLATFORM_NAME = "android"
 
 @Stable
-internal class NimbusComposeAppState(
-    val config: NimbusConfig)
+class NimbusComposeAppState(
+    val config: NimbusConfig
+)
 
 @Stable
 class NimbusConfig(
@@ -41,6 +51,7 @@ class NimbusConfig(
     val logger: Logger? = null,
     val urlBuilder: UrlBuilder? = null,
     val httpClient: HttpClient? = null,
+    val imageProvider: ImageProvider = DefaultImageProvider(httpClient = DefaultHttpClient()),
     val viewClient: ViewClient? = null,
     val idManager: IdManager? = null,
     val loadingView: LoadingHandler = { LoadingDefault() },
@@ -101,7 +112,44 @@ fun Nimbus(
 }
 
 
-internal object NimbusTheme {
+interface ImageProvider {
+
+    fun fetchRemote(url: String, onFetch: (Bitmap) -> Unit, onError: (Throwable) -> Unit)
+
+    @DrawableRes
+    fun fetchLocal(id: String): Int?
+}
+
+internal class DefaultImageProvider(
+    private val httpClient: HttpClient?,
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO),
+): ImageProvider {
+
+    override fun fetchRemote(url: String, onFetch: (Bitmap) -> Unit, onError: (Throwable) -> Unit) {
+        coroutineScope.launch {
+            try {
+                val response = httpClient?.sendRequest(ServerDrivenRequest(
+                    url = url,
+                    method = ServerDrivenHttpMethod.Get,
+                    headers = null, body = null))
+                response?.let {
+                    val bitmap = BitmapFactory.decodeByteArray(
+                        it.bodyBytes,
+                        0,
+                        it.bodyBytes.size)
+                    onFetch(bitmap)
+                }
+            } catch (e: Throwable) {
+                onError(e)
+            }
+        }
+    }
+
+    override fun fetchLocal(id: String): Int? = null
+}
+
+
+object NimbusTheme {
     val nimbusAppState: NimbusComposeAppState
         @Composable
         get() = LocalNimbus.current
