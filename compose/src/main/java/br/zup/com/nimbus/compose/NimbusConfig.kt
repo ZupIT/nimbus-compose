@@ -1,7 +1,5 @@
 package br.zup.com.nimbus.compose
 
-import android.graphics.Bitmap
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -111,15 +109,6 @@ fun Nimbus(
         )
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
-}
-
-
-interface ImageProvider {
-
-    fun fetchRemote(url: String, onFetch: (Bitmap) -> Unit, onError: (Throwable) -> Unit)
-
-    @DrawableRes
-    fun fetchLocal(id: String): Int?
 }
 
 object NimbusTheme {
