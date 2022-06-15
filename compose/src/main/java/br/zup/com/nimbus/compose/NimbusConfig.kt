@@ -29,8 +29,9 @@ typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) 
 const val PLATFORM_NAME = "android"
 
 @Stable
-internal class NimbusComposeAppState(
-    val config: NimbusConfig)
+class NimbusComposeAppState(
+    val config: NimbusConfig
+)
 
 @Stable
 class NimbusConfig(
@@ -51,7 +52,17 @@ class NimbusConfig(
 
     val core = createNimbus()
 
+    private val enviromentMap = mutableMapOf<String, Any>()
+
     private fun createNimbus() = Nimbus(config = createServerDrivenConfig())
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> enviromentObject(key: String): T? = enviromentMap[key] as T?
+
+    fun <T> enviromentObject(key: String, value: T): NimbusConfig {
+        enviromentMap[key] = value as Any
+        return this
+    }
 
     fun addOperations(operations: Map<String, OperationHandler>) {
         core.addOperations(operations)
@@ -100,8 +111,7 @@ fun Nimbus(
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
-
-internal object NimbusTheme {
+object NimbusTheme {
     val nimbusAppState: NimbusComposeAppState
         @Composable
         get() = LocalNimbus.current
