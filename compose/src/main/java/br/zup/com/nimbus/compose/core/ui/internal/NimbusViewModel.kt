@@ -34,7 +34,7 @@ internal sealed class NimbusViewModelNavigationState {
 
 internal class NimbusViewModel(
     private val nimbusConfig: NimbusConfig,
-    private val pagesManager: PagesManager = PagesManager()
+    private val pagesManager: PagesManager = PagesManager(),
 ) : ViewModel() {
     var nimbusViewModelModalState: NimbusViewModelModalState by
     mutableStateOf(NimbusViewModelModalState.HiddenModalState)
@@ -61,7 +61,7 @@ internal class NimbusViewModel(
 
     private val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
         override fun dismiss() {
-            nimbusViewModelModalState = NimbusViewModelModalState.OnHideModalState
+            setNimbusViewModelModalState(NimbusViewModelModalState.OnHideModalState)
         }
 
         override fun popTo(url: String) {
@@ -69,7 +69,7 @@ internal class NimbusViewModel(
         }
 
         override fun present(request: ViewRequest) {
-            nimbusViewModelModalState = NimbusViewModelModalState.OnShowModalModalState(request)
+            setNimbusViewModelModalState(NimbusViewModelModalState.OnShowModalModalState(request))
         }
 
         override fun pop() {
@@ -82,14 +82,14 @@ internal class NimbusViewModel(
     }
 
     fun setModalHiddenState() {
-        nimbusViewModelModalState = NimbusViewModelModalState.HiddenModalState
+        setNimbusViewModelModalState(NimbusViewModelModalState.HiddenModalState)
     }
 
     fun pop(): Boolean {
-        return if(pagesManager.popLastPage()) {
+        return if (pagesManager.popLastPage()) {
             setNavigationState(NimbusViewModelNavigationState.Pop())
             true
-        } else{
+        } else {
             false
         }
     }
@@ -119,9 +119,14 @@ internal class NimbusViewModel(
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(Dispatchers.IO) {
-        _nimbusViewNavigationState.value = nimbusViewModelNavigationState
-    }
+        viewModelScope.launch(Dispatchers.Main) {
+            _nimbusViewNavigationState.value = nimbusViewModelNavigationState
+        }
+
+    private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
+        viewModelScope.launch(Dispatchers.Main) {
+            nimbusViewModelModalState = state
+        }
 
     private fun pushNavigation(page: Page, initialRequest: Boolean) =
         viewModelScope.launch(Dispatchers.Default) {
@@ -152,7 +157,9 @@ internal class NimbusViewModel(
             )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
             val page = Page(
-                id = url, view = view
+                coroutineScope = viewModelScope,
+                id = url,
+                view = view
             )
             pushNavigation(page, initialRequest)
 
@@ -191,7 +198,9 @@ internal class NimbusViewModel(
         )
         val url = VIEW_INITIAL_URL
         val page = Page(
-            id = url, view = view
+            coroutineScope = viewModelScope,
+            id = url,
+            view = view
         )
         pushNavigation(page, true)
 

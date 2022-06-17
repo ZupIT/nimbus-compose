@@ -5,6 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
@@ -12,7 +15,7 @@ internal sealed class NimbusPageState {
     class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
-internal data class Page(val id: String, val view: ServerDrivenView) {
+internal data class Page(val coroutineScope: CoroutineScope, val id: String, val view: ServerDrivenView) {
     var content: NimbusPageState by mutableStateOf(NimbusPageState.PageStateOnLoading)
         private set
 
@@ -23,7 +26,9 @@ internal data class Page(val id: String, val view: ServerDrivenView) {
     }
 
     private fun setState(nimbusPageState: NimbusPageState) {
-        content = nimbusPageState
+        coroutineScope.launch(Dispatchers.Main) {
+            content = nimbusPageState
+        }
     }
 
     fun setLoading() {
