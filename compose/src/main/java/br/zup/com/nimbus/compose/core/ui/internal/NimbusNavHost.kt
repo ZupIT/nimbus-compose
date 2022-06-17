@@ -85,6 +85,8 @@ private fun configureNavHostHelper(
     nimbusViewModel: NimbusViewModel,
 ) {
     nimbusNavHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
+        override fun isFirstScreen(): Boolean = nimbusViewModel.getPageCount() == 1
+
         override fun pop(): Boolean = nimbusViewModel.pop()
         override fun dispose() {
             nimbusViewModel.dispose()
@@ -110,10 +112,12 @@ interface NimbusNavHostHelper {
     var nimbusNavHostExecutor: NimbusNavHostHelper.NimbusNavHostExecutor?
 
     interface NimbusNavHostExecutor {
+        fun isFirstScreen(): Boolean
         fun pop(): Boolean
         fun dispose()
     }
 
+    fun isFirstScreen(): Boolean
     fun pop(): Boolean
     fun dispose()
 }
@@ -124,6 +128,7 @@ interface NimbusNavHostHelper {
 internal class NimbusNavHostHelperImpl : NimbusNavHostHelper {
 
     override var nimbusNavHostExecutor: NimbusNavHostHelper.NimbusNavHostExecutor? = null
+    override fun isFirstScreen(): Boolean  = nimbusNavHostExecutor?.isFirstScreen() ?: false
 
     override fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
     override fun dispose() {

@@ -32,6 +32,7 @@ internal class PagesManager {
             pages.removeLastPage()
         }
 
+    fun getPageCount() = pages.size
     fun getPageBy(url: String): Page? = pages.firstOrNull { it.id == url }
     fun findPage(url: String): Page? = pages.firstOrNull {
         it.id == url

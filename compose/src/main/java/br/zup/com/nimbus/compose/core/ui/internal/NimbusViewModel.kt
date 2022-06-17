@@ -106,6 +106,8 @@ internal class NimbusViewModel(
         return pagesManager.getPageBy(url)
     }
 
+    fun getPageCount() = pagesManager.getPageCount()
+
     fun dispose() = viewModelScope.launch(Dispatchers.IO) {
         pagesManager.removeAllPages()
     }
