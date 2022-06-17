@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import br.zup.com.nimbus.compose.core.ui.components.ErrorDefault
 import br.zup.com.nimbus.compose.core.ui.components.LoadingDefault
+import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHostHelper
 import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.OperationHandler
@@ -31,6 +32,11 @@ const val PLATFORM_NAME = "android"
 @Stable
 class NimbusComposeAppState(
     val config: NimbusConfig
+)
+
+@Stable
+class NimbusNavigatorState(
+    val navHostHelper: NimbusNavHostHelper
 )
 
 @Stable
@@ -95,6 +101,10 @@ private val LocalNimbus = staticCompositionLocalOf<NimbusComposeAppState> {
     error("No Nimbus provided")
 }
 
+private val LocalNavigator = staticCompositionLocalOf<NimbusNavigatorState> {
+    error("No NimbusNavigator provided")
+}
+
 @Composable
 fun Nimbus(
     config: NimbusConfig,
@@ -111,8 +121,28 @@ fun Nimbus(
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
+@Composable
+fun ProvideNavigatorState(
+    navHostHelper: NimbusNavHostHelper,
+    content: @Composable () -> Unit
+) {
+
+    val nimbusNavigatorState = remember(
+        navHostHelper
+    ) {
+        NimbusNavigatorState(
+            navHostHelper = navHostHelper
+        )
+    }
+    CompositionLocalProvider(LocalNavigator provides nimbusNavigatorState, content = content)
+}
+
 object NimbusTheme {
     val nimbusAppState: NimbusComposeAppState
         @Composable
         get() = LocalNimbus.current
+
+    val nimbusNavigatorState: NimbusNavigatorState
+        @Composable
+        get() = LocalNavigator.current
 }
