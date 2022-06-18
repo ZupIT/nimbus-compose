@@ -21,11 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Figured out by trial and error
@@ -51,13 +53,15 @@ internal fun ModalTransitionDialog(
     val animateContentBackTrigger = remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
-        launch {
-            delay(DIALOG_BUILD_TIME)
-            animateContentBackTrigger.value = true
-        }
-        launch {
-            onCloseSharedFlow.asSharedFlow().collectLatest {
-                startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
+        withContext(Dispatchers.IO) {
+            launch {
+                delay(DIALOG_BUILD_TIME)
+                animateContentBackTrigger.value = true
+            }
+            launch {
+                onCloseSharedFlow.asSharedFlow().collectLatest {
+                    startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
+                }
             }
         }
     }
@@ -123,8 +127,10 @@ internal fun AnimatedModalBottomSheetTransition(
     var animateContentShowTrigger by remember { mutableStateOf(false) }
     if (visible) {
         LaunchedEffect(key1 = Unit) {
-            delay(ANIMATION_TIME)
-            animateContentShowTrigger = true
+            withContext(Dispatchers.IO) {
+                delay(ANIMATION_TIME)
+                animateContentShowTrigger = true
+            }
         }
     }
     AnimatedVisibility(
