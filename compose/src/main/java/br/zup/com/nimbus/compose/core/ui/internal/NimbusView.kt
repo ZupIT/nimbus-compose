@@ -19,8 +19,9 @@ internal fun NimbusView(
 ) {
     var loading by remember { mutableStateOf(true) }
 
-    RenderPageState(page.content, page) {
-        loading = false
+    RenderPageState(page.content, page) { isLoading ->
+        if (loading != isLoading)
+            loading = isLoading
     }
 
     if (loading) {
@@ -32,14 +33,14 @@ internal fun NimbusView(
 private fun RenderPageState(
     nimbusPageState: NimbusPageState,
     page: Page,
-    onDone: () -> Unit,
+    onLoading: (Boolean) -> Unit,
 ) {
     when (nimbusPageState) {
         is NimbusPageState.PageStateOnLoading -> {
-
+            onLoading(true)
         }
         is NimbusPageState.PageStateOnError -> {
-            onDone()
+            onLoading(false)
             NimbusTheme.nimbusAppState.config.errorView(
                 nimbusPageState.throwable,
                 nimbusPageState.retry
@@ -50,7 +51,7 @@ private fun RenderPageState(
             Spacer(modifier = Modifier.semantics(true) {
                 testTag = "NimbusPage:${page.id}"
             })
-            onDone()
+            onLoading(false)
         }
     }
 }
