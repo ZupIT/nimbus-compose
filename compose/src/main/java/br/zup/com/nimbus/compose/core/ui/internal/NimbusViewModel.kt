@@ -120,12 +120,12 @@ internal class NimbusViewModel(
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             _nimbusViewNavigationState.value = nimbusViewModelNavigationState
         }
 
     private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             nimbusViewModelModalState = state
         }
 
