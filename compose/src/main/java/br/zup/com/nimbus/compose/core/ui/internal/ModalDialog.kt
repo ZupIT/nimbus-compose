@@ -20,8 +20,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -53,7 +53,7 @@ internal fun ModalTransitionDialog(
     val animateContentBackTrigger = remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
-        withContext(Dispatchers.IO) {
+        withContext(CoroutineDispatcherLib.backgroundPool) {
             launch {
                 delay(DIALOG_BUILD_TIME)
                 animateContentBackTrigger.value = true
@@ -68,7 +68,7 @@ internal fun ModalTransitionDialog(
 
     Dialog(
         onDismissRequest = {
-            coroutineScope.launch {
+            coroutineScope.launch(CoroutineDispatcherLib.backgroundPool) {
                 startDismissWithExitAnimation(animateContentBackTrigger,
                     onDismissRequest,
                     onCanDismissRequest)
@@ -110,7 +110,7 @@ internal class ModalTransitionDialogHelper {
     var coroutineScope: CoroutineScope? = null
     var onCloseFlow: MutableSharedFlow<Unit>? = null
     fun triggerAnimatedClose() {
-        coroutineScope?.launch {
+        coroutineScope?.launch(CoroutineDispatcherLib.backgroundPool) {
             onCloseFlow?.emit(Unit)
         }
     }
@@ -127,7 +127,7 @@ internal fun AnimatedModalBottomSheetTransition(
     var animateContentShowTrigger by remember { mutableStateOf(false) }
     if (visible) {
         LaunchedEffect(key1 = Unit) {
-            withContext(Dispatchers.IO) {
+            withContext(CoroutineDispatcherLib.backgroundPool) {
                 delay(ANIMATION_TIME)
                 animateContentShowTrigger = true
             }
