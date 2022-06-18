@@ -120,17 +120,17 @@ internal class NimbusViewModel(
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             _nimbusViewNavigationState.value = nimbusViewModelNavigationState
         }
 
     private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             nimbusViewModelModalState = state
         }
 
     private fun pushNavigation(page: Page, initialRequest: Boolean) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             pagesManager.add(page)
             if (!initialRequest) {
                 setNavigationState(NimbusViewModelNavigationState.Push(page.id))

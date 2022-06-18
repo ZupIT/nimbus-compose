@@ -26,7 +26,7 @@ internal data class Page(val coroutineScope: CoroutineScope, val id: String, val
     }
 
     private fun setState(nimbusPageState: NimbusPageState) =
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.Default) {
             content = nimbusPageState
     }
 
