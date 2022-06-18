@@ -3,10 +3,10 @@ package br.zup.com.nimbus.compose.model
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 internal sealed class NimbusPageState {
@@ -26,7 +26,7 @@ internal data class Page(val coroutineScope: CoroutineScope, val id: String, val
     }
 
     private fun setState(nimbusPageState: NimbusPageState) =
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(CoroutineDispatcherLib.backgroundPool) {
             content = nimbusPageState
     }
 

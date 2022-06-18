@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
@@ -13,7 +14,6 @@ import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.ServerDrivenView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -109,7 +109,7 @@ internal class NimbusViewModel(
 
     fun getPageCount() = pagesManager.getPageCount()
 
-    fun dispose() = viewModelScope.launch(Dispatchers.IO) {
+    fun dispose() = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
         pagesManager.removeAllPages()
     }
 
@@ -120,28 +120,28 @@ internal class NimbusViewModel(
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
             _nimbusViewNavigationState.value = nimbusViewModelNavigationState
         }
 
     private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
             nimbusViewModelModalState = state
         }
 
     private fun pushNavigation(page: Page, initialRequest: Boolean) =
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
             pagesManager.add(page)
             if (!initialRequest) {
                 setNavigationState(NimbusViewModelNavigationState.Push(page.id))
             }
         }
 
-    private fun popNavigation() = viewModelScope.launch(Dispatchers.IO) {
+    private fun popNavigation() = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
         pop()
     }
 
-    private fun popNavigationTo(url: String) = viewModelScope.launch(Dispatchers.IO) {
+    private fun popNavigationTo(url: String) = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
         val page = pagesManager.findPage(url)
 
         page?.let {
@@ -151,7 +151,7 @@ internal class NimbusViewModel(
     }
 
     private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             val view = nimbusConfig.core.createView(
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
@@ -172,7 +172,7 @@ internal class NimbusViewModel(
         view: ServerDrivenView,
         page: Page,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             try {
                 page.setLoading()
                 val tree = nimbusConfig.core.viewClient.fetch(request)
@@ -192,13 +192,13 @@ internal class NimbusViewModel(
         }
     }
 
-    private fun doPushWithJson(json: String) = viewModelScope.launch(Dispatchers.IO) {
+    private fun doPushWithJson(json: String) = viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
         val view = nimbusConfig.core.createView(
             getNavigator = { serverDrivenNavigator },
             description = VIEW_JSON_DESCRIPTION
         )
         val url = VIEW_INITIAL_URL
-        withContext(Dispatchers.IO) {
+        withContext(CoroutineDispatcherLib.inputOutputPool) {
             val page = Page(
                 coroutineScope = viewModelScope,
                 id = url,
@@ -214,7 +214,7 @@ internal class NimbusViewModel(
         view: ServerDrivenView,
         page: Page,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             try {
                 page.setLoading()
                 val tree = nimbusConfig.core.createNodeFromJson(json)

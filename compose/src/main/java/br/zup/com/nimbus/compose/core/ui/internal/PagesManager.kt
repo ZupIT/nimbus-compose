@@ -1,11 +1,11 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.model.Page
 import br.zup.com.nimbus.compose.model.removeAllPages
 import br.zup.com.nimbus.compose.model.removeLastPage
 import br.zup.com.nimbus.compose.model.removePagesAfter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 internal class PagesManager {
@@ -28,7 +28,7 @@ internal class PagesManager {
     }
 
     private fun removeLastPage() =
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(CoroutineDispatcherLib.backgroundPool).launch {
             pages.removeLastPage()
         }
 

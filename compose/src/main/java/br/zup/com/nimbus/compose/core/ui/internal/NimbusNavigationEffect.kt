@@ -3,24 +3,21 @@ package br.zup.com.nimbus.compose.core.ui.internal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.SHOW_VIEW
 import br.zup.com.nimbus.compose.VIEW_URL
 import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.concurrent.thread
 
 @Composable
 internal fun NimbusNavigationEffect(
     nimbusViewModel: NimbusViewModel,
     navController: NavHostController,
 ) {
-    LaunchedEffect(key1 = true) {
-        withContext(Dispatchers.IO) {
+    LaunchedEffect(key1 = Unit) {
+        withContext(CoroutineDispatcherLib.backgroundPool) {
             nimbusViewModel.nimbusViewNavigationState.collect { navigationState ->
-                withContext(Dispatchers.Main) {
+                withContext(CoroutineDispatcherLib.mainThread) {
                     when (navigationState) {
                         is NimbusViewModelNavigationState.Pop -> {
                             navController.navigateUp()
