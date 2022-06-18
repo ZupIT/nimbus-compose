@@ -15,31 +15,42 @@ import br.zup.com.nimbus.compose.model.Page
 
 @Composable
 internal fun NimbusView(
-    page: Page
+    page: Page,
 ) {
-    var loading by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(true) }
+
+    RenderPageState(page.content, page) {
+        loading = false
+    }
+
     if (loading) {
         NimbusTheme.nimbusAppState.config.loadingView()
     }
-    page.content.let { nimbusPageState ->
-        when (nimbusPageState) {
-            is NimbusPageState.PageStateOnLoading -> {
-                loading = true
-            }
-            is NimbusPageState.PageStateOnError -> {
-                loading = false
-                NimbusTheme.nimbusAppState.config.errorView(
-                    nimbusPageState.throwable,
-                    nimbusPageState.retry
-                )
-            }
-            is NimbusPageState.PageStateOnShowPage -> {
-                NimbusServerDrivenView(viewTree = nimbusPageState.serverDrivenNode)
-                Spacer(modifier = Modifier.semantics(true) {
-                    testTag = "NimbusPage:${page.id}"
-                })
-                loading = false
-            }
+}
+
+@Composable
+private fun RenderPageState(
+    nimbusPageState: NimbusPageState,
+    page: Page,
+    onDone: () -> Unit,
+) {
+    when (nimbusPageState) {
+        is NimbusPageState.PageStateOnLoading -> {
+
+        }
+        is NimbusPageState.PageStateOnError -> {
+            onDone()
+            NimbusTheme.nimbusAppState.config.errorView(
+                nimbusPageState.throwable,
+                nimbusPageState.retry
+            )
+        }
+        is NimbusPageState.PageStateOnShowPage -> {
+            NimbusServerDrivenView(viewTree = nimbusPageState.serverDrivenNode)
+            Spacer(modifier = Modifier.semantics(true) {
+                testTag = "NimbusPage:${page.id}"
+            })
+            onDone()
         }
     }
 }

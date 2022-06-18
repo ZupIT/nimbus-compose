@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal sealed class NimbusViewModelModalState {
     object HiddenModalState : NimbusViewModelModalState()
@@ -197,14 +198,15 @@ internal class NimbusViewModel(
             description = VIEW_JSON_DESCRIPTION
         )
         val url = VIEW_INITIAL_URL
-        val page = Page(
-            coroutineScope = viewModelScope,
-            id = url,
-            view = view
-        )
-        pushNavigation(page, true)
-
-        loadJson(json, view, page)
+        withContext(Dispatchers.Main) {
+            val page = Page(
+                coroutineScope = viewModelScope,
+                id = url,
+                view = view
+            )
+            pushNavigation(page, true)
+            loadJson(json, view, page)
+        }
     }
 
     private fun loadJson(
@@ -212,21 +214,23 @@ internal class NimbusViewModel(
         view: ServerDrivenView,
         page: Page,
     ) {
-        try {
-            page.setLoading()
-            val tree = nimbusConfig.core.createNodeFromJson(json)
-            view.renderer.paint(tree)
-        } catch (e: Throwable) {
-            page.setError(
-                throwable = e,
-                retry = {
-                    loadJson(
-                        json = json,
-                        view = view,
-                        page = page
-                    )
-                }
-            )
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                page.setLoading()
+                val tree = nimbusConfig.core.createNodeFromJson(json)
+                view.renderer.paint(tree)
+            } catch (e: Throwable) {
+                page.setError(
+                    throwable = e,
+                    retry = {
+                        loadJson(
+                            json = json,
+                            view = view,
+                            page = page
+                        )
+                    }
+                )
+            }
         }
     }
 }
