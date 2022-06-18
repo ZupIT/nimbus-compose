@@ -120,12 +120,12 @@ internal class NimbusViewModel(
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             _nimbusViewNavigationState.value = nimbusViewModelNavigationState
         }
 
     private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             nimbusViewModelModalState = state
         }
 
@@ -198,7 +198,7 @@ internal class NimbusViewModel(
             description = VIEW_JSON_DESCRIPTION
         )
         val url = VIEW_INITIAL_URL
-        withContext(Dispatchers.Main) {
+        withContext(Dispatchers.IO) {
             val page = Page(
                 coroutineScope = viewModelScope,
                 id = url,
