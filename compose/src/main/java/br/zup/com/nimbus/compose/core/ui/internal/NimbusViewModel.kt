@@ -130,7 +130,7 @@ internal class NimbusViewModel(
         }
 
     private fun pushNavigation(page: Page, initialRequest: Boolean) =
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             pagesManager.add(page)
             if (!initialRequest) {
                 setNavigationState(NimbusViewModelNavigationState.Push(page.id))
