@@ -129,26 +129,26 @@ internal class NimbusViewModel(
             nimbusViewModelModalState = state
         }
 
-    private fun pushNavigation(page: Page, initialRequest: Boolean) =
-        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-            pagesManager.add(page)
-            if (!initialRequest) {
-                setNavigationState(NimbusViewModelNavigationState.Push(page.id))
-            }
+    private fun pushNavigation(page: Page, initialRequest: Boolean) {
+        pagesManager.add(page)
+        if (!initialRequest) {
+            setNavigationState(NimbusViewModelNavigationState.Push(page.id))
         }
+    }
 
     private fun popNavigation() = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
         pop()
     }
 
-    private fun popNavigationTo(url: String) = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-        val page = pagesManager.findPage(url)
+    private fun popNavigationTo(url: String) =
+        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
+            val page = pagesManager.findPage(url)
 
-        page?.let {
-            pagesManager.removePagesAfter(page)
-            setNavigationState(NimbusViewModelNavigationState.PopTo(url))
+            page?.let {
+                pagesManager.removePagesAfter(page)
+                setNavigationState(NimbusViewModelNavigationState.PopTo(url))
+            }
         }
-    }
 
     private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
@@ -157,80 +157,75 @@ internal class NimbusViewModel(
                 description = request.url
             )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
-            val page = Page(
-                coroutineScope = viewModelScope,
-                id = url,
-                view = view
-            )
-            pushNavigation(page, initialRequest)
-
+            val page = Page(coroutineScope = viewModelScope, id = url, view = view)
+            pushNavigation(page = page, initialRequest = initialRequest)
             loadViewRequest(request, view, page)
         }
 
-    private fun loadViewRequest(
+    private suspend fun loadViewRequest(
         request: ViewRequest,
         view: ServerDrivenView,
         page: Page,
     ) {
-        viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            try {
-                page.setLoading()
-                val tree = nimbusConfig.core.viewClient.fetch(request)
-                view.renderer.paint(tree)
-            } catch (e: Throwable) {
-                page.setError(
-                    throwable = e,
-                    retry = {
+        try {
+            page.setLoading()
+            val tree = nimbusConfig.core.viewClient.fetch(request)
+            view.renderer.paint(tree)
+        } catch (e: Throwable) {
+            page.setError(
+                throwable = e,
+                retry = {
+                    viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
                         loadViewRequest(
                             request = request,
                             view = view,
                             page = page
                         )
                     }
-                )
-            }
+                }
+            )
         }
     }
 
-    private fun doPushWithJson(json: String) = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-        val view = nimbusConfig.core.createView(
-            getNavigator = { serverDrivenNavigator },
-            description = VIEW_JSON_DESCRIPTION
-        )
-        val url = VIEW_INITIAL_URL
+    private fun doPushWithJson(json: String) =
+        viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
+            val view = nimbusConfig.core.createView(
+                getNavigator = { serverDrivenNavigator },
+                description = VIEW_JSON_DESCRIPTION
+            )
+            val url = VIEW_INITIAL_URL
 
-        val page = Page(
-            coroutineScope = viewModelScope,
-            id = url,
-            view = view
-        )
-        pushNavigation(page, true)
-        loadJson(json, view, page)
-
-    }
+            val page = Page(
+                coroutineScope = viewModelScope,
+                id = url,
+                view = view
+            )
+            pushNavigation(page, true)
+            loadJson(json, view, page)
+        }
 
     private fun loadJson(
         json: String,
         view: ServerDrivenView,
         page: Page,
     ) {
-        viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            try {
-                page.setLoading()
-                val tree = nimbusConfig.core.createNodeFromJson(json)
-                view.renderer.paint(tree)
-            } catch (e: Throwable) {
-                page.setError(
-                    throwable = e,
-                    retry = {
+        try {
+            page.setLoading()
+            val tree = nimbusConfig.core.createNodeFromJson(json)
+            view.renderer.paint(tree)
+        } catch (e: Throwable) {
+            page.setError(
+                throwable = e,
+                retry = {
+                    viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
                         loadJson(
                             json = json,
                             view = view,
                             page = page
                         )
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
