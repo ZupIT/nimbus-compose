@@ -2,8 +2,8 @@ package br.zup.com.nimbus.compose
 
 import kotlinx.coroutines.Dispatchers
 
-object CoroutineDispatcherLib {
-    var backgroundPool = Dispatchers.Default
-    var inputOutputPool = Dispatchers.IO
-    var mainThread = Dispatchers.Main
+internal object CoroutineDispatcherLib {
+    val backgroundPool = Dispatchers.Default
+    val inputOutputPool = Dispatchers.IO
+    val mainThread = Dispatchers.Main
 }
