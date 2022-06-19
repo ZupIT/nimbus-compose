@@ -192,21 +192,21 @@ internal class NimbusViewModel(
         }
     }
 
-    private fun doPushWithJson(json: String) = viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
+    private fun doPushWithJson(json: String) = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
         val view = nimbusConfig.core.createView(
             getNavigator = { serverDrivenNavigator },
             description = VIEW_JSON_DESCRIPTION
         )
         val url = VIEW_INITIAL_URL
-        withContext(CoroutineDispatcherLib.inputOutputPool) {
-            val page = Page(
-                coroutineScope = viewModelScope,
-                id = url,
-                view = view
-            )
-            pushNavigation(page, true)
-            loadJson(json, view, page)
-        }
+
+        val page = Page(
+            coroutineScope = viewModelScope,
+            id = url,
+            view = view
+        )
+        pushNavigation(page, true)
+        loadJson(json, view, page)
+
     }
 
     private fun loadJson(
