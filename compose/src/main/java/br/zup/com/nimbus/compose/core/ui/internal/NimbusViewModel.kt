@@ -1,5 +1,6 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,7 @@ import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
+import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
@@ -39,6 +41,8 @@ internal class NimbusViewModel(
     var nimbusViewModelModalState: NimbusViewModelModalState by
     mutableStateOf(NimbusViewModelModalState.HiddenModalState)
         private set
+
+    private val pageStateLoading: MutableState<NimbusPageState> = mutableStateOf(NimbusPageState.PageStateOnLoading)
 
     private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> =
         MutableStateFlow(NimbusViewModelNavigationState.RootState)
@@ -119,12 +123,12 @@ internal class NimbusViewModel(
     }
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
+        viewModelScope.launch(CoroutineDispatcherLib.mainThread) {
             _nimbusViewNavigationState.value = nimbusViewModelNavigationState
         }
 
     private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
-        viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
+        viewModelScope.launch(CoroutineDispatcherLib.mainThread) {
             nimbusViewModelModalState = state
         }
 
@@ -156,7 +160,8 @@ internal class NimbusViewModel(
                 description = request.url
             )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
-            val page = Page(coroutineScope = viewModelScope, id = url, view = view)
+            val page = Page(coroutineScope = viewModelScope, id = url, view = view,
+                content = pageStateLoading)
             pushNavigation(page = page, initialRequest = initialRequest)
             loadViewRequest(request, view, page)
         }
@@ -197,7 +202,8 @@ internal class NimbusViewModel(
             val page = Page(
                 coroutineScope = viewModelScope,
                 id = url,
-                view = view
+                view = view,
+                content = pageStateLoading
             )
             pushNavigation(page, true)
             loadJson(json, view, page)

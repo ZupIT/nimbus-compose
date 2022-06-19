@@ -19,7 +19,7 @@ internal fun NimbusView(
 ) {
     var loading by remember { mutableStateOf(true) }
 
-    RenderPageState(page.content, page) { isLoading ->
+    RenderPageState(page.content.value, page) { isLoading ->
         if (loading != isLoading)
             loading = isLoading
     }

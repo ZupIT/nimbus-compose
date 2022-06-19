@@ -1,8 +1,6 @@
 package br.zup.com.nimbus.compose.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.MutableState
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
@@ -15,10 +13,10 @@ internal sealed class NimbusPageState {
     class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
-internal data class Page(val coroutineScope: CoroutineScope, val id: String, val view: ServerDrivenView) {
-    var content: NimbusPageState by mutableStateOf(NimbusPageState.PageStateOnLoading)
-        private set
-
+internal data class Page(
+    val coroutineScope: CoroutineScope, val id: String, val view: ServerDrivenView,
+    var content: MutableState<NimbusPageState>,
+) {
     init {
         view.onChange {
             setState(NimbusPageState.PageStateOnShowPage(it))
@@ -26,13 +24,12 @@ internal data class Page(val coroutineScope: CoroutineScope, val id: String, val
     }
 
     private fun setState(nimbusPageState: NimbusPageState) =
-        coroutineScope.launch(CoroutineDispatcherLib.backgroundPool) {
-            content = nimbusPageState
-    }
+        coroutineScope.launch(CoroutineDispatcherLib.mainThread) {
+            content.value = nimbusPageState
+        }
 
     fun setLoading() {
-        if (content !is NimbusPageState.PageStateOnLoading)
-            setState(NimbusPageState.PageStateOnLoading)
+        setState(NimbusPageState.PageStateOnLoading)
     }
 
     fun setError(throwable: Throwable, retry: () -> Unit) {
