@@ -17,7 +17,6 @@ import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 internal sealed class NimbusViewModelModalState {
     object HiddenModalState : NimbusViewModelModalState()
