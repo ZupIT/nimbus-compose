@@ -3,6 +3,7 @@ package br.zup.com.nimbus.compose.model
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
@@ -13,8 +14,12 @@ internal sealed class NimbusPageState {
 internal data class Page(
     val id: String, val view: ServerDrivenView,
 ) {
-    var content: MutableStateFlow<NimbusPageState> =
+
+    private var _content: MutableStateFlow<NimbusPageState> =
         MutableStateFlow(NimbusPageState.PageStateOnLoading)
+
+    val content: StateFlow<NimbusPageState>
+        get() = _content
 
     init {
         view.onChange {
@@ -23,7 +28,7 @@ internal data class Page(
     }
 
     private fun setState(nimbusPageState: NimbusPageState) {
-        content.value = nimbusPageState
+        _content.value = nimbusPageState
     }
 
     fun setLoading() {
