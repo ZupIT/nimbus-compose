@@ -1,9 +1,5 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,7 +7,6 @@ import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
-import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
@@ -19,7 +14,6 @@ import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 internal sealed class NimbusViewModelModalState {
     object HiddenModalState : NimbusViewModelModalState()
@@ -39,9 +33,13 @@ internal class NimbusViewModel(
     private val nimbusConfig: NimbusConfig,
     private val pagesManager: PagesManager = PagesManager(),
 ) : ViewModel() {
-    var nimbusViewModelModalState: NimbusViewModelModalState by
-    mutableStateOf(NimbusViewModelModalState.HiddenModalState)
-        private set
+
+    private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
+        MutableStateFlow(NimbusViewModelModalState.HiddenModalState)
+
+    val nimbusViewModelModalState: StateFlow<NimbusViewModelModalState>
+        get() = _nimbusViewModelModalState
+
 
     private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> =
         MutableStateFlow(NimbusViewModelNavigationState.RootState)
@@ -121,15 +119,13 @@ internal class NimbusViewModel(
         pagesManager.removeAllPages()
     }
 
-    private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) =
-        viewModelScope.launch(CoroutineDispatcherLib.mainThread) {
-            _nimbusViewNavigationState.value = nimbusViewModelNavigationState
-        }
+    private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) {
+        _nimbusViewNavigationState.value = nimbusViewModelNavigationState
+    }
 
-    private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) =
-        viewModelScope.launch(CoroutineDispatcherLib.mainThread) {
-            nimbusViewModelModalState = state
-        }
+    private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) {
+        _nimbusViewModelModalState.value = state
+    }
 
     private fun pushNavigation(page: Page, initialRequest: Boolean) {
         pagesManager.add(page)
@@ -160,7 +156,6 @@ internal class NimbusViewModel(
             )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view)
             pushNavigation(page = page, initialRequest = initialRequest)
@@ -201,7 +196,6 @@ internal class NimbusViewModel(
             )
             val url = VIEW_INITIAL_URL
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view
             )
