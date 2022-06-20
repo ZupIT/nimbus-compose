@@ -44,7 +44,7 @@ internal fun NimbusNavHost(
             initNavHost(nimbusViewModel, viewRequest, json)
         })
 
-    configureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
+    ConfigureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
 
     ProvideNavigatorState(navHostHelper = nimbusNavHostHelper) {
         NavHost(
@@ -80,7 +80,7 @@ internal fun NimbusNavHost(
 }
 
 @Composable
-private fun configureNavHostHelper(
+private fun ConfigureNavHostHelper(
     nimbusNavHostHelper: NimbusNavHostHelper,
     nimbusViewModel: NimbusViewModel,
 ) {

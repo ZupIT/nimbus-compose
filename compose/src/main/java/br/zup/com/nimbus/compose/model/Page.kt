@@ -2,9 +2,11 @@ package br.zup.com.nimbus.compose.model
 
 import androidx.compose.runtime.MutableState
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
+import br.zup.com.nimbus.compose.core.ui.internal.NimbusViewModelNavigationState
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 internal sealed class NimbusPageState {
@@ -15,8 +17,10 @@ internal sealed class NimbusPageState {
 
 internal data class Page(
     val coroutineScope: CoroutineScope, val id: String, val view: ServerDrivenView,
-    var content: MutableState<NimbusPageState>,
 ) {
+    var content: MutableStateFlow<NimbusPageState> =
+        MutableStateFlow(NimbusPageState.PageStateOnLoading)
+
     init {
         view.onChange {
             setState(NimbusPageState.PageStateOnShowPage(it))

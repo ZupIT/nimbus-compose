@@ -19,6 +19,7 @@ import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal sealed class NimbusViewModelModalState {
     object HiddenModalState : NimbusViewModelModalState()
@@ -41,8 +42,6 @@ internal class NimbusViewModel(
     var nimbusViewModelModalState: NimbusViewModelModalState by
     mutableStateOf(NimbusViewModelModalState.HiddenModalState)
         private set
-
-    private val pageStateLoading: MutableState<NimbusPageState> = mutableStateOf(NimbusPageState.PageStateOnLoading)
 
     private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> =
         MutableStateFlow(NimbusViewModelNavigationState.RootState)
@@ -160,9 +159,12 @@ internal class NimbusViewModel(
                 description = request.url
             )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
-            val page = Page(coroutineScope = viewModelScope, id = url, view = view,
-                content = pageStateLoading)
+            val page = Page(
+                coroutineScope = viewModelScope,
+                id = url,
+                view = view)
             pushNavigation(page = page, initialRequest = initialRequest)
+
             loadViewRequest(request, view, page)
         }
 
@@ -198,12 +200,10 @@ internal class NimbusViewModel(
                 description = VIEW_JSON_DESCRIPTION
             )
             val url = VIEW_INITIAL_URL
-
             val page = Page(
                 coroutineScope = viewModelScope,
                 id = url,
-                view = view,
-                content = pageStateLoading
+                view = view
             )
             pushNavigation(page, true)
             loadJson(json, view, page)
