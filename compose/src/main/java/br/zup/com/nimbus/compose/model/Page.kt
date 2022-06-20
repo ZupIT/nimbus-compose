@@ -1,10 +1,12 @@
 package br.zup.com.nimbus.compose.model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
@@ -12,9 +14,16 @@ internal sealed class NimbusPageState {
     class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
-internal data class Page(val id: String, val view: ServerDrivenView) {
-    var content: NimbusPageState by mutableStateOf(NimbusPageState.PageStateOnLoading)
-        private set
+internal data class Page(
+    val coroutineScope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool),
+    val id: String, val view: ServerDrivenView,
+) {
+    private var _content: MutableSharedFlow<NimbusPageState> =
+        MutableSharedFlow(replay = CoroutineDispatcherLib.REPLAY_COUNT,
+            onBufferOverflow = CoroutineDispatcherLib.ON_BUFFER_OVERFLOW)
+
+    val content: SharedFlow<NimbusPageState>
+        get() = _content
 
     init {
         view.onChange {
@@ -23,12 +32,13 @@ internal data class Page(val id: String, val view: ServerDrivenView) {
     }
 
     private fun setState(nimbusPageState: NimbusPageState) {
-        content = nimbusPageState
+        coroutineScope.launch(CoroutineDispatcherLib.backgroundPool) {
+            _content.emit(nimbusPageState)
+        }
     }
 
     fun setLoading() {
-        if (content !is NimbusPageState.PageStateOnLoading)
-            setState(NimbusPageState.PageStateOnLoading)
+        setState(NimbusPageState.PageStateOnLoading)
     }
 
     fun setError(throwable: Throwable, retry: () -> Unit) {

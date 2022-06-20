@@ -15,31 +15,53 @@ import br.zup.com.nimbus.compose.model.Page
 
 @Composable
 internal fun NimbusView(
-    page: Page
+    page: Page,
 ) {
-    var loading by remember { mutableStateOf(false) }
+    var loading by remember { mutableStateOf(true) }
+
+    RenderPageState(page) { isLoading ->
+        if (loading != isLoading)
+            loading = isLoading
+    }
+
     if (loading) {
         NimbusTheme.nimbusAppState.config.loadingView()
     }
-    page.content.let { nimbusPageState ->
-        when (nimbusPageState) {
+}
+
+@Composable
+internal fun RenderPageState(
+    page: Page,
+    onLoading: (Boolean) -> Unit,
+) {
+    var nimbusPageState: NimbusPageState by remember {
+        mutableStateOf(NimbusPageState.PageStateOnLoading)
+    }
+
+    with(nimbusPageState) {
+        when (this) {
             is NimbusPageState.PageStateOnLoading -> {
-                loading = true
+                onLoading(true)
             }
             is NimbusPageState.PageStateOnError -> {
-                loading = false
+                onLoading(false)
                 NimbusTheme.nimbusAppState.config.errorView(
-                    nimbusPageState.throwable,
-                    nimbusPageState.retry
+                    this.throwable,
+                    this.retry
                 )
             }
             is NimbusPageState.PageStateOnShowPage -> {
-                NimbusServerDrivenView(viewTree = nimbusPageState.serverDrivenNode)
+                NimbusServerDrivenView(viewTree = this.serverDrivenNode)
                 Spacer(modifier = Modifier.semantics(true) {
                     testTag = "NimbusPage:${page.id}"
                 })
-                loading = false
+                onLoading(false)
             }
         }
     }
+
+    CollectSharedFlow(page.content) {
+        nimbusPageState = it
+    }
 }
+
