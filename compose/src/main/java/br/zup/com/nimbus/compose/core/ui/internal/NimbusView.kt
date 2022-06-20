@@ -60,7 +60,7 @@ internal fun RenderPageState(
         }
     }
 
-    CollectStateFlow(page.content) {
+    CollectSharedFlow(page.content) {
         nimbusPageState = it
     }
 }

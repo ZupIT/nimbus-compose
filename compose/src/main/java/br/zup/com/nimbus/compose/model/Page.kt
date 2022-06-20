@@ -1,9 +1,12 @@
 package br.zup.com.nimbus.compose.model
 
+import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
@@ -12,13 +15,14 @@ internal sealed class NimbusPageState {
 }
 
 internal data class Page(
+    val coroutineScope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool),
     val id: String, val view: ServerDrivenView,
 ) {
+    private var _content: MutableSharedFlow<NimbusPageState> =
+        MutableSharedFlow(replay = CoroutineDispatcherLib.REPLAY_COUNT,
+            onBufferOverflow = CoroutineDispatcherLib.ON_BUFFER_OVERFLOW)
 
-    private var _content: MutableStateFlow<NimbusPageState> =
-        MutableStateFlow(NimbusPageState.PageStateOnLoading)
-
-    val content: StateFlow<NimbusPageState>
+    val content: SharedFlow<NimbusPageState>
         get() = _content
 
     init {
@@ -28,7 +32,9 @@ internal data class Page(
     }
 
     private fun setState(nimbusPageState: NimbusPageState) {
-        _content.value = nimbusPageState
+        coroutineScope.launch(CoroutineDispatcherLib.backgroundPool) {
+            _content.emit(nimbusPageState)
+        }
     }
 
     fun setLoading() {

@@ -55,7 +55,7 @@ internal fun NimbusModalView(
         modalParentHelper.triggerAnimatedClose()
     }
 
-    CollectStateFlow(nimbusViewModel.nimbusViewModelModalState) {
+    CollectSharedFlow(nimbusViewModel.nimbusViewModelModalState) {
         nimbusViewModelModalState = it
     }
 }
