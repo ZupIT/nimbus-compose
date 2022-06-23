@@ -1,10 +1,12 @@
 package br.zup.com.nimbus.compose
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.platform.LocalContext
 import br.zup.com.nimbus.compose.core.ui.components.ErrorDefault
 import br.zup.com.nimbus.compose.core.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHostHelper
@@ -107,9 +109,11 @@ private val LocalNavigator = staticCompositionLocalOf<NimbusNavigatorState> {
 
 @Composable
 fun Nimbus(
+    applicationContext: Context = LocalContext.current.applicationContext,
     config: NimbusConfig,
     content: @Composable () -> Unit
 ) {
+    configureStaticState(applicationContext)
 
     val nimbusComposeState = remember(
         config
@@ -119,6 +123,12 @@ fun Nimbus(
         )
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
+}
+
+private fun configureStaticState(applicationContext: Context) {
+    if (NimbusTheme.nimbusStaticState == null) {
+        NimbusTheme.nimbusStaticState = StaticState(applicationContext = applicationContext)
+    }
 }
 
 @Composable
@@ -137,7 +147,17 @@ fun ProvideNavigatorState(
     CompositionLocalProvider(LocalNavigator provides nimbusNavigatorState, content = content)
 }
 
+/**
+ * Exposes a singleton state for non compose functions.
+ * Should only expose singleton properties here
+ */
+class StaticState(val applicationContext: Context)
+
 object NimbusTheme {
+
+    @get:Synchronized @set:Synchronized
+    var nimbusStaticState: StaticState? = null
+
     val nimbusAppState: NimbusComposeAppState
         @Composable
         get() = LocalNimbus.current
