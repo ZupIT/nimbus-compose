@@ -157,6 +157,7 @@ object NimbusTheme {
 
     @get:Synchronized @set:Synchronized
     var nimbusStaticState: StaticState? = null
+        internal set
 
     val nimbusAppState: NimbusComposeAppState
         @Composable
