@@ -61,7 +61,6 @@ class NimbusViewModelTest : BaseTest() {
             val expectedEmissionCount = 2
             val viewRequest = ViewRequest(url = RandomData.httpUrl())
 
-
             //When
             viewModel.initFirstViewWithRequest(viewRequest)
 
