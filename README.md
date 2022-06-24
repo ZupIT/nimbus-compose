@@ -17,4 +17,4 @@ Nimbus will be first released with support for SwiftUI and Compose, this repo ho
 
 ## **License**
 
-[**Apache License 2.0**](https://github.com/ZupIT/nimbus-core/blob/main/LICENSE.txt).
+[**Apache License 2.0**](https://github.com/ZupIT/nimbus-compose/blob/main/LICENSE.txt).
