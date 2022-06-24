@@ -127,7 +127,7 @@ fun Nimbus(
 
 private fun configureStaticState(applicationContext: Context) {
     if (NimbusTheme.nimbusStaticState == null) {
-        NimbusTheme.nimbusStaticState = StaticState(applicationContext = applicationContext)
+        NimbusTheme.nimbusStaticState = NimbusComposeStaticState(applicationContext = applicationContext)
     }
 }
 
@@ -151,12 +151,12 @@ fun ProvideNavigatorState(
  * Exposes a singleton state for non compose functions.
  * Should only expose singleton properties here
  */
-class StaticState(val applicationContext: Context)
+class NimbusComposeStaticState(val applicationContext: Context)
 
 object NimbusTheme {
 
     @get:Synchronized @set:Synchronized
-    var nimbusStaticState: StaticState? = null
+    var nimbusStaticState: NimbusComposeStaticState? = null
         internal set
 
     val nimbusAppState: NimbusComposeAppState
