@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-//@RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 @ExtendWith(CoroutinesTestExtension::class)
 class NimbusViewModelTest : BaseTest() {
