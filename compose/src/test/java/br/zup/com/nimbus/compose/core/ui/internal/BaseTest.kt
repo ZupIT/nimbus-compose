@@ -15,15 +15,15 @@ import org.junit.jupiter.api.TestInstance
 const val BASE_URL = "http://localhost"
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseTest {
-    internal val nimbusConfig: NimbusConfig = mockk(relaxed = true, relaxUnitFun = true)
-    internal val nimbusCore: Nimbus = mockk(relaxed = true, relaxUnitFun = true)
+    internal val nimbusConfig: NimbusConfig = mockk()
+    internal val nimbusCore: Nimbus = mockk()
     internal val pagesManager: PagesManager = mockk()
-    internal val viewClient: ViewClient = mockk(relaxed = true, relaxUnitFun = true)
-    internal val renderNode: RenderNode = mockk(relaxed = true, relaxUnitFun = true)
+    internal val viewClient: ViewClient = mockk()
+    internal val renderNode: RenderNode = mockk()
 
     @BeforeAll
     open fun setUp() {
-        mockBeagleEnvironment()
+        mockNimbusConfig()
     }
 
     @AfterAll
@@ -31,12 +31,11 @@ abstract class BaseTest {
         unmockkAll()
     }
 
-    protected fun mockBeagleEnvironment(){
+    protected fun mockNimbusConfig(){
         every { nimbusConfig.actions } returns mapOf()
         every { nimbusConfig.baseUrl } returns BASE_URL
         every { nimbusConfig.core } returns nimbusCore
         every { nimbusConfig.core.viewClient} returns viewClient
         coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns renderNode
-        //TODO fill in the other properties
     }
 }

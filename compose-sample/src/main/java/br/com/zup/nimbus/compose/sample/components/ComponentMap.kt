@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package br.com.zup.nimbus.compose.sample.components
 
 import androidx.compose.runtime.Composable

@@ -30,24 +30,28 @@ class NimbusViewModelTest : BaseTest() {
     private val renderer: Renderer = mockk()
     private lateinit var viewModel: NimbusViewModel
 
-    private val captureSlotTree = slot<Listener>()
-    private val slotPage = mutableListOf<Page>()
+    //Slots
+    private val pageOnChangeSlot = slot<Listener>()
+    private val pageManagerAddSlot = mutableListOf<Page>()
     private val slotPageState = mutableListOf<NimbusPageState>()
 
     @BeforeEach
     fun before() {
         viewModel = NimbusViewModel(nimbusConfig = nimbusConfig, pagesManager = pagesManager)
-        every { pagesManager.add(capture(slotPage)) } answers { true }
+        every { pagesManager.add(capture(pageManagerAddSlot)) } answers { true }
         every { nimbusConfig.core.createView(any(), any()) } returns serverDrivenView
         every { serverDrivenView.renderer } returns renderer
         every { renderer.paint(any()) } just Runs
-        every { serverDrivenView.onChange(capture(captureSlotTree)) } answers { serverDrivenNode }
+        every { serverDrivenView.onChange(capture(pageOnChangeSlot)) } answers { serverDrivenNode }
+
+        pageManagerAddSlot.clear()
+        pageOnChangeSlot.clear()
+        slotPageState.clear()
     }
 
     @DisplayName("When initFirstViewWithRequest")
     @Nested
     inner class ViewWithRequest {
-        @OptIn(ExperimentalCoroutinesApi::class)
         @DisplayName("Then should post PageStateOnLoading and PageStateOnShowPage")
         @Test
         @Suppress("UNCHECKED_CAST")
@@ -61,9 +65,9 @@ class NimbusViewModelTest : BaseTest() {
             //When
             viewModel.initFirstViewWithRequest(viewRequest)
 
-            val page = slotPage.first()
+            val page = pageManagerAddSlot.first()
 
-            emitServerDrivenNode(serverDrivenNode)
+            emitOnChangeServerDrivenNode(serverDrivenNode)
 
             page.content.take(expectedEmissionCount).collect {
                 slotPageState.add(it)
@@ -76,8 +80,8 @@ class NimbusViewModelTest : BaseTest() {
         }
     }
 
-    private fun emitServerDrivenNode(serverDrivenNode: ServerDrivenNode) {
-        val list = captureSlotTree.captured
+    private fun emitOnChangeServerDrivenNode(serverDrivenNode: ServerDrivenNode) {
+        val list = pageOnChangeSlot.captured
         list.invoke(serverDrivenNode)
     }
 }
