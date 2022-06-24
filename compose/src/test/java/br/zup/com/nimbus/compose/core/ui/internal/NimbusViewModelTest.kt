@@ -7,17 +7,20 @@ import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData
 import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData.jsonExample
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
+import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.network.ViewRequest
 import com.zup.nimbus.core.render.Listener
 import com.zup.nimbus.core.render.Renderer
 import com.zup.nimbus.core.render.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import io.mockk.Runs
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -26,7 +29,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.lang.RuntimeException
 
 @ExperimentalCoroutinesApi
 @ExtendWith(CoroutinesTestExtension::class)
@@ -38,17 +40,24 @@ class NimbusViewModelTest : BaseTest() {
 
     //Slots
     private val pageOnChangeSlot = slot<Listener>()
+    lateinit var serverDrivenNavigatorSlot: ServerDrivenNavigator
+
     private val pageManagerAddSlot = mutableListOf<Page>()
 
     @BeforeEach
     fun before() {
         viewModel = NimbusViewModel(nimbusConfig = nimbusConfig, pagesManager = pagesManager)
         every { pagesManager.add(capture(pageManagerAddSlot)) } answers { true }
-        every { nimbusConfig.core.createView(any(), any()) } returns serverDrivenView
+        every { nimbusConfig.core.createView(captureLambda(), any()) } answers {
+            serverDrivenNavigatorSlot = lambda<() -> ServerDrivenNavigator>().captured.invoke()
+            serverDrivenView
+        }
         every { serverDrivenView.renderer } returns renderer
         every { renderer.paint(any()) } just Runs
         every { serverDrivenView.onChange(capture(pageOnChangeSlot)) } answers { serverDrivenNode }
+        every { pagesManager.popLastPage() } returns true
 
+        clearMocks(pagesManager, answers = false)
         pageManagerAddSlot.clear()
         pageOnChangeSlot.clear()
     }
@@ -59,25 +68,16 @@ class NimbusViewModelTest : BaseTest() {
         @DisplayName("Then should post PageStateOnLoading and PageStateOnShowPage")
         @Test
         fun testGivenAViewRequestWhenInitFirstViewShouldLoadingOnShowPage() = runTest {
-
-            // Given
-            val viewRequest = ViewRequest(url = RandomData.httpUrl())
             val expectedFirstEmission = NimbusPageState.PageStateOnLoading
             val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
-            shouldEmitRenderNodeFromCore(renderNode)
-
-            //When
-            viewModel.initFirstViewWithRequest(viewRequest)
-
-            val page = pageManagerAddSlot.last()
-
-            emitOnChangeServerDrivenNode(serverDrivenNode)
+            val page = initFirstViewWithSuccess()
 
             //Then
             page.content.test {
                 assertEquals(expectedFirstEmission, awaitItem())
                 assertEquals(expectedSecondEmission, awaitItem())
             }
+            verify(exactly = 1) { pagesManager.add(any()) }
         }
 
         @DisplayName("Then should post PageStateOnLoading and PageStateOnError then retry with success")
@@ -104,7 +104,23 @@ class NimbusViewModelTest : BaseTest() {
 
                 shouldEmitLoadingAndShowPageAfterRetry(secondItem, expectedLoading, expectedOnShowPage)
             }
+            verify(exactly = 1) { pagesManager.add(any()) }
         }
+    }
+
+    private fun initFirstViewWithSuccess(): Page {
+        // Given
+        val viewRequest = ViewRequest(url = RandomData.httpUrl())
+
+        shouldEmitRenderNodeFromCore(renderNode)
+
+        //When
+        viewModel.initFirstViewWithRequest(viewRequest)
+
+        val page = pageManagerAddSlot.last()
+
+        emitOnChangeServerDrivenNode(serverDrivenNode)
+        return page
     }
 
     @DisplayName("When initFirstViewWithJson")
@@ -112,7 +128,7 @@ class NimbusViewModelTest : BaseTest() {
     inner class ViewWithJson {
         @DisplayName("Then should post PageStateOnLoading and PageStateOnShowPage")
         @Test
-        fun testGivenAViewRequestWhenInitFirstViewShouldLoadingOnShowPage() = runTest {
+        fun testGivenAJsonWhenInitFirstViewShouldLoadingOnShowPage() = runTest {
 
             // Given
             val json = jsonExample()
@@ -132,11 +148,12 @@ class NimbusViewModelTest : BaseTest() {
                 assertEquals(expectedFirstEmission, awaitItem())
                 assertEquals(expectedSecondEmission, awaitItem())
             }
+            verify(exactly = 1) { pagesManager.add(any()) }
         }
 
         @DisplayName("Then should post PageStateOnLoading and PageStateOnError then retry with success")
         @Test
-        fun testGivenAViewRequestWhenInitFirstViewShouldPageStateOnError() = runTest {
+        fun testGivenAJsonWhenInitFirstViewShouldPageStateOnError() = runTest {
 
             // Given
             val json = jsonExample()
@@ -158,7 +175,54 @@ class NimbusViewModelTest : BaseTest() {
 
                 shouldEmitLoadingAndShowPageAfterRetry(secondItem, expectedLoading, expectedOnShowPage)
             }
+
+            verify(exactly = 1) { pagesManager.add(any()) }
         }
+    }
+
+    @DisplayName("When receive a ServerDrivenNavigator event")
+    @Nested
+    inner class Navigator {
+        @DisplayName("Then should post NimbusViewModelNavigationState.Pop")
+        @Test
+        fun testGivenAPopNavigationEventShouldPostNimbusViewModelNavigationStatePop() = runTest {
+
+            val url = RandomData.httpUrl()
+            val secondViewRequest = ViewRequest(url)
+            //Given
+            val expectedFirstEmission = NimbusPageState.PageStateOnLoading
+            val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
+            val expectedNavigationFirstEmission = NimbusViewModelNavigationState.Push(
+                url)
+            val expectedNavigationSecondEmission = NimbusViewModelNavigationState.Pop
+
+            //When
+            val page = initFirstViewWithSuccess()
+
+
+            //Then
+            page.content.test {
+                assertEquals(expectedFirstEmission, awaitItem())
+                assertEquals(expectedSecondEmission, awaitItem())
+            }
+
+            verify(exactly = 1) { pagesManager.add(any()) }
+
+            //After that push another view and pops it
+            serverDrivenNavigatorSlot.push(secondViewRequest)
+            serverDrivenNavigatorSlot.pop()
+
+            viewModel.nimbusViewNavigationState.test {
+
+                assertEquals(expectedNavigationFirstEmission, awaitItem())
+                assertEquals(expectedNavigationSecondEmission, awaitItem())
+
+            }
+
+            verify(exactly = 2) { pagesManager.add(any()) }
+            verify(exactly = 1) { pagesManager.popLastPage() }
+        }
+
     }
 
     private suspend fun FlowTurbine<NimbusPageState>.shouldEmitLoadingAndShowPageAfterRetry(
