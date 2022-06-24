@@ -1,5 +1,6 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
+import app.cash.turbine.test
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.network.ViewRequest
@@ -60,6 +61,8 @@ class NimbusViewModelTest : BaseTest() {
             // Given
             val expectedEmissionCount = 2
             val viewRequest = ViewRequest(url = RandomData.httpUrl())
+            val expectedFirstEmission = NimbusPageState.PageStateOnLoading
+            val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
 
             //When
             viewModel.initFirstViewWithRequest(viewRequest)
@@ -68,14 +71,14 @@ class NimbusViewModelTest : BaseTest() {
 
             emitOnChangeServerDrivenNode(serverDrivenNode)
 
-            page.content.take(expectedEmissionCount).collect {
-                slotPageState.add(it)
+            page.content.test {
+                assertEquals(expectedFirstEmission, awaitItem())
+                assertEquals(expectedSecondEmission, awaitItem())
             }
 
-            //Then
-            assertEquals(slotPageState.first(), NimbusPageState.PageStateOnLoading)
-            assertEquals((slotPageState.last() as NimbusPageState.PageStateOnShowPage).serverDrivenNode,
-                serverDrivenNode)
+//            //Then
+//            assertEquals(expectedFirstEmission, slotPageState.first())
+//            assertEquals(expectedSecondEmission, slotPageState[1])
         }
     }
 

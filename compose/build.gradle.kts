@@ -42,6 +42,7 @@ dependencies {
     testImplementation("androidx.test:rules:1.4.0")
     testImplementation("io.mockk:mockk:1.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
+    testImplementation ("app.cash.turbine:turbine:0.8.0")
 }
 
 android {
