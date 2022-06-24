@@ -1,6 +1,8 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
 import app.cash.turbine.test
+import br.zup.com.nimbus.compose.core.ui.internal.util.CoroutinesTestExtension
+import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.network.ViewRequest
@@ -14,7 +16,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.BeforeEach
