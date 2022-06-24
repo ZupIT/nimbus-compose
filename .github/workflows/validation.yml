@@ -21,12 +21,20 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Run linter and tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: detekt testDebugUnitTest --scan
+          arguments: detekt lintDebug testDebugUnitTest compose:jacocoDebugTestReport jacocoMerge jacocoRootReport sonarqube --scan
 
       - name: "Add build scan URL as PR comment"
         uses: actions/github-script@v5

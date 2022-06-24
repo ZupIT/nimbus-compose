@@ -4,6 +4,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-parcelize")
     id("de.mannodermaus.android-junit5")
+    id("org.jetbrains.dokka")
 }
 
 val serializationVersion = "1.3.2"
