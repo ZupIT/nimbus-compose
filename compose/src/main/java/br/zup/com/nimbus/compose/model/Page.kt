@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 
 internal sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
-    class PageStateOnError(val throwable: Throwable, val retry: () -> Unit) : NimbusPageState()
-    class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
+    data class PageStateOnError(val throwable: Throwable, val retry: () -> Unit) : NimbusPageState()
+    data class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
 internal data class Page(

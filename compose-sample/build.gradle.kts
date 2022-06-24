@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-android")
+    id("de.mannodermaus.android-junit5")
+    id("org.jetbrains.dokka")
 }
 
 val serializationVersion = "1.3.2"

@@ -18,15 +18,15 @@ import kotlinx.coroutines.launch
 internal sealed class NimbusViewModelModalState {
     object HiddenModalState : NimbusViewModelModalState()
     object OnHideModalState : NimbusViewModelModalState()
-    class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
+    data class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
 }
 
 @Suppress("CanSealedSubClassBeObject")
 internal sealed class NimbusViewModelNavigationState {
     object RootState : NimbusViewModelNavigationState()
-    class Push(val url: String) : NimbusViewModelNavigationState()
-    class Pop : NimbusViewModelNavigationState()
-    class PopTo(val url: String) : NimbusViewModelNavigationState()
+    data class Push(val url: String) : NimbusViewModelNavigationState()
+    object Pop : NimbusViewModelNavigationState()
+    data class PopTo(val url: String) : NimbusViewModelNavigationState()
 }
 
 internal class NimbusViewModel(
@@ -90,7 +90,7 @@ internal class NimbusViewModel(
 
     fun pop(): Boolean {
         return if (pagesManager.popLastPage()) {
-            setNavigationState(NimbusViewModelNavigationState.Pop())
+            setNavigationState(NimbusViewModelNavigationState.Pop)
             true
         } else {
             false
