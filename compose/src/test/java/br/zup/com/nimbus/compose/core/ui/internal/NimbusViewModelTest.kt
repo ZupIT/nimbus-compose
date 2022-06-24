@@ -35,7 +35,6 @@ class NimbusViewModelTest : BaseTest() {
     //Slots
     private val pageOnChangeSlot = slot<Listener>()
     private val pageManagerAddSlot = mutableListOf<Page>()
-    private val slotPageState = mutableListOf<NimbusPageState>()
 
     @BeforeEach
     fun before() {
@@ -48,7 +47,6 @@ class NimbusViewModelTest : BaseTest() {
 
         pageManagerAddSlot.clear()
         pageOnChangeSlot.clear()
-        slotPageState.clear()
     }
 
     @DisplayName("When initFirstViewWithRequest")
@@ -60,7 +58,6 @@ class NimbusViewModelTest : BaseTest() {
         fun testGivenAViewRequestWhenInitFirstViewShouldLoadingOnShowPage() = runTest {
 
             // Given
-            val expectedEmissionCount = 2
             val viewRequest = ViewRequest(url = RandomData.httpUrl())
             val expectedFirstEmission = NimbusPageState.PageStateOnLoading
             val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
@@ -72,14 +69,11 @@ class NimbusViewModelTest : BaseTest() {
 
             emitOnChangeServerDrivenNode(serverDrivenNode)
 
+            //Then
             page.content.test {
                 assertEquals(expectedFirstEmission, awaitItem())
                 assertEquals(expectedSecondEmission, awaitItem())
             }
-
-//            //Then
-//            assertEquals(expectedFirstEmission, slotPageState.first())
-//            assertEquals(expectedSecondEmission, slotPageState[1])
         }
     }
 
