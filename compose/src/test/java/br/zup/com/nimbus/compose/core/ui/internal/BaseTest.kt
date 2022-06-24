@@ -36,6 +36,16 @@ abstract class BaseTest {
         every { nimbusConfig.baseUrl } returns BASE_URL
         every { nimbusConfig.core } returns nimbusCore
         every { nimbusConfig.core.viewClient} returns viewClient
-        coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns renderNode
     }
+
+    internal fun shouldEmitRenderNodeFromCore(renderNode: RenderNode) {
+        coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns renderNode
+        every { nimbusConfig.core.createNodeFromJson(any()) } returns renderNode
+    }
+
+    internal fun shouldEmitExceptionFromCore(expectedException: Throwable) {
+        coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
+        every { nimbusConfig.core.createNodeFromJson(any()) } throws expectedException
+    }
+
 }

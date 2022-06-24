@@ -4,6 +4,7 @@ import app.cash.turbine.FlowTurbine
 import app.cash.turbine.test
 import br.zup.com.nimbus.compose.core.ui.internal.util.CoroutinesTestExtension
 import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData
+import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData.jsonExample
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.network.ViewRequest
@@ -57,13 +58,13 @@ class NimbusViewModelTest : BaseTest() {
     inner class ViewWithRequest {
         @DisplayName("Then should post PageStateOnLoading and PageStateOnShowPage")
         @Test
-        @Suppress("UNCHECKED_CAST")
         fun testGivenAViewRequestWhenInitFirstViewShouldLoadingOnShowPage() = runTest {
 
             // Given
             val viewRequest = ViewRequest(url = RandomData.httpUrl())
             val expectedFirstEmission = NimbusPageState.PageStateOnLoading
             val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
+            shouldEmitRenderNodeFromCore(renderNode)
 
             //When
             viewModel.initFirstViewWithRequest(viewRequest)
@@ -81,7 +82,6 @@ class NimbusViewModelTest : BaseTest() {
 
         @DisplayName("Then should post PageStateOnLoading and PageStateOnError then retry with success")
         @Test
-        @Suppress("UNCHECKED_CAST")
         fun testGivenAViewRequestWhenInitFirstViewShouldPageStateOnError() = runTest {
 
             // Given
@@ -90,7 +90,6 @@ class NimbusViewModelTest : BaseTest() {
             val expectedLoading = NimbusPageState.PageStateOnLoading
             val expectedPageError = NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
             val expectedOnShowPage = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
-
 
             coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
 
@@ -101,42 +100,95 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             page.content.test {
-                val secondItem = shouldBeLoadingAndError(expectedLoading, expectedPageError)
+                val secondItem = shouldEmitLoadingAndError(expectedLoading, expectedPageError)
 
-                shouldBeLoadingAndShowPage(secondItem, expectedLoading, expectedOnShowPage)
+                shouldEmitLoadingAndShowPageAfterRetry(secondItem, expectedLoading, expectedOnShowPage)
+            }
+        }
+    }
+
+    @DisplayName("When initFirstViewWithJson")
+    @Nested
+    inner class ViewWithJson {
+        @DisplayName("Then should post PageStateOnLoading and PageStateOnShowPage")
+        @Test
+        fun testGivenAViewRequestWhenInitFirstViewShouldLoadingOnShowPage() = runTest {
+
+            // Given
+            val json = jsonExample()
+            val expectedFirstEmission = NimbusPageState.PageStateOnLoading
+            val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
+            shouldEmitRenderNodeFromCore(renderNode)
+
+            //When
+            viewModel.initFirstViewWithJson(json)
+
+            val page = pageManagerAddSlot.last()
+
+            emitOnChangeServerDrivenNode(serverDrivenNode)
+
+            //Then
+            page.content.test {
+                assertEquals(expectedFirstEmission, awaitItem())
+                assertEquals(expectedSecondEmission, awaitItem())
             }
         }
 
-        private suspend fun FlowTurbine<NimbusPageState>.shouldBeLoadingAndShowPage(
-            secondItem: NimbusPageState.PageStateOnError,
-            expectedLoading: NimbusPageState.PageStateOnLoading,
-            expectedOnShowPage: NimbusPageState.PageStateOnShowPage,
-        ) {
-            coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns renderNode
+        @DisplayName("Then should post PageStateOnLoading and PageStateOnError then retry with success")
+        @Test
+        fun testGivenAViewRequestWhenInitFirstViewShouldPageStateOnError() = runTest {
 
-            //Simulates user clicking retry button on error screen
-            secondItem.retry.invoke()
-            emitOnChangeServerDrivenNode(serverDrivenNode)
+            // Given
+            val json = jsonExample()
+            val expectedException = RuntimeException("Any Exception")
+            val expectedLoading = NimbusPageState.PageStateOnLoading
+            val expectedPageError = NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
+            val expectedOnShowPage = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
 
-            val thirdItem = awaitItem()
-            assertEquals(expectedLoading, thirdItem)
+            shouldEmitExceptionFromCore(expectedException)
 
-            val fourthItem = awaitItem()
-            assertEquals(expectedOnShowPage, fourthItem)
+            //When
+            viewModel.initFirstViewWithJson(json)
+
+            val page = pageManagerAddSlot.last()
+
+            //Then
+            page.content.test {
+                val secondItem = shouldEmitLoadingAndError(expectedLoading, expectedPageError)
+
+                shouldEmitLoadingAndShowPageAfterRetry(secondItem, expectedLoading, expectedOnShowPage)
+            }
         }
+    }
 
-        private suspend fun FlowTurbine<NimbusPageState>.shouldBeLoadingAndError(
-            expectedLoading: NimbusPageState.PageStateOnLoading,
-            expectedPageError: NimbusPageState.PageStateOnError,
-        ): NimbusPageState.PageStateOnError {
-            val firstItem = awaitItem()
-            assertEquals(expectedLoading, firstItem)
+    private suspend fun FlowTurbine<NimbusPageState>.shouldEmitLoadingAndShowPageAfterRetry(
+        secondItem: NimbusPageState.PageStateOnError,
+        expectedLoading: NimbusPageState.PageStateOnLoading,
+        expectedOnShowPage: NimbusPageState.PageStateOnShowPage,
+    ) {
+        shouldEmitRenderNodeFromCore(renderNode)
+        //Simulates user clicking retry button on error screen
+        secondItem.retry.invoke()
+        emitOnChangeServerDrivenNode(serverDrivenNode)
 
-            val secondItem = (awaitItem() as NimbusPageState.PageStateOnError)
-            assertEquals(expectedPageError.throwable,
-                secondItem.throwable)
-            return secondItem
-        }
+        val thirdItem = awaitItem()
+        assertEquals(expectedLoading, thirdItem)
+
+        val fourthItem = awaitItem()
+        assertEquals(expectedOnShowPage, fourthItem)
+    }
+
+    private suspend fun FlowTurbine<NimbusPageState>.shouldEmitLoadingAndError(
+        expectedLoading: NimbusPageState.PageStateOnLoading,
+        expectedPageError: NimbusPageState.PageStateOnError,
+    ): NimbusPageState.PageStateOnError {
+        val firstItem = awaitItem()
+        assertEquals(expectedLoading, firstItem)
+
+        val secondItem = (awaitItem() as NimbusPageState.PageStateOnError)
+        assertEquals(expectedPageError.throwable,
+            secondItem.throwable)
+        return secondItem
     }
 
     private fun emitOnChangeServerDrivenNode(serverDrivenNode: ServerDrivenNode) {
