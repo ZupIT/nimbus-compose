@@ -146,7 +146,7 @@ internal class NimbusViewModel(
 
     private fun popNavigationTo(url: String) =
         viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-            val page = pagesManager.findPage(url)
+            val page = pagesManager.getPageBy(url)
 
             page?.let {
                 pagesManager.removePagesAfter(page)

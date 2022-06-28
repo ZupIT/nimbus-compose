@@ -22,4 +22,48 @@ object RandomData {
     fun httpUrl(): String = "http://${string(5)}.com"
 
     fun httpsUrl(): String = "https://${string(5)}.com"
+    
+    fun jsonExample(): String = """{
+  "_:component": "layout:row",
+  "children": [
+    {
+      "_:component": "layout:row",
+      "children": [{
+        "_:component": "layout:text",
+        "properties": {
+          "text": "r"
+        }
+      }],
+      "properties": {
+        "flex":2,
+        "backgroundColor": "#FF0000"
+      }
+    },
+    {
+      "_:component": "layout:row",
+      "children": [{
+        "_:component": "layout:text",
+        "properties": {
+          "text": "g"
+        }
+      }],
+      "properties": {
+        "flex":1,
+        "backgroundColor": "#00FF00"
+      }
+    },
+    {
+      "_:component": "layout:row",
+      "children": [{
+        "_:component": "layout:text",
+        "properties": {
+          "text": "b"
+        }
+      }],
+      "properties": {
+        "flex":1,
+        "backgroundColor": "#0000FF"
+      }
+    }]
+}"""
 }
