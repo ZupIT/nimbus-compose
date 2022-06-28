@@ -116,7 +116,7 @@ NimbusNavigator(json = YOUR_JSON)
 
 ## **Documentation**
 
-You can find Nimbus's documentation on our [**website**](https://github.com/ZupIT/nimbus-docs/).
+You can find Nimbus's documentation at this link [**Nimbus Documentation**](https://github.com/ZupIT/nimbus-docs/).
 
 [nimbus-docs]: https://github.com/ZupIT/nimbus-docs/
 
