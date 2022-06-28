@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import br.zup.com.nimbus.compose.core.ui.internal.util.CoroutinesTestExtension
 import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData
 import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData.jsonExample
+import br.zup.com.nimbus.compose.core.ui.internal.util.invokeHiddenMethod
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
@@ -36,6 +37,7 @@ class NimbusViewModelTest : BaseTest() {
     private val serverDrivenView: ServerDrivenView = mockk()
     private val serverDrivenNode: ServerDrivenNode = mockk()
     private val renderer: Renderer = mockk()
+    private val page: Page = mockk()
     private lateinit var viewModel: NimbusViewModel
 
     //Slots
@@ -88,7 +90,8 @@ class NimbusViewModelTest : BaseTest() {
             val viewRequest = ViewRequest(url = RandomData.httpUrl())
             val expectedException = RuntimeException("Any Exception")
             val expectedLoading = NimbusPageState.PageStateOnLoading
-            val expectedPageError = NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
+            val expectedPageError =
+                NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
             val expectedOnShowPage = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
 
             coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
@@ -102,7 +105,9 @@ class NimbusViewModelTest : BaseTest() {
             page.content.test {
                 val secondItem = shouldEmitLoadingAndError(expectedLoading, expectedPageError)
 
-                shouldEmitLoadingAndShowPageAfterRetry(secondItem, expectedLoading, expectedOnShowPage)
+                shouldEmitLoadingAndShowPageAfterRetry(secondItem,
+                    expectedLoading,
+                    expectedOnShowPage)
             }
             verify(exactly = 1) { pagesManager.add(any()) }
         }
@@ -159,7 +164,8 @@ class NimbusViewModelTest : BaseTest() {
             val json = jsonExample()
             val expectedException = RuntimeException("Any Exception")
             val expectedLoading = NimbusPageState.PageStateOnLoading
-            val expectedPageError = NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
+            val expectedPageError =
+                NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
             val expectedOnShowPage = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
 
             shouldEmitExceptionFromCore(expectedException)
@@ -173,7 +179,9 @@ class NimbusViewModelTest : BaseTest() {
             page.content.test {
                 val secondItem = shouldEmitLoadingAndError(expectedLoading, expectedPageError)
 
-                shouldEmitLoadingAndShowPageAfterRetry(secondItem, expectedLoading, expectedOnShowPage)
+                shouldEmitLoadingAndShowPageAfterRetry(secondItem,
+                    expectedLoading,
+                    expectedOnShowPage)
             }
 
             verify(exactly = 1) { pagesManager.add(any()) }
@@ -199,7 +207,6 @@ class NimbusViewModelTest : BaseTest() {
             //When
             val page = initFirstViewWithSuccess()
 
-
             //Then
             page.content.test {
                 assertEquals(expectedFirstEmission, awaitItem())
@@ -223,6 +230,48 @@ class NimbusViewModelTest : BaseTest() {
             verify(exactly = 1) { pagesManager.popLastPage() }
         }
 
+        @DisplayName("Then should post NimbusViewModelNavigationState.OnShowModalModalState")
+        @Test
+        fun testGivenAPresentNavigationEventShouldPostOnShowModalModalState() = runTest {
+            //Given
+            val url = RandomData.httpUrl()
+            val viewRequest = ViewRequest(url)
+            val expectedModalState = NimbusViewModelModalState.OnShowModalModalState(viewRequest)
+            val expectedSecondModalState = NimbusViewModelModalState.OnHideModalState
+
+            //When
+            initFirstViewWithSuccess()
+            serverDrivenNavigatorSlot.present(viewRequest)
+            serverDrivenNavigatorSlot.dismiss()
+
+            //Then
+            viewModel.nimbusViewModelModalState.test {
+                assertEquals(expectedModalState, awaitItem())
+                assertEquals(expectedSecondModalState, awaitItem())
+            }
+
+        }
+
+        @DisplayName("Then should post NimbusViewModelNavigationState.PopTo(url)")
+        @Test
+        fun testGivenAPopToUrlEventShouldPostPopTo() = runTest {
+            //Given
+            val url = RandomData.httpUrl()
+            val expectedState = NimbusViewModelNavigationState.PopTo(url)
+
+            every {  pagesManager.getPageBy(url) } returns page
+            every {  pagesManager.removePagesAfter(page) } just Runs
+
+            //When
+            initFirstViewWithSuccess()
+            serverDrivenNavigatorSlot.popTo(url)
+
+            //Then
+            viewModel.nimbusViewNavigationState.test {
+                assertEquals(expectedState, awaitItem())
+            }
+
+        }
     }
 
     private suspend fun FlowTurbine<NimbusPageState>.shouldEmitLoadingAndShowPageAfterRetry(
@@ -240,6 +289,104 @@ class NimbusViewModelTest : BaseTest() {
 
         val fourthItem = awaitItem()
         assertEquals(expectedOnShowPage, fourthItem)
+    }
+
+    @DisplayName("When receive a view model method call")
+    @Nested
+    inner class ViewModel {
+        @DisplayName("Then should return false when in first page")
+        @Test
+        fun testGivenAPopWithOnlyOnePageShouldReturnFalse() = runTest {
+            val expectedPop = false
+
+            //Given
+            every { pagesManager.popLastPage() } returns false
+
+            //When
+            val pop = viewModel.pop()
+
+            //Then
+            verify(exactly = 1) { pagesManager.popLastPage() }
+            assertEquals(expectedPop , pop)
+        }
+
+        @DisplayName("Then should return the page when getPageBy")
+        @Test
+        fun testGivenAGetPageByShouldReturnThePage() = runTest {
+            val expectedPage = page
+            val url = RandomData.httpUrl()
+
+            //Given
+            every { pagesManager.getPageBy(url) } returns page
+
+            //When
+            val page = viewModel.getPageBy(url)
+
+            //Then
+            verify(exactly = 1) { pagesManager.getPageBy(url) }
+            assertEquals(expectedPage , page)
+        }
+
+        @DisplayName("Then should return the page count when getPageCount")
+        @Test
+        fun testGivenAGetPageCountShouldReturnThePageCount() = runTest {
+            val expectedPageCount = RandomData.int()
+
+            //Given
+            every { pagesManager.getPageCount() } returns expectedPageCount
+
+            //When
+            val result = viewModel.getPageCount()
+
+            //Then
+            verify(exactly = 1) { pagesManager.getPageCount() }
+            assertEquals(expectedPageCount , result)
+        }
+
+        @DisplayName("Then should dispose the pages")
+        @Test
+        fun testGivenDisposeCallShouldDisposePages() = runTest {
+
+            //Given
+            every { pagesManager.removeAllPages() } just Runs
+
+            //When
+            viewModel.dispose()
+
+            //Then
+            verify(exactly = 1) { pagesManager.removeAllPages() }
+        }
+
+        @DisplayName("Then should dispose the pages when cleared")
+        @Test
+        fun testGivenClearedShouldDisposePages() = runTest {
+            //Given
+            every { pagesManager.removeAllPages() } just Runs
+
+            //When
+            viewModel.invokeHiddenMethod("onCleared")
+
+            //Then
+            verify(exactly = 1) { pagesManager.removeAllPages() }
+        }
+    }
+
+    @DisplayName("When receive an event to change model to hidden state")
+    @Nested
+    inner class ViewModelModalState {
+        @DisplayName("Then should return receive a hidden state emission")
+        @Test
+        fun testGivenAPopWithOnlyOnePageShouldReturnFalse() = runTest {
+            val expectedModalState = NimbusViewModelModalState.HiddenModalState
+
+            //When
+            viewModel.setModalHiddenState()
+
+            //Then
+            viewModel.nimbusViewModelModalState.test {
+                assertEquals(expectedModalState, awaitItem())
+            }
+        }
     }
 
     private suspend fun FlowTurbine<NimbusPageState>.shouldEmitLoadingAndError(
