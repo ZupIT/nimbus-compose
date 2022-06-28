@@ -1,20 +1,18 @@
 # [**Nimbus Compose**](https://github.com/ZupIT/nimbus-docs/) &middot; [![GitHub license](https://img.shields.io/badge/license-Apache%202.0-blue)](https://github.com/ZupIT/nimbus-compose/blob/main/LICENSE.txt) [![maven version](https://img.shields.io/maven-central/v/br.com.zup.nimbus/nimbus-compose)](https://search.maven.org/artifact/br.com.zup.nimbus/nimbus-compose) [![CI/CD Status](https://github.com/ZupIT/nimbus-compose/actions/workflows/validation.yml/badge.svg?branch=main)](https://github.com/ZupIT/nimbus-compose/actions/workflows/validation.yml) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ZupIT/nimbus-compose/blob/main/CONTRIBUTING.md) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ZupIT_nimbus_compose&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ZupIT_nimbus_compose)
 
-Nimbus is a Server Driven UI library written for Jetpack Compose and SwiftUI.
-
-This repository holds the Compose implementation.
+> Article level: basic.
 
 # Nimbus for Compose: Getting started
 ## Pre-requisites
 
 - [Latest Android Studio (recommended)](https://developer.android.com/studio)
-- [Jdk Minimum 1.8](https://www.oracle.com/java/technologies/downloads/)
+- [Java Development Kit (JDK) 1.8 or above](https://www.oracle.com/java/technologies/downloads/)
 - [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- Android API minSdk = 21
-- Kotlin 1.6.x
+- Android SDK: API 21 or above
+- Kotlin 1.6 or above
 
 # Installing
-You can download the Nimbus library from mavenCentral with the below configuration on your build.gradle
+You can download the Nimbus library from mavenCentral by writing the following to your `build.gradle` file:
 
 ```
 allprojects {
@@ -22,7 +20,6 @@ allprojects {
         mavenCentral()
     }
 }
-
 ```
 
 ``` 
@@ -31,16 +28,18 @@ allprojects {
   // Recommended if you dont want to implement the layout components yourself
   implementation "br.com.zup.nimbus:nimbus-layout-compose:${nimbusComposeLayoutVersion}" 
 ```
+Above, we added both the core Nimbus library and a component library for layout components. Our examples will use both, but if your project won't use the layout components, you don't need to the second dependency.
 
 # Rendering your first server-driven screen
 
-## Rendering with a endpoint url
+## Rendering with a endpoint url 
 
 
 ```kotlin
+const val BASE_URL = "https://gist.githubusercontent.com/hernandazevedozup/eba4f2eb6afd6d6769a549fe037c1613/raw/cd3a897f4384783a1e799bb118a0dbfa8838fcf0"
 class MainActivity : ComponentActivity() {
     private val config = NimbusConfig(
-        baseUrl = "http://myapi.com",
+        baseUrl = BASE_URL,
         components = layoutComponents,
     )
 
@@ -51,7 +50,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     Nimbus(config = config) {
-                        NimbusNavigator(ViewRequest("/homepage"))
+                        NimbusNavigator(ViewRequest("/1"))
                     }
                 }
             }
@@ -59,59 +58,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 ```
-### Create on your endpoint http://myapi.com/homepage the json below
-```
-{
-  "_:component": "layout:row",
-  "children": [
-    {
-      "_:component": "layout:row",
-      "children": [{
-        "_:component": "layout:text",
-        "properties": {
-          "text": "r"
-        }
-      }],
-      "properties": {
-        "flex":2,
-        "backgroundColor": "#FF0000"
-      }
-    },
-    {
-      "_:component": "layout:row",
-      "children": [{
-        "_:component": "layout:text",
-        "properties": {
-          "text": "g"
-        }
-      }],
-      "properties": {
-        "flex":1,
-        "backgroundColor": "#00FF00"
-      }
-    },
-    {
-      "_:component": "layout:row",
-      "children": [{
-        "_:component": "layout:text",
-        "properties": {
-          "text": "b"
-        }
-      }],
-      "properties": {
-        "flex":1,
-        "backgroundColor": "#0000FF"
-      }
-    }]
-}
-```
 
-* Note you can also load this json whithin your app using the code snippet below
-```
-NimbusNavigator(json = YOUR_JSON)
-```
-
-### The result on your app's screen
+Run the application. You should see the following interface in the emulator's screen:
 <img src="https://github.com/ZupIT/nimbus-layout-compose/blob/main/layout/screenshots/debug/br.com.zup.nimbus.compose.layout.LayoutFlexTest_test_layout_1.png" width="228"/>
 
 ## **Documentation**
@@ -120,11 +68,8 @@ You can find Nimbus's documentation at this link [**Nimbus Documentation**](http
 
 [nimbus-docs]: https://github.com/ZupIT/nimbus-docs/
 
-## **Running the sample project**
-
-1. Cloning the repo
-2. open the nimbus-compose folder using Android Studio
-3. Select the compose-sample module run on emulator or device.
+# Read next
+:point_right: [Component](/components)
 
 ## **License**
 
