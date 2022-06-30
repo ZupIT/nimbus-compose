@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import br.zup.com.nimbus.compose.NimbusConfig
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.Page
@@ -30,7 +29,7 @@ internal sealed class NimbusViewModelNavigationState {
 }
 
 internal class NimbusViewModel(
-    private val nimbusConfig: NimbusConfig,
+    private val nimbusConfig: br.zup.com.nimbus.compose.Nimbus,
     private val pagesManager: PagesManager = PagesManager(),
 ) : ViewModel() {
 
@@ -51,7 +50,7 @@ internal class NimbusViewModel(
 
     companion object {
         fun provideFactory(
-            nimbusConfig: NimbusConfig,
+            nimbusConfig: br.zup.com.nimbus.compose.Nimbus,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

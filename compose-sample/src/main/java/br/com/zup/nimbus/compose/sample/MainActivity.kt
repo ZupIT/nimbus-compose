@@ -10,12 +10,12 @@ import br.com.zup.nimbus.compose.sample.components.CustomError
 import br.com.zup.nimbus.compose.sample.components.customComponents
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
 import br.zup.com.nimbus.compose.Nimbus
-import br.zup.com.nimbus.compose.NimbusConfig
+import br.zup.com.nimbus.compose.ProvideNimbus
 import br.zup.com.nimbus.compose.NimbusNavigator
 import com.zup.nimbus.core.network.ViewRequest
 
 class MainActivity : ComponentActivity() {
-    private val config = NimbusConfig(
+    private val nimbus = Nimbus(
         baseUrl = BASE_URL,
         components = customComponents,
         logger = AppLogger(),
@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     Column {
-                        Nimbus(config = config) {
+                        ProvideNimbus(nimbus) {
                             Column {
                                 NimbusNavigator(viewRequest = ViewRequest("/present.json"))
                                 NimbusNavigator(viewRequest = ViewRequest("/screen1.json"))
@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-
                 }
             }
         }

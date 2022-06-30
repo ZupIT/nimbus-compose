@@ -9,8 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import br.zup.com.nimbus.compose.NimbusConfig
-import br.zup.com.nimbus.compose.NimbusTheme.nimbusAppState
+import br.zup.com.nimbus.compose.Nimbus
+import br.zup.com.nimbus.compose.NimbusTheme.nimbus
 import br.zup.com.nimbus.compose.ProvideNavigatorState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
@@ -24,7 +24,7 @@ internal fun NimbusNavHost(
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
-    nimbusConfig: NimbusConfig = nimbusAppState.config,
+    nimbusConfig: Nimbus = nimbus,
     nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,

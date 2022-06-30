@@ -14,12 +14,15 @@ import com.zup.nimbus.core.ActionHandler
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
+import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
+import com.zup.nimbus.core.tree.ObservableState
 import com.zup.nimbus.core.tree.ServerDrivenNode
+import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
 
 typealias ComponentHandler = (
     element: ServerDrivenNode,
@@ -28,21 +31,17 @@ typealias ComponentHandler = (
 ) -> Unit
 
 typealias LoadingHandler = @Composable() () -> Unit
-typealias ErrorHandler = @Composable() (throwable: Throwable, retry:() -> Unit) -> Unit
+typealias ErrorHandler = @Composable() (throwable: Throwable, retry: () -> Unit) -> Unit
+
 const val PLATFORM_NAME = "android"
 
 @Stable
-class NimbusComposeAppState(
-    val config: NimbusConfig
-)
-
-@Stable
 class NimbusNavigatorState(
-    val navHostHelper: NimbusNavHostHelper
+    val navHostHelper: NimbusNavHostHelper,
 )
 
 @Stable
-class NimbusConfig(
+class Nimbus(
     val baseUrl: String,
     val components: Map<String, @Composable ComponentHandler>,
     val actions: Map<String, ActionHandler>? = null,
@@ -58,7 +57,9 @@ class NimbusConfig(
     },
 ) {
 
-    val core = createNimbus()
+    internal val core = createNimbus()
+
+    val globalState: ObservableState by lazy { core.globalState }
 
     private val enviromentMap = mutableMapOf<String, Any>()
 
@@ -67,10 +68,15 @@ class NimbusConfig(
     @Suppress("UNCHECKED_CAST")
     fun <T> enviromentObject(key: String): T? = enviromentMap[key] as T?
 
-    fun <T> enviromentObject(key: String, value: T): NimbusConfig {
+    fun <T> enviromentObject(key: String, value: T): NimbusCompose {
         enviromentMap[key] = value as Any
         return this
     }
+
+    fun createView(getNavigator: () -> ServerDrivenNavigator, description: String? = null) =
+        core.createView(getNavigator = getNavigator, description = description)
+
+    fun createNodeFromJson(json: String) = core.createNodeFromJson(json = json)
 
     fun addOperations(operations: Map<String, OperationHandler>) {
         core.addOperations(operations)
@@ -83,6 +89,10 @@ class NimbusConfig(
     fun addActions(actions: Map<String, ActionHandler>) {
         core.addActions(actions)
     }
+
+    fun addActionObservers(observers: List<ActionHandler>) = core.addActionObservers(
+        observers = observers
+    )
 
     private fun createServerDrivenConfig(): ServerDrivenConfig {
         return ServerDrivenConfig(
@@ -99,7 +109,7 @@ class NimbusConfig(
     }
 }
 
-private val LocalNimbus = staticCompositionLocalOf<NimbusComposeAppState> {
+private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {
     error("No Nimbus provided")
 }
 
@@ -108,33 +118,32 @@ private val LocalNavigator = staticCompositionLocalOf<NimbusNavigatorState> {
 }
 
 @Composable
-fun Nimbus(
+fun ProvideNimbus(
+    nimbus: NimbusCompose,
     applicationContext: Context = LocalContext.current.applicationContext,
-    config: NimbusConfig,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     configureStaticState(applicationContext)
 
     val nimbusComposeState = remember(
-        config
+        nimbus
     ) {
-        NimbusComposeAppState(
-            config = config
-        )
+        nimbus
     }
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
 private fun configureStaticState(applicationContext: Context) {
     if (NimbusTheme.nimbusStaticState == null) {
-        NimbusTheme.nimbusStaticState = NimbusComposeStaticState(applicationContext = applicationContext)
+        NimbusTheme.nimbusStaticState =
+            NimbusComposeStaticState(applicationContext = applicationContext)
     }
 }
 
 @Composable
 fun ProvideNavigatorState(
     navHostHelper: NimbusNavHostHelper,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
 
     val nimbusNavigatorState = remember(
@@ -155,11 +164,12 @@ class NimbusComposeStaticState(val applicationContext: Context)
 
 object NimbusTheme {
 
-    @get:Synchronized @set:Synchronized
+    @get:Synchronized
+    @set:Synchronized
     var nimbusStaticState: NimbusComposeStaticState? = null
         internal set
 
-    val nimbusAppState: NimbusComposeAppState
+    val nimbus: NimbusCompose
         @Composable
         get() = LocalNimbus.current
 
