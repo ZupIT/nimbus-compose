@@ -11,11 +11,11 @@ internal fun NimbusServerDrivenView(
     parentViewTree: ServerDrivenNode? = null
 ) {
 
-    if (!NimbusTheme.nimbusAppState.config.components.containsKey(viewTree.component)) {
+    if (!NimbusTheme.nimbus.components.containsKey(viewTree.component)) {
         throw IllegalArgumentException("Component with type ${viewTree.component} is not registered")
     }
     key(viewTree.id) {
-        NimbusTheme.nimbusAppState.config.components[viewTree.component]!!(
+        NimbusTheme.nimbus.components[viewTree.component]!!(
             element = viewTree,
             children = {
                 viewTree.children?.forEach {

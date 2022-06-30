@@ -21,7 +21,7 @@ internal fun NimbusView(
     }
 
     if (loading) {
-        NimbusTheme.nimbusAppState.config.loadingView()
+        NimbusTheme.nimbus.loadingView()
     }
 }
 
@@ -41,7 +41,7 @@ internal fun RenderPageState(
             }
             is NimbusPageState.PageStateOnError -> {
                 onLoading(false)
-                NimbusTheme.nimbusAppState.config.errorView(
+                NimbusTheme.nimbus.errorView(
                     this.throwable,
                     this.retry
                 )

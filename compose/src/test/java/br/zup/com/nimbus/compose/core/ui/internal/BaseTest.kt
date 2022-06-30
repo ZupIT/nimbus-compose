@@ -1,7 +1,5 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
-import br.zup.com.nimbus.compose.NimbusConfig
-import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.RenderNode
 import io.mockk.coEvery
@@ -15,8 +13,8 @@ import org.junit.jupiter.api.TestInstance
 const val BASE_URL = "http://localhost"
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseTest {
-    internal val nimbusConfig: NimbusConfig = mockk()
-    internal val nimbusCore: Nimbus = mockk()
+    internal val nimbusConfig: br.zup.com.nimbus.compose.Nimbus = mockk()
+    internal val nimbusCore: com.zup.nimbus.core.Nimbus = mockk()
     internal val pagesManager: PagesManager = mockk()
     internal val viewClient: ViewClient = mockk()
     internal val renderNode: RenderNode = mockk()
