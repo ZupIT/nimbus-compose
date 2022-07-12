@@ -3,6 +3,7 @@ package br.zup.com.nimbus.compose.core.ui.internal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import br.zup.com.nimbus.compose.NimbusTheme
@@ -31,7 +32,7 @@ internal fun RenderPageState(
     onLoading: (Boolean) -> Unit,
 ) {
     var nimbusPageState: NimbusPageState by remember {
-        mutableStateOf(NimbusPageState.PageStateOnLoading)
+        mutableStateOf(NimbusPageState.PageStateOnLoading, policy = referentialEqualityPolicy())
     }
 
     with(nimbusPageState) {

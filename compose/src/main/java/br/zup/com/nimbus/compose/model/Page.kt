@@ -18,6 +18,15 @@ internal data class Page(
     val coroutineScope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool),
     val id: String, val view: ServerDrivenView,
 ) {
+    // FIXME: Why do we need this?
+    // 1. We don't need multiple listeners to update according to the state. Only a single
+    // NimbusView must updated.
+    // 2. We don't need to keep track of every state the view has reached, we only need to know
+    // the current state. There should never be an overflow. We don't need a Buffer. This looks like
+    // waste of memory to me.
+    // 3. Why CoroutineDispatcherLib.REPLAY_COUNT is 5? Why would a listener need to know the 5
+    // previous view states if it subscribed late? Only the most recent view state is important.
+    // Shouldn't it be 1 instead?
     private var _content: MutableSharedFlow<NimbusPageState> =
         MutableSharedFlow(replay = CoroutineDispatcherLib.REPLAY_COUNT,
             onBufferOverflow = CoroutineDispatcherLib.ON_BUFFER_OVERFLOW)
