@@ -7,5 +7,5 @@ import br.com.zup.nimbus.compose.sample.model.NimbusTextModel
 
 @Composable
 fun CustomText(props: NimbusTextModel) {
-    Text(text = props.text)
+    Text(text = "${props.text}")
 }

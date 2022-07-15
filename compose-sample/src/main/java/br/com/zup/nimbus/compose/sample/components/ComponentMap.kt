@@ -24,4 +24,14 @@ val customComponents: Map<String, @Composable ComponentHandler> = mapOf(
             onPress = element.properties!!["onPress"] as (Any?) -> Unit,
         )
     },
+    "material:textInput" to @Composable { node, _, _ ->
+        val value = node.properties?.get("value") as? String
+        val label = node.properties?.get("label") as String
+        val onChange = node.properties?.get("onChange") as ((Any?) -> Unit)?
+        val onBlur = node.properties?.get("onBlur") as ((Any?) -> Unit)?
+        val onFocus = node.properties?.get("onFocus") as ((Any?) -> Unit)?
+        TextInput(
+            label = label, value = value, onChange = onChange, onBlur = onBlur, onFocus = onFocus,
+        )
+    },
 )

@@ -1,6 +1,7 @@
 package br.zup.com.nimbus.compose.core.ui.internal
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -35,6 +36,10 @@ internal fun RenderPageState(
         mutableStateOf(NimbusPageState.PageStateOnLoading, policy = referentialEqualityPolicy())
     }
 
+    LaunchedEffect(Unit) {
+        page.onChange { nimbusPageState = it }
+    }
+
     with(nimbusPageState) {
         when (this) {
             is NimbusPageState.PageStateOnLoading -> {
@@ -54,8 +59,8 @@ internal fun RenderPageState(
         }
     }
 
-    CollectSharedFlow(page.content) {
+    /*CollectSharedFlow(page.content) {
         nimbusPageState = it
-    }
+    }*/
 }
 
