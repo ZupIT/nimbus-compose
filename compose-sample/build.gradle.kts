@@ -4,25 +4,31 @@ plugins {
     id("kotlin-android")
     id("de.mannodermaus.android-junit5")
     id("org.jetbrains.dokka")
+    id("com.google.devtools.ksp") version "1.6.10-1.0.4"
+    //idea
 }
 
 val serializationVersion = "1.3.2"
 val ktorVersion = "2.0.0"
 
 dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(project(mapOf("path" to ":processor")))
+    ksp(project(":processor", "default"))
+
     //FIXME replace here with the published compose library of nimbus
     implementation(project(":compose"))
 
     implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("com.google.android.material:material:1.6.0")
-    implementation("androidx.appcompat:appcompat:1.4.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
-    implementation ("androidx.navigation:navigation-compose:2.4.2")
+    implementation("com.google.android.material:material:1.6.1")
+    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation ("androidx.navigation:navigation-compose:2.5.0")
     implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
-    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
+    implementation("androidx.activity:activity-compose:1.5.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
@@ -62,5 +68,11 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+kotlin {
+    sourceSets.main {
+        kotlin.srcDir("build/generated/ksp/debug/kotlin")
     }
 }

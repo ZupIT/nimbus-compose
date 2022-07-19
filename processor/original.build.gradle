@@ -1,0 +1,74 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
+    id 'signing'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+group = 'br.com.zup.nimbus.processor'
+version = '1.0.0-alpha1'
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'ksp'
+            from components.java
+                    versionMapping {
+                        usage('java-api') {
+                            fromResolutionOf('runtimeClasspath')
+                        }
+                        usage('java-runtime') {
+                            fromResolutionResult()
+                        }
+                    }
+            pom {
+                name =  "NimbusProcessor"
+                description = "Generates Composable functions for Nimbus from your own Composables."
+                url = 'http://www.usenimbus.com'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+
+        }
+    }
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username = findProperty("sonatypeUsername")
+                password = findProperty("sonatypePassword")
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+dependencies {
+    implementation "com.squareup:kotlinpoet:1.12.0"
+    // implementation "com.squareup:kotlinpoet-ksp:1.12.0"
+    implementation "com.google.devtools.ksp:symbol-processing-api:1.6.10-1.0.4"
+    implementation "androidx.compose.runtime:runtime:1.1.1"
+    testImplementation 'junit:junit:4.13.2'
+}

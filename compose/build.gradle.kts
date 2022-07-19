@@ -12,7 +12,6 @@ val ktorVersion = "1.6.8"
 
 dependencies {
     api("br.com.zup.nimbus:nimbus-core-android:1.0.0-alpha5")
-
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -73,8 +72,8 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
     lint {
-        isCheckDependencies = true
-        isIgnoreTestSources = true
+        // isCheckDependencies = true
+        // isIgnoreTestSources = true
     }
     buildFeatures {
         compose = true

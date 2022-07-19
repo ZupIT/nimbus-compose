@@ -24,14 +24,9 @@ import com.zup.nimbus.core.tree.ObservableState
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
 
-typealias ComponentHandler = (
-    element: ServerDrivenNode,
-    children: @Composable () -> Unit,
-    parentElement: ServerDrivenNode?,
-) -> Unit
-
-typealias LoadingHandler = @Composable() () -> Unit
-typealias ErrorHandler = @Composable() (throwable: Throwable, retry: () -> Unit) -> Unit
+typealias ComponentHandler = @Composable (ComponentData) -> Unit
+typealias LoadingHandler = @Composable () -> Unit
+typealias ErrorHandler = @Composable (throwable: Throwable, retry: () -> Unit) -> Unit
 
 const val PLATFORM_NAME = "android"
 
@@ -40,10 +35,12 @@ class NimbusNavigatorState(
     val navHostHelper: NimbusNavHostHelper,
 )
 
+enum class NimbusMode { Development, Release }
+
 @Stable
 class Nimbus(
     val baseUrl: String,
-    val components: Map<String, @Composable ComponentHandler>,
+    components: List<ComponentLibrary> = emptyList(),
     val actions: Map<String, ActionHandler>? = null,
     val actionObservers: List<ActionHandler>? = null,
     val operations: Map<String, OperationHandler>? = null,
@@ -56,15 +53,22 @@ class Nimbus(
     val errorView: ErrorHandler = { throwable: Throwable, retry: () -> Unit ->
         ErrorDefault(throwable = throwable, retry = retry)
     },
+    val mode: NimbusMode? = NimbusMode.Development
 ) {
 
     internal val core = createNimbus()
+
+    val components = HashMap<String, ComponentHandler>()
 
     val globalState: ObservableState by lazy { core.globalState }
 
     private val enviromentMap = mutableMapOf<String, Any>()
 
     private fun createNimbus() = Nimbus(config = createServerDrivenConfig())
+
+    init {
+        components.forEach { lib -> this.components.putAll(lib.components) }
+    }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> enviromentObject(key: String): T? = enviromentMap[key] as T?
@@ -83,8 +87,8 @@ class Nimbus(
         core.addOperations(operations)
     }
 
-    fun addComponents(components: Map<String, @Composable ComponentHandler>) {
-        this.components.plus(components)
+    fun addComponentLibrary(library: ComponentLibrary) {
+        this.components.putAll(library.components)
     }
 
     fun addActions(actions: Map<String, ActionHandler>) {
