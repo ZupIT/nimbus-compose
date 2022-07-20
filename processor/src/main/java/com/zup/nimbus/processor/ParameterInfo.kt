@@ -4,8 +4,11 @@ import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
+import com.squareup.kotlinpoet.ClassName
+import kotlin.reflect.KClass
 
 private val simpleTypes = listOf("String", "Int", "Double", "Boolean")
 
@@ -16,6 +19,8 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
     val category: TypeCategory
     val packageName: String
     val mustDeserialize = mutableSetOf<KSClassDeclaration>()
+    val isParentName: Boolean
+    val deserializer: ClassName?
 
     init {
         name = parameter.name?.asString() ?: throw NamelessParameterException(parameter, fn)
@@ -23,6 +28,17 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
         val resolved = parameter.type.resolve()
         nullable = resolved.isMarkedNullable
         packageName = resolved.declaration.packageName.asString()
+        isParentName = parameter.annotations.find {
+            // todo: don't rely on simple name
+            annotation -> annotation.shortName.asString() == "ParentName"
+        } != null
+        val deserializerType = parameter.annotations.find {
+            // todo: don't rely on simple name
+            annotation -> annotation.shortName.asString() == "Computed"
+        }?.arguments?.getOrNull(0)?.value as? KSType
+        deserializer = deserializerType?.let {
+            ClassName(it.declaration.packageName.asString(), it.declaration.simpleName.asString())
+        }
 
         category = if (simpleTypes.contains(type)) { // todo: don't rely on simple name
             TypeCategory.Primitive

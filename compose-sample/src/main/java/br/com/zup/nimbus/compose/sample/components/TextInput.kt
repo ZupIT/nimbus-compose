@@ -17,8 +17,12 @@ import br.zup.com.nimbus.compose.ComponentData
 import br.zup.com.nimbus.compose.NimbusMode
 import br.zup.com.nimbus.compose.NimbusTheme
 import com.zup.nimbus.core.deserialization.ComponentDeserializer
+import com.zup.nimbus.processor.Computed
+import com.zup.nimbus.processor.Ignore
+import com.zup.nimbus.processor.ParentName
 import com.zup.nimbus.processor.RootProperty
 import com.zup.nimbus.processor.ServerDrivenComponent
+import com.zup.nimbus.processor.TypeDeserializer
 
 class TextInputEvents(
     val onChange: ((String) -> Unit)?,
@@ -38,15 +42,23 @@ class TextInputSize(
     val height: Double?,
 )
 
+object AnotherTranslator: TypeDeserializer<String> {
+    override fun deserialize(data: Any): String {
+        return "test"
+    }
+}
+
 @Composable
 @ServerDrivenComponent
 fun TextInput(
     value: String,
     label: String,
+    @ParentName parent: String?,
     type: TextInputType? = null,
     enabled: Boolean? = null,
-    size: TextInputSize? = null,
+    @Ignore size: TextInputSize? = null,
     events: TextInputEvents? = null,
+    @Computed<AnotherTranslator>(AnotherTranslator::class) another: String? = null,
 ) {
     var modifier = Modifier.onFocusChanged {
         if (it.isFocused) events?.onFocus?.let { it(value) }

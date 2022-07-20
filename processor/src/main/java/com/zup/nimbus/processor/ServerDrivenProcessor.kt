@@ -43,43 +43,59 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .addStatement("val properties = remember { " +
                     "ComponentDeserializer(logger = nimbus.logger!!, node = data.node) }")
             .addStatement("properties.start()")
+
         component.parameters.forEach {
-            when (it.category) {
-                TypeCategory.Primitive -> fnBuilder.addStatement(
-                    "val %L = properties.as%L%L(%S)",
+            if (it.isParentName) {
+                if (!it.nullable) throw RequiredParentException(it.name, fn)
+                fnBuilder.addStatement("val %L = data.parent?.component", it.name)
+            } else if (it.deserializer != null) {
+                if(it.deserializer.packageName != fn.packageName.asString()) {
+                    builder.addClassImport(it.deserializer)
+                }
+                fnBuilder.addStatement(
+                    "val %L = %L.deserialize(data)",
                     it.name,
-                    it.type,
-                    if (it.nullable) "OrNull" else "",
-                    it.name,
+                    it.deserializer.simpleName,
                 )
-                TypeCategory.Enum -> {
-                    builder.addImport(it.packageName, it.type)
-                    fnBuilder.addStatement(
-                        "val %L = properties.asEnum%L(%S, %L.values())",
+            }
+            else {
+                when (it.category) {
+                    TypeCategory.Primitive -> fnBuilder.addStatement(
+                        "val %L = properties.as%L%L(%S)",
+                        it.name,
+                        it.type,
+                        if (it.nullable) "OrNull" else "",
+                        it.name,
+                    )
+                    TypeCategory.Enum -> {
+                        builder.addImport(it.packageName, it.type)
+                        fnBuilder.addStatement(
+                            "val %L = properties.asEnum%L(%S, %L.values())",
+                            it.name,
+                            if (it.nullable) "OrNull" else "",
+                            it.name,
+                            it.type,
+                        )
+                    }
+                    TypeCategory.ServerDrivenAction -> fnBuilder.addStatement(
+                        "val %L = properties.asAction%L(%S)",
                         it.name,
                         if (it.nullable) "OrNull" else "",
                         it.name,
-                        it.type,
                     )
-                }
-                TypeCategory.ServerDrivenAction -> fnBuilder.addStatement(
-                    "val %L = properties.asAction%L(%S)",
-                    it.name,
-                    if (it.nullable) "OrNull" else "",
-                    it.name,
-                )
-                TypeCategory.Composable -> fnBuilder.addStatement("val %L = { it.children() }")
-                TypeCategory.Deserializable -> {
-                    mustDeserialize.addAll(it.mustDeserialize)
-                    builder.addImport(it.packageName, it.type)
-                    fnBuilder.addStatement(
-                        "val %L = NimbusEntityDeserializer.deserialize(properties, %L::class)",
-                        it.name,
-                        it.type,
-                    )
-                }
-                else -> {
-                    throw UnsupportedTypeException(it.name, it.type, it.category.name, fn)
+                    TypeCategory.Composable -> fnBuilder.addStatement("val %L = { it.children() }")
+                    TypeCategory.Deserializable -> {
+                        mustDeserialize.addAll(it.mustDeserialize)
+                        builder.addImport(it.packageName, it.type)
+                        fnBuilder.addStatement(
+                            "val %L = NimbusEntityDeserializer.deserialize(properties, %L::class)",
+                            it.name,
+                            it.type,
+                        )
+                    }
+                    else -> {
+                        throw UnsupportedTypeException(it.name, it.type, it.category.name, fn)
+                    }
                 }
             }
         }

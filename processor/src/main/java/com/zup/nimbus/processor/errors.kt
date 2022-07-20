@@ -19,7 +19,7 @@ class DefaultParameterValueException(param: KSValueParameter, fn: KSFunctionDecl
 class NoConstructorException(clazz: KSClassDeclaration):
     NimbusCompilerException("\nError in class \"${clazz.simpleName}\"" +
             "\n  at: ${clazz.location}" +
-            "\n  No default constructor found. To ignore an specific class or parameter " +
+            "\n  No default constructor found. To ignore an specific parameter " +
             "annotate it with @Ignore.")
 
 class UnsupportedTypeException(param: String, type: String, category: String, fn: KSFunctionDeclaration):
@@ -27,5 +27,10 @@ class UnsupportedTypeException(param: String, type: String, category: String, fn
             "\"${param}\" of type $type and category $category" +
             "\n  at ${fn.location}" +
             "\n  This is a work in progress and we can't yet deserialize this yet. Please use a " +
-            "custom component deserializer instead. You can also ignore specific classes or " +
+            "custom component deserializer instead. You can also ignore specific " +
             "parameters by annotating them with @Ignore.")
+
+class RequiredParentException(param: String, fn: KSFunctionDeclaration):
+    NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
+            "\"${param ?: ""}\"\n  at ${fn.location}.\n  " +
+            "A parameter marked with @ParentName must be optional because it could be a root node.")

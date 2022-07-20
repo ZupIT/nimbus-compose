@@ -8,6 +8,9 @@ class FunctionInfo(fn: KSFunctionDeclaration) {
 
     init {
         name = fn.simpleName.asString()
-        parameters = fn.parameters.map { ParameterInfo(it, fn) }
+        parameters = fn.parameters.filter{
+            // fixme: should not rely on SimpleName
+            it.annotations.find { annotation -> annotation.shortName.asString() == "Ignore" } == null
+        }.map { ParameterInfo(it, fn) }
     }
 }
