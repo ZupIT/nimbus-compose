@@ -83,19 +83,38 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                 }
             }
         }
+
+        fnBuilder.addStatement("val isSuccessful = properties.end()")
+            .addStatement(
+                "if (isSuccessful) { %L(%L) }",
+                component.name,
+                component.parameters.joinToString(", ") { "${it.name} = ${it.name}" }
+            )
+            .addStatement(
+                "else if (nimbus.mode == NimbusMode.Development) { Text(%P, color = Color.Red) }",
+                "Error while deserializing \${data.node.component}."
+            )
+
         builder.addFunction(fnBuilder.build())
         return mustDeserialize
     }
 
-    fun createComponents(functions: Sequence<KSFunctionDeclaration>): Set<KSClassDeclaration> {
+    fun createComponents(
+        packageName: String,
+        functions: List<KSFunctionDeclaration>,
+    ): Set<KSClassDeclaration> {
         val mustDeserialize = mutableSetOf<KSClassDeclaration>()
         val sourceFiles = functions.mapNotNull { it.containingFile }
 
         val componentsFile = FileSpec.builder(
-            "br.com.zup.nimbus.compose.sample.components",
+            packageName,
             "generatedComponents",
         ).addClassImport(ClassNames.NimbusTheme)
             .addClassImport(ClassNames.ComponentDeserializer)
+            .addClassImport(ClassNames.NimbusMode)
+            .addClassImport(ClassNames.Text)
+            .addClassImport(ClassNames.Color)
+            .addClassImport(ClassNames.NimbusEntityDeserializer)
             .addImport(PackageNames.composeRuntime, "remember")
 
         functions.forEach {
@@ -107,7 +126,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                 false,
                 *sourceFiles.toList().toTypedArray(),
             ),
-            "br.com.zup.nimbus.compose.sample.components",
+            packageName,
             "generatedComponents"
         )
 
@@ -116,9 +135,11 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
     }
 
     fun createClassDeserializer(builder: FileSpec.Builder, clazz: KSClassDeclaration): FunSpec {
-        val fnBuilder = FunSpec.builder(clazz.toString())
+        val name = "${clazz.packageName.asString()}.${clazz.simpleName.asString()}".replace(".", "_")
+        val fnBuilder = FunSpec.builder(name)
             .addParameter("properties", ClassNames.ComponentDeserializer)
             .addModifiers(KModifier.PRIVATE)
+            .returns(ClassName(clazz.packageName.asString(), clazz.simpleName.asString()))
         val constructorInfo = FunctionInfo(
             clazz.primaryConstructor ?: throw NoConstructorException(clazz)
         )
@@ -152,13 +173,20 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                 }
             }
         }
+
+        fnBuilder.addStatement(
+            "return %L(%L)",
+            clazz.simpleName.asString(),
+            constructorInfo.parameters.joinToString(", ") { "${it.name} = ${it.name}" }
+        )
+
         return fnBuilder.build()
     }
 
     fun createEntityDeserializer(mustDeserialize: Set<KSClassDeclaration>) {
         val poetFile = FileSpec.builder(
-            "br.com.zup.nimbus.compose.sample.components",
-            "NimbusEntityDeserializer",
+            ClassNames.NimbusEntityDeserializer.packageName,
+            ClassNames.NimbusEntityDeserializer.simpleName
         )
 
         val objectBuilder = TypeSpec.objectBuilder("NimbusEntityDeserializer")
@@ -177,7 +205,13 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                     ),
                 KModifier.PRIVATE,
             ).initializer(
-                CodeBlock.of("mutableMapOf()")
+                CodeBlock.of(
+                    "mutableMapOf(%L)",
+                    mustDeserialize.joinToString(", ") {
+                        val name = "${it.packageName.asString()}.${it.simpleName.asString()}"
+                        "\"$name\" to { ${name.replace(".", "_")}(it) }"
+                    },
+                )
             ).build())
             .addFunction(
                 FunSpec.builder("deserialize")
@@ -211,8 +245,8 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
 
         val file = environment.codeGenerator.createNewFile(
             Dependencies(false),
-            "br.com.zup.nimbus.compose.sample.components",
-            "NimbusEntityDeserializer"
+            ClassNames.NimbusEntityDeserializer.packageName,
+            ClassNames.NimbusEntityDeserializer.simpleName
         )
 
         file.write(poetFile.build().toString().toByteArray())
@@ -222,7 +256,12 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         val functions: Sequence<KSFunctionDeclaration> =
             resolver.findAnnotations(ServerDrivenComponent::class)
         if(!functions.iterator().hasNext()) return emptyList()
-        val mustDeserialize = createComponents(functions)
+
+        val mustDeserialize = mutableSetOf<KSClassDeclaration>()
+        val byPackage = functions.groupBy { it.packageName.asString() }
+
+        byPackage.forEach { mustDeserialize.addAll(createComponents(it.key, it.value)) }
+
         createEntityDeserializer(mustDeserialize)
         return (functions).filterNot { it.validate() }.toList()
     }
