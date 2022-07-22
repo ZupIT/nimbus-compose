@@ -17,7 +17,7 @@ class DefaultParameterValueException(param: KSValueParameter, fn: KSFunctionDecl
             "Default values other than null are not supported.")
 
 class NoConstructorException(clazz: KSClassDeclaration):
-    NimbusCompilerException("\nError in class \"${clazz.simpleName}\"" +
+    NimbusCompilerException("\nError in class \"${clazz.simpleName.asString()}\"" +
             "\n  at: ${clazz.location}" +
             "\n  No default constructor found. To ignore an specific parameter " +
             "annotate it with @Ignore.")
@@ -34,3 +34,19 @@ class RequiredParentException(param: String, fn: KSFunctionDeclaration):
     NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
             "\"${param ?: ""}\"\n  at ${fn.location}.\n  " +
             "A parameter marked with @ParentName must be optional because it could be a root node.")
+
+class ComputedNotAnObjectException(param: KSValueParameter, fn: KSFunctionDeclaration):
+    NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
+            "\"${param.name?.asString() ?: ""}\"\n  at ${param.location}.\n  " +
+            "The type passed to @Computed must have been declared as an object.")
+
+class NonRootEntityException(param: KSValueParameter, fn: KSFunctionDeclaration):
+    NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
+            "\"${param.name?.asString() ?: ""}\"\n  at ${param.location}.\n  " +
+            "We only support root entities for now. Please mark it with @Root or write a custom " +
+            "deserializer.")
+
+class IgnoreWithoutDefaultValueException(param: KSValueParameter, fn: KSFunctionDeclaration):
+    NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
+            "\"${param.name?.asString() ?: ""}\"\n  at ${param.location}.\n  " +
+            "Parameters annotated with @Ignore must have default values.")

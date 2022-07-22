@@ -77,13 +77,30 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                             it.type,
                         )
                     }
-                    TypeCategory.ServerDrivenAction -> fnBuilder.addStatement(
-                        "val %L = properties.asAction%L(%S)",
-                        it.name,
-                        if (it.nullable) "OrNull" else "",
+                    TypeCategory.ServerDrivenAction -> {
+                        if (it.arity == 0) {
+                            fnBuilder.addStatement(
+                                "val %LAction = properties.asAction%L(%S)",
+                                it.name,
+                                if (it.nullable) "OrNull" else "",
+                                it.name,
+                            )
+                            val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
+                            else "val %L = { %LAction(null) }"
+                            fnBuilder.addStatement(template, it.name, it.name)
+                        } else {
+                            fnBuilder.addStatement(
+                                "val %L = properties.asAction%L(%S)",
+                                it.name,
+                                if (it.nullable) "OrNull" else "",
+                                it.name,
+                            )
+                        }
+                    }
+                    TypeCategory.Composable -> fnBuilder.addStatement(
+                        "val %L = data.children",
                         it.name,
                     )
-                    TypeCategory.Composable -> fnBuilder.addStatement("val %L = { it.children() }")
                     TypeCategory.Deserializable -> {
                         mustDeserialize.addAll(it.mustDeserialize)
                         builder.addImport(it.packageName, it.type)
@@ -118,6 +135,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
     fun createComponents(
         packageName: String,
         functions: List<KSFunctionDeclaration>,
+        entityDeserializerRef: ClassName,
     ): Set<KSClassDeclaration> {
         val mustDeserialize = mutableSetOf<KSClassDeclaration>()
         val sourceFiles = functions.mapNotNull { it.containingFile }
@@ -130,12 +148,13 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .addClassImport(ClassNames.NimbusMode)
             .addClassImport(ClassNames.Text)
             .addClassImport(ClassNames.Color)
-            .addClassImport(ClassNames.NimbusEntityDeserializer)
             .addImport(PackageNames.composeRuntime, "remember")
 
         functions.forEach {
             mustDeserialize.addAll(createNimbusComposable(componentsFile, it))
         }
+
+        if (mustDeserialize.isNotEmpty()) componentsFile.addClassImport(entityDeserializerRef)
 
         val file = environment.codeGenerator.createNewFile(
             Dependencies(
@@ -178,12 +197,26 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                         it.type,
                     )
                 }
-                TypeCategory.ServerDrivenAction -> fnBuilder.addStatement(
-                    "val %L = properties.asAction%L(%S)",
-                    it.name,
-                    if (it.nullable) "OrNull" else "",
-                    it.name,
-                )
+                TypeCategory.ServerDrivenAction -> {
+                    if (it.arity == 0) {
+                        fnBuilder.addStatement(
+                            "val %LAction = properties.asAction%L(%S)",
+                            it.name,
+                            if (it.nullable) "OrNull" else "",
+                            it.name,
+                        )
+                        val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
+                        else "val %L = { %LAction(null) }"
+                        fnBuilder.addStatement(template, it.name, it.name)
+                    } else {
+                        fnBuilder.addStatement(
+                            "val %L = properties.asAction%L(%S)",
+                            it.name,
+                            if (it.nullable) "OrNull" else "",
+                            it.name,
+                        )
+                    }
+                }
                 else -> {
                     throw UnsupportedTypeException(it.name, it.type, it.category.name, clazz.primaryConstructor!!)
                 }
@@ -199,10 +232,13 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         return fnBuilder.build()
     }
 
-    fun createEntityDeserializer(mustDeserialize: Set<KSClassDeclaration>) {
+    fun createEntityDeserializer(
+        mustDeserialize: Set<KSClassDeclaration>,
+        entityDeserializerRef: ClassName,
+    ) {
         val poetFile = FileSpec.builder(
-            ClassNames.NimbusEntityDeserializer.packageName,
-            ClassNames.NimbusEntityDeserializer.simpleName
+            entityDeserializerRef.packageName,
+            entityDeserializerRef.simpleName
         )
 
         val objectBuilder = TypeSpec.objectBuilder("NimbusEntityDeserializer")
@@ -247,7 +283,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                     )
                     .returns(TypeVariableName("T"))
                     .addStatement(
-                        "return deserializers.get(clazz.toString())?.let " +
+                        "return deserializers.get(clazz.qualifiedName ?: \"\")?.let " +
                                 "{ it(properties) as T } ?: throw IllegalArgumentException(%P)",
                         "\${clazz.simpleName} is an invalid Server Driven entity because no " +
                                 "deserializer has been found for it."
@@ -260,9 +296,12 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         poetFile.addType(objectBuilder.build())
 
         val file = environment.codeGenerator.createNewFile(
-            Dependencies(false),
-            ClassNames.NimbusEntityDeserializer.packageName,
-            ClassNames.NimbusEntityDeserializer.simpleName
+            Dependencies(
+                false,
+                *mustDeserialize.mapNotNull { it.containingFile }.toList().toTypedArray()
+            ),
+            entityDeserializerRef.packageName,
+            entityDeserializerRef.simpleName
         )
 
         file.write(poetFile.build().toString().toByteArray())
@@ -275,10 +314,19 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
 
         val mustDeserialize = mutableSetOf<KSClassDeclaration>()
         val byPackage = functions.groupBy { it.packageName.asString() }
+        val entityDeserializerRef = ClassName(
+            functions.first().packageName.asString(),
+            "NimbusEntityDeserializer",
+        )
 
-        byPackage.forEach { mustDeserialize.addAll(createComponents(it.key, it.value)) }
+        byPackage.forEach {
+            mustDeserialize.addAll(createComponents(it.key, it.value, entityDeserializerRef))
+        }
 
-        createEntityDeserializer(mustDeserialize)
+        if (mustDeserialize.isNotEmpty()) {
+            createEntityDeserializer(mustDeserialize, entityDeserializerRef)
+        }
+
         return (functions).filterNot { it.validate() }.toList()
     }
 }

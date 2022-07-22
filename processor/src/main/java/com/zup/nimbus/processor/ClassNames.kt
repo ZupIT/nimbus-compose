@@ -6,7 +6,6 @@ object ClassNames {
     val Composable = ClassName(PackageNames.composeRuntime, "Composable")
     val Text = ClassName(PackageNames.composeMaterial, "Text")
     val Color = ClassName(PackageNames.composeGraphics, "Color")
-    val NimbusEntityDeserializer = ClassName(PackageNames.nimbusDeserialization, "NimbusEntityDeserializer")
     val ComponentData = ClassName(PackageNames.nimbusCompose, "ComponentData")
     val NimbusTheme = ClassName(PackageNames.nimbusCompose, "NimbusTheme")
     val NimbusMode = ClassName(PackageNames.nimbusCompose, "NimbusMode")

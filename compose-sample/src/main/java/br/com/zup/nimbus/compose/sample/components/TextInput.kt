@@ -20,6 +20,7 @@ import com.zup.nimbus.core.deserialization.ComponentDeserializer
 import com.zup.nimbus.processor.Computed
 import com.zup.nimbus.processor.Ignore
 import com.zup.nimbus.processor.ParentName
+import com.zup.nimbus.processor.Root
 import com.zup.nimbus.processor.RootProperty
 import com.zup.nimbus.processor.ServerDrivenComponent
 import com.zup.nimbus.processor.TypeDeserializer
@@ -57,7 +58,7 @@ fun TextInput(
     type: TextInputType? = null,
     enabled: Boolean? = null,
     @Ignore size: TextInputSize? = null,
-    events: TextInputEvents? = null,
+    @Root events: TextInputEvents? = null,
     @Computed<AnotherTranslator>(AnotherTranslator::class) another: String? = null,
 ) {
     var modifier = Modifier.onFocusChanged {
