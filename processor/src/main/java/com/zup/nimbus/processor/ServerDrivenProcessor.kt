@@ -41,7 +41,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .addParameter("data", ClassNames.ComponentData)
             .addStatement("var nimbus = NimbusTheme.nimbus")
             .addStatement("val properties = remember { " +
-                    "ComponentDeserializer(logger = nimbus.logger!!, node = data.node) }")
+                    "ComponentDeserializer(logger = nimbus.logger, node = data.node) }")
             .addStatement("properties.start()")
 
         component.parameters.forEach {
@@ -179,46 +179,63 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             clazz.primaryConstructor ?: throw NoConstructorException(clazz)
         )
         constructorInfo.parameters.forEach {
-            when (it.category) {
-                TypeCategory.Primitive -> fnBuilder.addStatement(
-                    "val %L = properties.as%L%L(%S)",
+            if (it.deserializer != null) {
+                if(it.deserializer.packageName != clazz.packageName.asString()) {
+                    builder.addClassImport(it.deserializer)
+                }
+                fnBuilder.addStatement(
+                    "val %L = %L.deserialize(data)",
                     it.name,
-                    it.type,
-                    if (it.nullable) "OrNull" else "",
-                    it.name,
+                    it.deserializer.simpleName,
                 )
-                TypeCategory.Enum -> {
-                    builder.addImport(it.packageName, it.type)
-                    fnBuilder.addStatement(
-                        "val %L = properties.asEnum%L(%S, %L.values())",
-                        it.name,
-                        if (it.nullable) "OrNull" else "",
+            }
+            else {
+                when (it.category) {
+                    TypeCategory.Primitive -> fnBuilder.addStatement(
+                        "val %L = properties.as%L%L(%S)",
                         it.name,
                         it.type,
+                        if (it.nullable) "OrNull" else "",
+                        it.name,
                     )
-                }
-                TypeCategory.ServerDrivenAction -> {
-                    if (it.arity == 0) {
+                    TypeCategory.Enum -> {
+                        builder.addImport(it.packageName, it.type)
                         fnBuilder.addStatement(
-                            "val %LAction = properties.asAction%L(%S)",
+                            "val %L = properties.asEnum%L(%S, %L.values())",
                             it.name,
                             if (it.nullable) "OrNull" else "",
                             it.name,
-                        )
-                        val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
-                        else "val %L = { %LAction(null) }"
-                        fnBuilder.addStatement(template, it.name, it.name)
-                    } else {
-                        fnBuilder.addStatement(
-                            "val %L = properties.asAction%L(%S)",
-                            it.name,
-                            if (it.nullable) "OrNull" else "",
-                            it.name,
+                            it.type,
                         )
                     }
-                }
-                else -> {
-                    throw UnsupportedTypeException(it.name, it.type, it.category.name, clazz.primaryConstructor!!)
+                    TypeCategory.ServerDrivenAction -> {
+                        if (it.arity == 0) {
+                            fnBuilder.addStatement(
+                                "val %LAction = properties.asAction%L(%S)",
+                                it.name,
+                                if (it.nullable) "OrNull" else "",
+                                it.name,
+                            )
+                            val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
+                            else "val %L = { %LAction(null) }"
+                            fnBuilder.addStatement(template, it.name, it.name)
+                        } else {
+                            fnBuilder.addStatement(
+                                "val %L = properties.asAction%L(%S)",
+                                it.name,
+                                if (it.nullable) "OrNull" else "",
+                                it.name,
+                            )
+                        }
+                    }
+                    else -> {
+                        throw UnsupportedTypeException(
+                            it.name,
+                            it.type,
+                            it.category.name,
+                            clazz.primaryConstructor!!
+                        )
+                    }
                 }
             }
         }

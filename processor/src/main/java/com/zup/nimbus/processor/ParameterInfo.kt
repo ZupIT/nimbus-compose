@@ -62,7 +62,7 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
                 // todo: don't rely on simple name
                 annotation -> annotation.shortName.asString() == "Root"
             }
-            if (!isRoot) throw NonRootEntityException(parameter, fn)
+            if (!isRoot && deserializer == null) throw NonRootEntityException(parameter, fn)
             mustDeserialize.add(resolved.declaration as KSClassDeclaration)
             TypeCategory.Deserializable
         } else if (parameter.type.annotations.find { it.shortName.asString() == "Composable" } != null) { // todo: don't rely on simple name

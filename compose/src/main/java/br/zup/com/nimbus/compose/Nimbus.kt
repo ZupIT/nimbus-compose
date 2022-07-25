@@ -21,7 +21,6 @@ import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
 import com.zup.nimbus.core.tree.ObservableState
-import com.zup.nimbus.core.tree.ServerDrivenNode
 import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
 
 typealias ComponentHandler = @Composable (ComponentData) -> Unit
@@ -41,14 +40,14 @@ enum class NimbusMode { Development, Release }
 class Nimbus(
     val baseUrl: String,
     components: List<ComponentLibrary> = emptyList(),
-    val actions: Map<String, ActionHandler>? = null,
+    actions: Map<String, ActionHandler>? = null,
     val actionObservers: List<ActionHandler>? = null,
-    val operations: Map<String, OperationHandler>? = null,
-    val logger: Logger? = null,
-    val urlBuilder: UrlBuilder? = null,
-    val httpClient: HttpClient? = null,
-    val viewClient: ViewClient? = null,
-    val idManager: IdManager? = null,
+    operations: Map<String, OperationHandler>? = null,
+    logger: Logger? = null,
+    urlBuilder: UrlBuilder? = null,
+    httpClient: HttpClient? = null,
+    viewClient: ViewClient? = null,
+    idManager: IdManager? = null,
     val loadingView: LoadingHandler = { LoadingDefault() },
     val errorView: ErrorHandler = { throwable: Throwable, retry: () -> Unit ->
         ErrorDefault(throwable = throwable, retry = retry)
@@ -56,25 +55,41 @@ class Nimbus(
     val mode: NimbusMode? = NimbusMode.Development
 ) {
 
-    internal val core = createNimbus()
+    internal val core: Nimbus
 
     val components = HashMap<String, ComponentHandler>()
+    val globalState: ObservableState get() = core.globalState
+    val actions: MutableMap<String, ActionHandler> get() = core.actions
+    val operations: MutableMap<String, OperationHandler> get() = core.operations
+    val logger: Logger get() = core.logger
+    val urlBuilder: UrlBuilder get() = core.urlBuilder
+    val httpClient: HttpClient get() = core.httpClient
+    val viewClient: ViewClient get() = core.viewClient
+    val idManager: IdManager get() = core.idManager
 
-    val globalState: ObservableState by lazy { core.globalState }
-
-    private val enviromentMap = mutableMapOf<String, Any>()
-
-    private fun createNimbus() = Nimbus(config = createServerDrivenConfig())
+    private val environmentMap = mutableMapOf<String, Any>()
 
     init {
         components.forEach { lib -> this.components.putAll(lib.components) }
+        core = Nimbus(ServerDrivenConfig(
+            platform = PLATFORM_NAME,
+            baseUrl = baseUrl,
+            actions = actions,
+            actionObservers = actionObservers,
+            operations = operations,
+            logger = logger,
+            urlBuilder = urlBuilder,
+            httpClient = httpClient,
+            viewClient = viewClient,
+            idManager = idManager
+        ))
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> enviromentObject(key: String): T? = enviromentMap[key] as T?
+    fun <T> environmentObject(key: String): T? = environmentMap[key] as T?
 
-    fun <T> enviromentObject(key: String, value: T): NimbusCompose {
-        enviromentMap[key] = value as Any
+    fun <T> environmentObject(key: String, value: T): NimbusCompose {
+        environmentMap[key] = value as Any
         return this
     }
 
@@ -98,21 +113,6 @@ class Nimbus(
     fun addActionObservers(observers: List<ActionHandler>) = core.addActionObservers(
         observers = observers
     )
-
-    private fun createServerDrivenConfig(): ServerDrivenConfig {
-        return ServerDrivenConfig(
-            platform = PLATFORM_NAME,
-            baseUrl = baseUrl,
-            actions = actions,
-            actionObservers = actionObservers,
-            operations = operations,
-            logger = logger,
-            urlBuilder = urlBuilder,
-            httpClient = httpClient,
-            viewClient = viewClient,
-            idManager = idManager
-        )
-    }
 }
 
 private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {

@@ -43,8 +43,8 @@ class ComputedNotAnObjectException(param: KSValueParameter, fn: KSFunctionDeclar
 class NonRootEntityException(param: KSValueParameter, fn: KSFunctionDeclaration):
     NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
             "\"${param.name?.asString() ?: ""}\"\n  at ${param.location}.\n  " +
-            "We only support root entities for now. Please mark it with @Root or write a custom " +
-            "deserializer.")
+            "We only support root entities for now. Please mark it with @Root, @Ignore or write " +
+            "a custom deserializer (@Computed).")
 
 class IgnoreWithoutDefaultValueException(param: KSValueParameter, fn: KSFunctionDeclaration):
     NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
