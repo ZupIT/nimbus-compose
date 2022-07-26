@@ -25,7 +25,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
     implementation("androidx.activity:activity-compose:1.4.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
 
     //Instrumentation testing
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")

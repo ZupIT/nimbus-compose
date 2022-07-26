@@ -31,7 +31,6 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.5.0")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
 }
 
 android {
@@ -72,7 +71,11 @@ android {
 }
 
 kotlin {
-    sourceSets.main {
+    sourceSets.debug {
         kotlin.srcDir("build/generated/ksp/debug/kotlin")
     }
+    sourceSets.release {
+        kotlin.srcDir("build/generated/ksp/release/kotlin")
+    }
+    sourceSets.test {}
 }

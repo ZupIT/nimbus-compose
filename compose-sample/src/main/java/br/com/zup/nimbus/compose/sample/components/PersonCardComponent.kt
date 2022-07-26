@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import br.com.zup.nimbus.compose.sample.model.PersonCardModel
+import br.com.zup.nimbus.compose.sample.model.Address
+import br.com.zup.nimbus.compose.sample.model.Person
 
+// TODO: Support auto deserialization for this component and register it
 @Composable
-fun PersonCardComponent(params: PersonCardModel) {
+fun PersonCardComponent(person: Person, address: Address) {
     val (hasStarted, setHasStarted) = remember { mutableStateOf(false) }
 
     SideEffect {
@@ -22,13 +24,13 @@ fun PersonCardComponent(params: PersonCardModel) {
 
     if (hasStarted) {
         Column() {
-            Text(text = params.person.name)
-            Text(text = params.person.age.toString())
-            Text(text = params.person.document)
-            Text(text = params.person.phone ?: "-")
-            Text(text = params.address.street)
-            Text(text = params.address.zip)
-            Text(text = params.address.number.toString())
+            Text(text = person.name)
+            Text(text = person.age.toString())
+            Text(text = person.document)
+            Text(text = person.phone ?: "-")
+            Text(text = address.street)
+            Text(text = address.zip)
+            Text(text = address.number.toString())
         }
     }
 }

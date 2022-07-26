@@ -3,8 +3,10 @@ package br.com.zup.nimbus.compose.sample.components
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import com.zup.nimbus.processor.ServerDrivenComponent
 
 @Composable
-fun NimbusButton(text: String, onPress: (Any?) -> Unit) {
-    Button(content = { Text(text) }, onClick = { onPress(null) })
+@ServerDrivenComponent
+fun NimbusButton(text: String, onPress: () -> Unit) {
+    Button(content = { Text(text) }, onClick = { onPress() })
 }

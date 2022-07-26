@@ -2,9 +2,10 @@ package br.com.zup.nimbus.compose.sample.components
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import br.com.zup.nimbus.compose.sample.model.NimbusTextModel
+import com.zup.nimbus.processor.ServerDrivenComponent
 
 @Composable
-fun NimbusText(props: NimbusTextModel) {
-    Text(text = "${props.text}")
+@ServerDrivenComponent
+fun NimbusText(text: String) {
+    Text(text = text)
 }
