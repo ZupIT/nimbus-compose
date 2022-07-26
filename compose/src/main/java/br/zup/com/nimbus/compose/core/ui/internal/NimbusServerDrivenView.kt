@@ -2,6 +2,7 @@ package br.zup.com.nimbus.compose.core.ui.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import br.zup.com.nimbus.compose.ComponentData
 import br.zup.com.nimbus.compose.NimbusTheme
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
@@ -16,12 +17,16 @@ internal fun NimbusServerDrivenView(
     }
     key(viewTree.id) {
         NimbusTheme.nimbus.components[viewTree.component]!!(
-            element = viewTree,
-            children = {
-                viewTree.children?.forEach {
-                    NimbusServerDrivenView(it, parentViewTree = viewTree)
-                }
-            }, parentElement = parentViewTree)
+            ComponentData(
+                node = viewTree,
+                children = {
+                    viewTree.children?.forEach {
+                        NimbusServerDrivenView(it, parentViewTree = viewTree)
+                    }
+                },
+                parent = parentViewTree,
+            )
+        )
     }
 }
 

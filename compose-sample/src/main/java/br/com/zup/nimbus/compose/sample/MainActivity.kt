@@ -14,9 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import br.com.zup.nimbus.compose.sample.components.CustomError
-import br.com.zup.nimbus.compose.sample.components.customComponents
+import br.com.zup.nimbus.compose.sample.components.layoutLib
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
 import br.zup.com.nimbus.compose.Nimbus
+import br.zup.com.nimbus.compose.NimbusMode
 import br.zup.com.nimbus.compose.ProvideNimbus
 import br.zup.com.nimbus.compose.NimbusNavigator
 import com.zup.nimbus.core.network.ViewRequest
@@ -232,11 +233,12 @@ const val ADDRESS = """{
 class MainActivity : ComponentActivity() {
     private val nimbus = Nimbus(
         baseUrl = BASE_URL,
-        components = customComponents,
+        components = listOf(layoutLib),
         logger = AppLogger(),
         errorView = { throwable: Throwable, retry: () -> Unit ->
             CustomError(throwable = throwable, retry = retry)
-        }
+        },
+        mode = if (BuildConfig.DEBUG) NimbusMode.Development else NimbusMode.Release,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
