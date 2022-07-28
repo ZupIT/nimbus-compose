@@ -5,5 +5,5 @@ apply {
 detekt {
     config = files("$rootDir/config/detekt.yml")
     buildUponDefaultConfig = true
-    source = files("src/main/java")
+    source = files("compose/src/main/java", "compose-sample/src/main/java")
 }

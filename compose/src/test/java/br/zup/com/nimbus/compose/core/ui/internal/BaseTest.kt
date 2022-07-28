@@ -30,7 +30,7 @@ abstract class BaseTest {
     }
 
     protected fun mockNimbusConfig(){
-        every { nimbusConfig.actions } returns mapOf()
+        every { nimbusConfig.actions } returns mutableMapOf()
         every { nimbusConfig.baseUrl } returns BASE_URL
         every { nimbusConfig.core } returns nimbusCore
         every { nimbusConfig.core.viewClient} returns viewClient

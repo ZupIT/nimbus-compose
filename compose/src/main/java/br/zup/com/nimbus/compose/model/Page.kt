@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
-internal sealed class NimbusPageState {
+sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
     data class PageStateOnError(val throwable: Throwable, val retry: () -> Unit) : NimbusPageState()
     data class PageStateOnShowPage(val serverDrivenNode: ServerDrivenNode) : NimbusPageState()
 }
 
-internal data class Page(
+data class Page(
     val coroutineScope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool),
     val id: String, val view: ServerDrivenView,
 ) {
