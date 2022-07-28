@@ -71,8 +71,8 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
     lint {
-        // isCheckDependencies = true
-        // isIgnoreTestSources = true
+        checkDependencies = true
+        ignoreTestSources = true
     }
     buildFeatures {
         compose = true
