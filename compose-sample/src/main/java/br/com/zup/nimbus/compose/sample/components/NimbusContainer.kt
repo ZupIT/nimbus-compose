@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun NimbusContainer(children: @Composable () -> Unit) {
-    Column() {
+    Column {
         children()
     }
 }

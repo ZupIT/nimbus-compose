@@ -11,8 +11,7 @@ val serializationVersion = "1.3.2"
 val ktorVersion = "1.6.8"
 
 dependencies {
-    api("br.com.zup.nimbus:nimbus-core-android:1.0.0-alpha5")
-
+    api("br.com.zup.nimbus:nimbus-core-android:1.0.0-alpha6")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -26,7 +25,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
     implementation("androidx.activity:activity-compose:1.4.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4")
 
     //Instrumentation testing
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
@@ -73,8 +71,8 @@ android {
         unitTests.isIncludeAndroidResources = true
     }
     lint {
-        isCheckDependencies = true
-        isIgnoreTestSources = true
+        checkDependencies = true
+        ignoreTestSources = true
     }
     buildFeatures {
         compose = true
