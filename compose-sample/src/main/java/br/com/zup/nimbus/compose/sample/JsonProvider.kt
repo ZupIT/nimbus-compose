@@ -47,3 +47,73 @@ val json1 = """
       ]
     }
 """.trimIndent()
+
+const val UPDATE_TEST = """{
+  "_:component": "layout:container",
+  "children": [
+    {
+      "_:component": "layout:container",
+      "properties": {
+        "backgroundColor": "@{global.backgroundColor}",
+        "padding": 10
+      },
+      "children": [
+        {
+          "_:component": "layout:container",
+          "children": [
+            {
+              "_:component": "material:text",
+              "properties": {
+                "text": "Row 1"
+              }
+            }
+          ]
+        },
+        {
+          "_:component": "material:button",
+          "properties": {
+            "text": "Change BG to red",
+            "onPress": [
+              {
+                "_:action": "setState",
+                "properties": {
+                  "path": "global.backgroundColor",
+                  "value": "#FF0000"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "_:component": "layout:container",
+      "properties": {
+        "padding": 10
+      },
+      "children": [
+        {
+          "_:component": "material:text",
+          "properties": {
+            "text": "Row 2"
+          }
+        }
+      ]
+    },
+    {
+      "_:component": "layout:container",
+      "properties": {
+        "padding": 10
+      },
+      "children": [
+        {
+          "_:component": "material:text",
+          "properties": {
+            "text": "Row 3"
+          }
+        }
+      ]
+    }
+  ]
+}
+"""

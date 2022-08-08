@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import br.zup.com.nimbus.compose.ComponentLibrary
 
 val layoutLib = ComponentLibrary("layout")
-    .add("container") @Composable { NimbusContainer(it.children) }
+    .add("container") @Composable { NimbusContainer(it) }
 
 val customLib = ComponentLibrary("custom")
     .add("text") @Composable { NimbusText(it) }
