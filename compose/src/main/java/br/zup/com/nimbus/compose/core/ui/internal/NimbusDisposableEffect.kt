@@ -21,8 +21,8 @@ internal fun NimbusDisposableEffect(
                 Lifecycle.Event.ON_START -> onStart()
                 Lifecycle.Event.ON_CREATE -> onCreate()
                 Lifecycle.Event.ON_DESTROY -> onDestroy()
+                else -> {}
             }
-
         }
 
         // Add the observer to the lifecycle
