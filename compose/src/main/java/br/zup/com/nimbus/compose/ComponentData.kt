@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.zup.nimbus.core.tree.ServerDrivenNode
-import java.util.Arrays
-import kotlin.system.measureTimeMillis
 
 private fun componentListsAreEqual(list: List<*>, comparable: List<*>): Boolean {
     return list.size == comparable.size && list.toSet() == comparable.toSet()
@@ -42,16 +40,6 @@ private fun componentsAreEquals(node: ServerDrivenNode, comparable: ServerDriven
                 node.properties?.let { otherProperties ->
                     comparable.properties?.let { currentProperties ->
                         componentMapsAreEqual(otherProperties, currentProperties)
-                    }
-                } == true
-            )
-        ) ||
-        !(
-            (node.children == comparable.children) || (
-                node.children?.let { otherChildren ->
-                    comparable.children?.let { currentChildren ->
-                        (otherChildren.map { it.id }).toTypedArray()
-                            .contentEquals((currentChildren.map { it.id }).toTypedArray())
                     }
                 } == true
             )
