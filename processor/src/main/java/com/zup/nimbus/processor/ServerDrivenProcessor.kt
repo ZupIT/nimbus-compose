@@ -24,11 +24,9 @@ import com.squareup.kotlinpoet.asTypeName
 import kotlin.reflect.KClass
 
 class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment): SymbolProcessor {
-    private fun Resolver.findAnnotations(
-        kClass: KClass<*>,
-    ) = getSymbolsWithAnnotation(
-        kClass.qualifiedName.toString())
-        .filterIsInstance<KSFunctionDeclaration>()
+    private fun Resolver.findAnnotations(kClass: KClass<*>) =
+        getSymbolsWithAnnotation(kClass.qualifiedName.toString())
+            .filterIsInstance<KSFunctionDeclaration>()
 
     private fun createNimbusComposable(
         builder: FileSpec.Builder,
@@ -40,8 +38,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .addAnnotation(ClassNames.Composable)
             .addParameter("data", ClassNames.ComponentData)
             .addStatement("var nimbus = NimbusTheme.nimbus")
-            .addStatement("val properties = remember { " +
-                    "ComponentDeserializer(logger = nimbus.logger, node = data.node) }")
+            .addStatement("val properties = remember { ComponentDeserializer(logger = nimbus.logger, node = data.node) }")
             .addStatement("properties.start()")
 
         component.parameters.forEach {
@@ -49,7 +46,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                 if (!it.nullable) throw RequiredParentException(it.name, fn)
                 fnBuilder.addStatement("val %L = data.parent?.component", it.name)
             } else if (it.deserializer != null) {
-                if(it.deserializer.packageName != fn.packageName.asString()) {
+                if (it.deserializer.packageName != fn.packageName.asString()) {
                     builder.addClassImport(it.deserializer)
                 }
                 fnBuilder.addStatement(
@@ -80,17 +77,17 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                     TypeCategory.ServerDrivenAction -> {
                         if (it.arity == 0) {
                             fnBuilder.addStatement(
-                                "val %LAction = properties.asAction%L(%S)",
+                                "val %LAction = remember(properties) { properties.asAction%L(%S) }",
                                 it.name,
                                 if (it.nullable) "OrNull" else "",
                                 it.name,
                             )
-                            val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
-                            else "val %L = { %LAction(null) }"
+                            val template = if (it.nullable) "val %L = %LAction?.let{ remember(properties) { { it(null) } } }"
+                            else "val %L = remember(properties) { { %LAction(null) } }"
                             fnBuilder.addStatement(template, it.name, it.name)
                         } else {
                             fnBuilder.addStatement(
-                                "val %L = properties.asAction%L(%S)",
+                                "val %L = remember(properties) { properties.asAction%L(%S) }",
                                 it.name,
                                 if (it.nullable) "OrNull" else "",
                                 it.name,
@@ -139,11 +136,8 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
     ): Set<KSClassDeclaration> {
         val mustDeserialize = mutableSetOf<KSClassDeclaration>()
         val sourceFiles = functions.mapNotNull { it.containingFile }
-
-        val componentsFile = FileSpec.builder(
-            packageName,
-            "generatedComponents",
-        ).addClassImport(ClassNames.NimbusTheme)
+        val componentsFile = FileSpec.builder(packageName,"generatedComponents")
+            .addClassImport(ClassNames.NimbusTheme)
             .addClassImport(ClassNames.ComponentDeserializer)
             .addClassImport(ClassNames.NimbusMode)
             .addClassImport(ClassNames.Text)
@@ -157,10 +151,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         if (mustDeserialize.isNotEmpty()) componentsFile.addClassImport(entityDeserializerRef)
 
         val file = environment.codeGenerator.createNewFile(
-            Dependencies(
-                false,
-                *sourceFiles.toList().toTypedArray(),
-            ),
+            Dependencies(false, *sourceFiles.toList().toTypedArray()),
             packageName,
             "generatedComponents"
         )
@@ -170,7 +161,8 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
     }
 
     fun createClassDeserializer(builder: FileSpec.Builder, clazz: KSClassDeclaration): FunSpec {
-        val name = "${clazz.packageName.asString()}.${clazz.simpleName.asString()}".replace(".", "_")
+        val name = "${clazz.packageName.asString()}.${clazz.simpleName.asString()}"
+            .replace(".", "_")
         val fnBuilder = FunSpec.builder(name)
             .addParameter("properties", ClassNames.ComponentDeserializer)
             .addModifiers(KModifier.PRIVATE)
@@ -180,7 +172,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         )
         constructorInfo.parameters.forEach {
             if (it.deserializer != null) {
-                if(it.deserializer.packageName != clazz.packageName.asString()) {
+                if (it.deserializer.packageName != clazz.packageName.asString()) {
                     builder.addClassImport(it.deserializer)
                 }
                 fnBuilder.addStatement(
@@ -259,45 +251,51 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         )
 
         val objectBuilder = TypeSpec.objectBuilder("NimbusEntityDeserializer")
-            .addProperty(PropertySpec.builder(
-                "deserializers",
-                ClassName("kotlin.collections", "MutableMap")
-                    .parameterizedBy(
-                        String::class.asTypeName(),
-                        LambdaTypeName.get(
-                            parameters = listOf(ParameterSpec.builder(
-                                "properties",
-                                ClassNames.ComponentDeserializer,
-                            ).build()),
-                            returnType = Any::class.asTypeName(),
-                        )
-                    ),
-                KModifier.PRIVATE,
-            ).initializer(
-                CodeBlock.of(
-                    "mutableMapOf(%L)",
-                    mustDeserialize.joinToString(", ") {
-                        val name = "${it.packageName.asString()}.${it.simpleName.asString()}"
-                        "\"$name\" to { ${name.replace(".", "_")}(it) }"
-                    },
+            .addProperty(
+                PropertySpec.builder(
+                    "deserializers",
+                    ClassName("kotlin.collections", "MutableMap")
+                        .parameterizedBy(
+                            String::class.asTypeName(),
+                            LambdaTypeName.get(
+                                parameters = listOf(
+                                    ParameterSpec.builder(
+                                        "properties",
+                                        ClassNames.ComponentDeserializer,
+                                    ).build()
+                                ),
+                                returnType = Any::class.asTypeName(),
+                            )
+                        ),
+                    KModifier.PRIVATE,
                 )
-            ).build())
+                .initializer(
+                    CodeBlock.of(
+                        "mutableMapOf(%L)",
+                        mustDeserialize.joinToString(", ") {
+                            val name = "${it.packageName.asString()}.${it.simpleName.asString()}"
+                            "\"$name\" to { ${name.replace(".", "_")}(it) }"
+                        },
+                    )
+                )
+                .build()
+            )
             .addFunction(
                 FunSpec.builder("deserialize")
-                    .addTypeVariables(listOf(
-                        TypeVariableName("T"),
-                        TypeVariableName(
-                            "U",
-                            listOf(KClass::class.asClassName().parameterizedBy(
-                                TypeVariableName("T")
-                            ))
+                    .addTypeVariables(
+                        listOf(
+                            TypeVariableName("T"),
+                            TypeVariableName(
+                                "U",
+                                listOf(
+                                    KClass::class.asClassName()
+                                        .parameterizedBy(TypeVariableName("T"))
+                                )
+                            )
                         )
-                    ))
-                    .addParameter("properties", ClassNames.ComponentDeserializer)
-                    .addParameter(
-                        "clazz",
-                        TypeVariableName("U"),
                     )
+                    .addParameter("properties", ClassNames.ComponentDeserializer)
+                    .addParameter("clazz", TypeVariableName("U"))
                     .returns(TypeVariableName("T"))
                     .addStatement(
                         "return deserializers.get(clazz.qualifiedName ?: \"\")?.let " +
@@ -327,7 +325,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val functions: Sequence<KSFunctionDeclaration> =
             resolver.findAnnotations(ServerDrivenComponent::class)
-        if(!functions.iterator().hasNext()) return emptyList()
+        if (!functions.iterator().hasNext()) return emptyList()
 
         val mustDeserialize = mutableSetOf<KSClassDeclaration>()
         val byPackage = functions.groupBy { it.packageName.asString() }
