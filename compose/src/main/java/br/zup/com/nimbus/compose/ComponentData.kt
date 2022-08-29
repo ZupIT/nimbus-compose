@@ -6,15 +6,14 @@ import androidx.compose.runtime.Stable
 import com.zup.nimbus.core.tree.ServerDrivenNode
 
 private fun componentListsAreEqual(list: List<*>, comparable: List<*>): Boolean {
-    return list.size == comparable.size && list.toSet() == comparable.toSet()
+    return (list.size == comparable.size && list.toSet() == comparable.toSet())
 }
 
 private fun componentMapsAreEqual(map: Map<String, *>, comparable: Map<String, *>): Boolean {
-    val requiresDeepComparison = map.size == comparable.size && map.keys == comparable.keys
+    val requiresDeepComparison = (map.size == comparable.size && map.keys == comparable.keys)
     if (requiresDeepComparison) {
-        var areEqual = true
         for (entry in map.iterator()) {
-            areEqual = when (entry.value) {
+            val areEqual = when (entry.value) {
                 is Function<*> -> continue
                 is Map<*, *> -> componentMapsAreEqual(
                     entry.value as Map<String, *>,
@@ -22,27 +21,26 @@ private fun componentMapsAreEqual(map: Map<String, *>, comparable: Map<String, *
                 )
                 is Array<*> -> (entry.value as Array<*>).contentEquals(comparable[entry.key] as Array<*>)
                 is List<*> -> componentListsAreEqual(entry.value as List<*>, comparable as List<*>)
-                else -> entry.value == comparable[entry.key]
+                else -> (entry.value == comparable[entry.key])
             }
-            if (!areEqual) break
+            if (!areEqual) return false
         }
-        return areEqual
+        return true
     }
     return false
 }
 
 private fun componentsAreEquals(node: ServerDrivenNode, comparable: ServerDrivenNode): Boolean {
     return !(
-        node.id != comparable.id ||
-        node.component != comparable.component ||
+        (node.id != comparable.id) ||
+        (node.component != comparable.component) ||
         !(
-            (node.properties == comparable.properties) || (
-                node.properties?.let { otherProperties ->
-                    comparable.properties?.let { currentProperties ->
-                        componentMapsAreEqual(otherProperties, currentProperties)
-                    }
-                } == true
-            )
+            (node.properties == comparable.properties) ||
+            (node.properties?.let { otherProperties ->
+                comparable.properties?.let { currentProperties ->
+                    componentMapsAreEqual(otherProperties, currentProperties)
+                }
+            } == true)
         )
     )
 }
