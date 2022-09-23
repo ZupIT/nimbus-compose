@@ -9,6 +9,7 @@ object ClassNames {
     val ComponentData = ClassName(PackageNames.nimbusCompose, "ComponentData")
     val NimbusTheme = ClassName(PackageNames.nimbusCompose, "NimbusTheme")
     val NimbusMode = ClassName(PackageNames.nimbusCompose, "NimbusMode")
+    val TypeDeserializer = ClassName(PackageNames.nimbusCompose, "TypeDeserializer")
     val ComponentDeserializer = ClassName(
         "${PackageNames.nimbusCore}.deserialization",
         "ComponentDeserializer",

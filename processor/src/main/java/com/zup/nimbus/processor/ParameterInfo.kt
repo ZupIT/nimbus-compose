@@ -29,6 +29,7 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
     val isParentName: Boolean
     val deserializer: ClassName?
     val arity: Int?
+    val isRoot: Boolean
 
     init {
         name = parameter.name?.asString() ?: throw NamelessParameterException(parameter, fn)
@@ -40,6 +41,10 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
         isParentName = parameter.annotations.any {
             // todo: don't rely on simple name
             annotation -> annotation.shortName.asString() == "ParentName"
+        }
+        isRoot = parameter.annotations.any {
+            // todo: don't rely on simple name
+            annotation -> annotation.shortName.asString() == "Root"
         }
         val deserializerType = parameter.annotations.find {
             // todo: don't rely on simple name
@@ -58,10 +63,6 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
         } else if (resolved.declaration.modifiers.contains(Modifier.ENUM)) {
             TypeCategory.Enum
         } else if (!resolved.isFunctionType && resolved.declaration is KSClassDeclaration) {
-            val isRoot = parameter.annotations.any {
-                // todo: don't rely on simple name
-                annotation -> annotation.shortName.asString() == "Root"
-            }
             if (!isRoot && deserializer == null) throw NonRootEntityException(parameter, fn)
             mustDeserialize.add(resolved.declaration as KSClassDeclaration)
             TypeCategory.Deserializable
