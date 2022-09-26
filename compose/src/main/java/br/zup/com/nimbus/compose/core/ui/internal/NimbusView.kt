@@ -3,6 +3,7 @@ package br.zup.com.nimbus.compose.core.ui.internal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
@@ -53,14 +54,12 @@ internal fun RenderPageState(
                 )
             }
             is NimbusPageState.PageStateOnShowPage -> {
-                NimbusServerDrivenView(viewTree = this.serverDrivenNode)
+                key(this.observableNode.node.id) {
+                    RenderedNode(observableNode = this.observableNode)
+                }
                 onLoading(false)
             }
         }
     }
-
-    /*CollectSharedFlow(page.content) {
-        nimbusPageState = it
-    }*/
 }
 

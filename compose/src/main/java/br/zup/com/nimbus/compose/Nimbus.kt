@@ -7,20 +7,20 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import br.zup.com.nimbus.compose.core.ui.components.ErrorDefault
-import br.zup.com.nimbus.compose.core.ui.components.LoadingDefault
+import br.zup.com.nimbus.compose.ui.components.ErrorDefault
+import br.zup.com.nimbus.compose.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHostHelper
-import com.zup.nimbus.core.ActionHandler
+import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
+import br.zup.com.nimbus.compose.ui.composeUILibrary
 import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.OperationHandler
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.ServerDrivenNavigator
+import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
-import com.zup.nimbus.core.tree.ObservableState
+import com.zup.nimbus.core.ui.UILibraryManager
 import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
 
 typealias ComponentHandler = @Composable (ComponentData) -> Unit
@@ -34,20 +34,18 @@ class NimbusNavigatorState(
     val navHostHelper: NimbusNavHostHelper,
 )
 
-enum class NimbusMode { Development, Release }
+enum class NimbusMode {Development, Release }
 
 @Stable
+@Suppress("LongParameterList")
 class Nimbus(
     val baseUrl: String,
-    components: List<ComponentLibrary> = emptyList(),
-    actions: Map<String, ActionHandler>? = null,
-    val actionObservers: List<ActionHandler>? = null,
-    operations: Map<String, OperationHandler>? = null,
     logger: Logger? = null,
-    urlBuilder: UrlBuilder? = null,
+    urlBuilder: ((String) -> UrlBuilder)? = null,
     httpClient: HttpClient? = null,
-    viewClient: ViewClient? = null,
+    viewClient: ((nimbus: Nimbus) -> ViewClient)? = null,
     idManager: IdManager? = null,
+    ui: List<NimbusComposeUILibrary>? = null,
     val loadingView: LoadingHandler = { LoadingDefault() },
     val errorView: ErrorHandler = { throwable: Throwable, retry: () -> Unit ->
         ErrorDefault(throwable = throwable, retry = retry)
@@ -57,27 +55,23 @@ class Nimbus(
 
     internal val core: Nimbus
 
-    val components = HashMap<String, ComponentHandler>()
-    val globalState: ObservableState get() = core.globalState
-    val actions: MutableMap<String, ActionHandler> get() = core.actions
-    val operations: MutableMap<String, OperationHandler> get() = core.operations
     val logger: Logger get() = core.logger
     val urlBuilder: UrlBuilder get() = core.urlBuilder
     val httpClient: HttpClient get() = core.httpClient
     val viewClient: ViewClient get() = core.viewClient
     val idManager: IdManager get() = core.idManager
+    val uiLibraryManager: UILibraryManager get() = core.uiLibraryManager
+    val states: List<ServerDrivenState>? get() = core.states
 
     private val environmentMap = mutableMapOf<String, Any>()
 
     init {
-        components.forEach { lib -> this.components.putAll(lib.components) }
         core = Nimbus(ServerDrivenConfig(
             platform = PLATFORM_NAME,
             baseUrl = baseUrl,
-            actions = actions,
-            actionObservers = actionObservers,
-            operations = operations,
             logger = logger,
+            ui = ui,
+            coreUILibrary = composeUILibrary,
             urlBuilder = urlBuilder,
             httpClient = httpClient,
             viewClient = viewClient,
@@ -92,27 +86,6 @@ class Nimbus(
         environmentMap[key] = value as Any
         return this
     }
-
-    fun createView(getNavigator: () -> ServerDrivenNavigator, description: String? = null) =
-        core.createView(getNavigator = getNavigator, description = description)
-
-    fun createNodeFromJson(json: String) = core.createNodeFromJson(json = json)
-
-    fun addOperations(operations: Map<String, OperationHandler>) {
-        core.addOperations(operations)
-    }
-
-    fun addComponentLibrary(library: ComponentLibrary) {
-        this.components.putAll(library.components)
-    }
-
-    fun addActions(actions: Map<String, ActionHandler>) {
-        core.addActions(actions)
-    }
-
-    fun addActionObservers(observers: List<ActionHandler>) = core.addActionObservers(
-        observers = observers
-    )
 }
 
 private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {

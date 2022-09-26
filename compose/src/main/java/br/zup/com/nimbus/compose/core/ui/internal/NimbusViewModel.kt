@@ -8,8 +8,8 @@ import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
+import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -110,16 +110,6 @@ internal class NimbusViewModel(
 
     fun getPageCount() = pagesManager.getPageCount()
 
-    fun dispose() = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-        pagesManager.removeAllPages()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        //Cannot call coroutines at this moment, should run everything on main thread
-        pagesManager.removeAllPages()
-    }
-
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) {
         viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
             _nimbusViewNavigationState.emit(nimbusViewModelNavigationState)
@@ -148,14 +138,14 @@ internal class NimbusViewModel(
             val page = pagesManager.getPageBy(url)
 
             page?.let {
-                pagesManager.removePagesAfter(page)
                 setNavigationState(NimbusViewModelNavigationState.PopTo(url))
             }
         }
 
     private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            val view = nimbusConfig.core.createView(
+            val view = ServerDrivenView(
+                nimbus = nimbusConfig.core,
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
             )
@@ -177,8 +167,9 @@ internal class NimbusViewModel(
         try {
             page.setLoading()
             val tree = nimbusConfig.core.viewClient.fetch(request)
-            view.renderer.paint(tree)
-        } catch (e: Throwable) {
+            tree.initialize(view)
+            page.setContent(tree)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             page.setError(
                 throwable = e,
                 retry = {
@@ -196,7 +187,8 @@ internal class NimbusViewModel(
 
     private fun doPushWithJson(json: String) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            val view = nimbusConfig.core.createView(
+            val view = ServerDrivenView(
+                nimbus = nimbusConfig.core,
                 getNavigator = { serverDrivenNavigator },
                 description = VIEW_JSON_DESCRIPTION
             )
@@ -217,9 +209,10 @@ internal class NimbusViewModel(
     ) {
         try {
             page.setLoading()
-            val tree = nimbusConfig.core.createNodeFromJson(json)
-            view.renderer.paint(tree)
-        } catch (e: Throwable) {
+            val tree = nimbusConfig.core.nodeBuilder.buildFromJsonString(json)
+            tree.initialize(view)
+            page.setContent(tree)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             page.setError(
                 throwable = e,
                 retry = {

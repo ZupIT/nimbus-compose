@@ -88,9 +88,7 @@ private fun ConfigureNavHostHelper(
         override fun isFirstScreen(): Boolean = nimbusViewModel.getPageCount() == 1
 
         override fun pop(): Boolean = nimbusViewModel.pop()
-        override fun dispose() {
-            nimbusViewModel.dispose()
-        }
+        override fun dispose() {}
     }
 }
 

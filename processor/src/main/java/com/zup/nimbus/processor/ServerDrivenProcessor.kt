@@ -58,6 +58,24 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         }
     }
 
+    private fun handleServerDrivenAction(param: ParameterInfo, fnBuilder: FunSpec.Builder) {
+        fnBuilder.addStatement(
+            "val %LEvent = properties.asEvent%L(%S)",
+            param.name,
+            if (param.nullable) "OrNull" else "",
+            param.name,
+        )
+        val template = if (param.nullable) "val %L: (%L)? = %LEvent?.let { event -> { event.run(%L) } }"
+        else "val %L: %L = { %LEvent.run(%L) }"
+        fnBuilder.addStatement(
+            template,
+            param.name,
+            if (param.arity == 0) "() -> Unit" else "(Any) -> Unit",
+            param.name,
+            if (param.arity == 0) "" else "it",
+        )
+    }
+
     private fun createNimbusComposable(
         builder: FileSpec.Builder,
         fn: KSFunctionDeclaration,
@@ -100,26 +118,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                             it.type,
                         )
                     }
-                    TypeCategory.ServerDrivenAction -> {
-                        if (it.arity == 0) {
-                            fnBuilder.addStatement(
-                                "val %LAction = remember(properties) { properties.asAction%L(%S) }",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                            val template = if (it.nullable) "val %L = %LAction?.let{ remember(properties) { { it(null) } } }"
-                            else "val %L = remember(properties) { { %LAction(null) } }"
-                            fnBuilder.addStatement(template, it.name, it.name)
-                        } else {
-                            fnBuilder.addStatement(
-                                "val %L = remember(properties) { properties.asAction%L(%S) }",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                        }
-                    }
+                    TypeCategory.ServerDrivenAction -> handleServerDrivenAction(it, fnBuilder)
                     TypeCategory.Composable -> fnBuilder.addStatement(
                         "val %L = data.children",
                         it.name,
@@ -223,26 +222,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                             it.type,
                         )
                     }
-                    TypeCategory.ServerDrivenAction -> {
-                        if (it.arity == 0) {
-                            fnBuilder.addStatement(
-                                "val %LAction = properties.asAction%L(%S)",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                            val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
-                            else "val %L = { %LAction(null) }"
-                            fnBuilder.addStatement(template, it.name, it.name)
-                        } else {
-                            fnBuilder.addStatement(
-                                "val %L = properties.asAction%L(%S)",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                        }
-                    }
+                    TypeCategory.ServerDrivenAction -> handleServerDrivenAction(it, fnBuilder)
                     else -> {
                         throw UnsupportedTypeException(
                             it.name,
