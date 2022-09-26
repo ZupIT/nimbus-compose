@@ -110,6 +110,16 @@ internal class NimbusViewModel(
 
     fun getPageCount() = pagesManager.getPageCount()
 
+    fun dispose() = viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
+        pagesManager.removeAllPages()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        //Cannot call coroutines at this moment, should run everything on main thread
+        pagesManager.removeAllPages()
+    }
+
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) {
         viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
             _nimbusViewNavigationState.emit(nimbusViewModelNavigationState)
@@ -138,6 +148,7 @@ internal class NimbusViewModel(
             val page = pagesManager.getPageBy(url)
 
             page?.let {
+                pagesManager.removePagesAfter(page)
                 setNavigationState(NimbusViewModelNavigationState.PopTo(url))
             }
         }

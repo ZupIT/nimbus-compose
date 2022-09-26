@@ -35,3 +35,14 @@ data class Page(
         setState?.let { it(NimbusPageState.PageStateOnError(throwable = throwable, retry = retry)) }
     }
 }
+
+internal fun Page.removePagesAfter(pages: MutableList<Page>) {
+    val index = pages.indexOf(this)
+    if (index < pages.lastIndex)
+        pages.subList(index + 1, pages.size).clear()
+}
+
+
+internal fun MutableList<Page>.removeLastPage(): Page = removeLast()
+internal fun MutableList<Page>.removeAllPages(): Unit = this.clear()
+

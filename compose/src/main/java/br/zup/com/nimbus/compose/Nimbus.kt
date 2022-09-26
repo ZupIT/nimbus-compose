@@ -34,7 +34,7 @@ class NimbusNavigatorState(
     val navHostHelper: NimbusNavHostHelper,
 )
 
-enum class NimbusMode {Development, Release }
+enum class NimbusMode { Development, Release }
 
 @Stable
 @Suppress("LongParameterList")
