@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -68,7 +68,7 @@ internal fun NimbusNavHost(
                 }
                 currentPage?.let { page ->
                     NimbusBackHandler()
-                    NimbusView(page = page)
+                    page.Compose()
                     NimbusModalView(
                         nimbusViewModel = nimbusViewModel,
                         modalParentHelper = modalParentHelper

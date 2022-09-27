@@ -1,10 +1,9 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import br.zup.com.nimbus.compose.SHOW_VIEW
 import br.zup.com.nimbus.compose.VIEW_URL
-import br.zup.com.nimbus.compose.core.ui.nimbusPopTo
 
 @Composable
 internal fun NimbusNavigationEffect(

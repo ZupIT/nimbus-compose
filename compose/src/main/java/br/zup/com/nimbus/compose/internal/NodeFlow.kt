@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class NodeState(
-    val node: ServerDrivenNode,
-    val children: List<NodeFlow>?,
+    private val node: ServerDrivenNode,
+    private val children: List<NodeFlow>?,
 ) {
     operator fun component1() = node
     operator fun component2() = children

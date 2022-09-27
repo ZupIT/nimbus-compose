@@ -1,7 +1,7 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import com.zup.nimbus.core.network.ViewClient
-import com.zup.nimbus.core.tree.RenderNode
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -17,7 +17,7 @@ abstract class BaseTest {
     internal val nimbusCore: com.zup.nimbus.core.Nimbus = mockk()
     internal val pagesManager: PagesManager = mockk()
     internal val viewClient: ViewClient = mockk()
-    internal val renderNode: RenderNode = mockk()
+    internal val rootNode: RootNode = mockk()
 
     @BeforeAll
     open fun setUp() {
@@ -30,20 +30,19 @@ abstract class BaseTest {
     }
 
     protected fun mockNimbusConfig(){
-        every { nimbusConfig.actions } returns mutableMapOf()
         every { nimbusConfig.baseUrl } returns BASE_URL
         every { nimbusConfig.core } returns nimbusCore
         every { nimbusConfig.core.viewClient} returns viewClient
     }
 
-    internal fun shouldEmitRenderNodeFromCore(renderNode: RenderNode) {
-        coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns renderNode
-        every { nimbusConfig.core.createNodeFromJson(any()) } returns renderNode
+    internal fun shouldEmitRenderNodeFromCore(node: RootNode) {
+        coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns node
+        every { nimbusConfig.core.nodeBuilder.buildFromJsonString(any()) } returns node
     }
 
     internal fun shouldEmitExceptionFromCore(expectedException: Throwable) {
         coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
-        every { nimbusConfig.core.createNodeFromJson(any()) } throws expectedException
+        every { nimbusConfig.core.nodeBuilder.buildFromJsonString(any()) } throws expectedException
     }
 
 }

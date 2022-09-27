@@ -9,7 +9,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import br.zup.com.nimbus.compose.ui.components.ErrorDefault
 import br.zup.com.nimbus.compose.ui.components.LoadingDefault
-import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHostHelper
+import br.zup.com.nimbus.compose.internal.NimbusNavHostHelper
 import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
 import br.zup.com.nimbus.compose.ui.composeUILibrary
 import com.zup.nimbus.core.Nimbus
