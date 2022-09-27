@@ -1,16 +1,15 @@
 package br.zup.com.nimbus.compose.model
 
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import br.zup.com.nimbus.compose.core.ui.internal.ObservableNode
+import br.zup.com.nimbus.compose.core.ui.internal.NodeFlow
 import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.tree.ServerDrivenNode
 import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlinx.coroutines.CoroutineScope
 
 sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
     data class PageStateOnError(val throwable: Throwable, val retry: () -> Unit) : NimbusPageState()
-    data class PageStateOnShowPage(val observableNode: ObservableNode) : NimbusPageState()
+    data class PageStateOnShowPage(val flow: NodeFlow) : NimbusPageState()
 }
 
 data class Page(
@@ -24,7 +23,7 @@ data class Page(
     }
 
     fun setContent(tree: RootNode) {
-        setState?.let { it(NimbusPageState.PageStateOnShowPage(ObservableNode(tree))) }
+        setState?.let { it(NimbusPageState.PageStateOnShowPage(NodeFlow(tree))) }
     }
 
     fun setLoading() {
@@ -41,8 +40,3 @@ internal fun Page.removePagesAfter(pages: MutableList<Page>) {
     if (index < pages.lastIndex)
         pages.subList(index + 1, pages.size).clear()
 }
-
-
-internal fun MutableList<Page>.removeLastPage(): Page = removeLast()
-internal fun MutableList<Page>.removeAllPages(): Unit = this.clear()
-

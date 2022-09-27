@@ -54,9 +54,7 @@ internal fun RenderPageState(
                 )
             }
             is NimbusPageState.PageStateOnShowPage -> {
-                key(this.observableNode.node.id) {
-                    RenderedNode(observableNode = this.observableNode)
-                }
+                RenderedNode(flow = this.flow)
                 onLoading(false)
             }
         }
