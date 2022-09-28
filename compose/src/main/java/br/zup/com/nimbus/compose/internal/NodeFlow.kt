@@ -22,6 +22,7 @@ class NodeFlow(private val node: ServerDrivenNode): Dependent {
     private var memoizedChildren: MutableMap<String, NodeFlow> = mutableMapOf()
     private val scope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
     private val current = MutableStateFlow(NodeState(node, emptyList()))
+    val id: String get() = node.id
 
     init {
         update()

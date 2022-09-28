@@ -32,7 +32,7 @@ class UnsupportedTypeException(param: String, type: String, category: String, fn
 
 class RequiredParentException(param: String, fn: KSFunctionDeclaration):
     NimbusCompilerException("\nError in function \"${fn.simpleName.asString()}\", parameter " +
-            "\"${param ?: ""}\"\n  at ${fn.location}.\n  " +
+            "\"${param}\"\n  at ${fn.location}.\n  " +
             "A parameter marked with @ParentName must be optional because it could be a root node.")
 
 class ComputedNotAnObjectException(param: KSValueParameter, fn: KSFunctionDeclaration):

@@ -90,10 +90,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .addStatement("properties.start()")
 
         component.parameters.forEach {
-            if (it.isParentName) {
-                if (!it.nullable) throw RequiredParentException(it.name, fn)
-                fnBuilder.addStatement("val %L = data.parent?.component", it.name)
-            } else if (it.deserializer != null) {
+            if (it.deserializer != null) {
                 if (it.deserializer.packageName != fn.packageName.asString()) {
                     builder.addClassImport(it.deserializer)
                 }

@@ -14,7 +14,6 @@ const val BASE_URL = "http://localhost"
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class BaseTest {
     internal val nimbusConfig: br.zup.com.nimbus.compose.Nimbus = mockk()
-    internal val nimbusCore: com.zup.nimbus.core.Nimbus = mockk()
     internal val pagesManager: PagesManager = mockk()
     internal val viewClient: ViewClient = mockk()
     internal val rootNode: RootNode = mockk()
@@ -31,18 +30,18 @@ abstract class BaseTest {
 
     protected fun mockNimbusConfig(){
         every { nimbusConfig.baseUrl } returns BASE_URL
-        every { nimbusConfig.core } returns nimbusCore
-        every { nimbusConfig.core.viewClient} returns viewClient
+        every { nimbusConfig } returns nimbusConfig
+        every { nimbusConfig.viewClient } returns viewClient
     }
 
     internal fun shouldEmitRenderNodeFromCore(node: RootNode) {
-        coEvery { nimbusConfig.core.viewClient.fetch(any()) } returns node
-        every { nimbusConfig.core.nodeBuilder.buildFromJsonString(any()) } returns node
+        coEvery { nimbusConfig.viewClient.fetch(any()) } returns node
+        every { nimbusConfig.nodeBuilder.buildFromJsonString(any()) } returns node
     }
 
     internal fun shouldEmitExceptionFromCore(expectedException: Throwable) {
-        coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
-        every { nimbusConfig.core.nodeBuilder.buildFromJsonString(any()) } throws expectedException
+        coEvery { nimbusConfig.viewClient.fetch(any()) } throws expectedException
+        every { nimbusConfig.nodeBuilder.buildFromJsonString(any()) } throws expectedException
     }
 
 }

@@ -19,7 +19,7 @@ internal fun ComponentNotFound(name: String) {
 }
 
 @Composable
-internal fun RenderedNode(flow: NodeFlow) {
+fun RenderedNode(flow: NodeFlow) {
     val state = flow.collectAsState()
     val (node, children) = state.value
     val ui = NimbusTheme.nimbus.uiLibraryManager
@@ -37,7 +37,7 @@ internal fun RenderedNode(flow: NodeFlow) {
                 node = node,
                 children = {
                     children?.forEach {
-                        key(node.id) { RenderedNode(it) }
+                        key(it.id) { RenderedNode(it) }
                     }
                 }
             )

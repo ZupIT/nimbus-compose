@@ -156,7 +156,7 @@ internal class NimbusViewModel(
     private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             val view = ServerDrivenView(
-                nimbus = nimbusConfig.core,
+                nimbus = nimbusConfig,
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
             )
@@ -177,7 +177,7 @@ internal class NimbusViewModel(
     ) {
         try {
             page.setLoading()
-            val tree = nimbusConfig.core.viewClient.fetch(request)
+            val tree = nimbusConfig.viewClient.fetch(request)
             tree.initialize(view)
             page.setContent(tree)
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
@@ -199,7 +199,7 @@ internal class NimbusViewModel(
     private fun doPushWithJson(json: String) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             val view = ServerDrivenView(
-                nimbus = nimbusConfig.core,
+                nimbus = nimbusConfig,
                 getNavigator = { serverDrivenNavigator },
                 description = VIEW_JSON_DESCRIPTION
             )
@@ -220,7 +220,7 @@ internal class NimbusViewModel(
     ) {
         try {
             page.setLoading()
-            val tree = nimbusConfig.core.nodeBuilder.buildFromJsonString(json)
+            val tree = nimbusConfig.nodeBuilder.buildFromJsonString(json)
             tree.initialize(view)
             page.setContent(tree)
         } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {

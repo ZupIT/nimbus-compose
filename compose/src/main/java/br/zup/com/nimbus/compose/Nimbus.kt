@@ -51,42 +51,17 @@ class Nimbus(
         ErrorDefault(throwable = throwable, retry = retry)
     },
     val mode: NimbusMode? = NimbusMode.Development
-) {
-
-    internal val core: Nimbus
-
-    val logger: Logger get() = core.logger
-    val urlBuilder: UrlBuilder get() = core.urlBuilder
-    val httpClient: HttpClient get() = core.httpClient
-    val viewClient: ViewClient get() = core.viewClient
-    val idManager: IdManager get() = core.idManager
-    val uiLibraryManager: UILibraryManager get() = core.uiLibraryManager
-    val states: List<ServerDrivenState>? get() = core.states
-
-    private val environmentMap = mutableMapOf<String, Any>()
-
-    init {
-        core = Nimbus(ServerDrivenConfig(
-            platform = PLATFORM_NAME,
-            baseUrl = baseUrl,
-            logger = logger,
-            ui = ui,
-            coreUILibrary = composeUILibrary,
-            urlBuilder = urlBuilder,
-            httpClient = httpClient,
-            viewClient = viewClient,
-            idManager = idManager
-        ))
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> environmentObject(key: String): T? = environmentMap[key] as T?
-
-    fun <T> environmentObject(key: String, value: T): NimbusCompose {
-        environmentMap[key] = value as Any
-        return this
-    }
-}
+): Nimbus(ServerDrivenConfig(
+    platform = PLATFORM_NAME,
+    baseUrl = baseUrl,
+    logger = logger,
+    ui = ui,
+    coreUILibrary = composeUILibrary,
+    urlBuilder = urlBuilder,
+    httpClient = httpClient,
+    viewClient = viewClient,
+    idManager = idManager
+))
 
 private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {
     error("No Nimbus provided")

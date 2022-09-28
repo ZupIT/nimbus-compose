@@ -26,7 +26,6 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
     val category: TypeCategory
     val packageName: String
     val mustDeserialize = mutableSetOf<KSClassDeclaration>()
-    val isParentName: Boolean
     val deserializer: ClassName?
     val arity: Int?
     val isRoot: Boolean
@@ -38,10 +37,6 @@ class ParameterInfo(parameter: KSValueParameter, fn: KSFunctionDeclaration) {
         nullable = resolved.isMarkedNullable
         packageName = resolved.declaration.packageName.asString()
         arity = resolved.arguments.size - 1 // - 1 because the return type is also in this array
-        isParentName = parameter.annotations.any {
-            // todo: don't rely on simple name
-            annotation -> annotation.shortName.asString() == "ParentName"
-        }
         isRoot = parameter.annotations.any {
             // todo: don't rely on simple name
             annotation -> annotation.shortName.asString() == "Root"
