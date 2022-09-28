@@ -28,37 +28,3 @@ const val SCREEN1_JSON = """{
     }
   ]
 }"""
-
-const val COUNTER_JSON = """{
-  "_:component": "layout:container",
-  "state": {
-    "id": "counter",
-    "value": 0
-  },
-  "children": [
-    {
-      "_:component": "layout:container",
-      "children": [
-        {
-          "_:component": "material:text",
-          "properties": {
-            "text": "Counter: @{counter}"
-          }
-        },
-        {
-          "_:component": "material:button",
-          "properties": {
-            "text": "Next",
-            "onPress": [{
-              "_:action": "setState",
-              "properties": {
-                "path": "counter",
-                "value": "@{sum(counter, 1)}"
-              }
-            }]
-          }
-        }
-      ]
-    }
-  ]
-}"""

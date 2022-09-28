@@ -88,7 +88,7 @@ class NimbusViewModelTest : BaseTest() {
                 NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
             val expectedOnShowPage = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
 
-            coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
+            coEvery { nimbusConfig.viewClient.fetch(any()) } throws expectedException
 
             //When
             viewModel.initFirstViewWithRequest(viewRequest)
