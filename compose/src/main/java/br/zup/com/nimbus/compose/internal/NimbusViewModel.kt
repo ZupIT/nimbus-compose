@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,8 +8,8 @@ import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
+import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.render.ServerDrivenView
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -155,7 +155,8 @@ internal class NimbusViewModel(
 
     private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            val view = nimbusConfig.core.createView(
+            val view = ServerDrivenView(
+                nimbus = nimbusConfig,
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
             )
@@ -176,9 +177,10 @@ internal class NimbusViewModel(
     ) {
         try {
             page.setLoading()
-            val tree = nimbusConfig.core.viewClient.fetch(request)
-            view.renderer.paint(tree)
-        } catch (e: Throwable) {
+            val tree = nimbusConfig.viewClient.fetch(request)
+            tree.initialize(view)
+            page.setContent(tree)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             page.setError(
                 throwable = e,
                 retry = {
@@ -196,7 +198,8 @@ internal class NimbusViewModel(
 
     private fun doPushWithJson(json: String) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            val view = nimbusConfig.core.createView(
+            val view = ServerDrivenView(
+                nimbus = nimbusConfig,
                 getNavigator = { serverDrivenNavigator },
                 description = VIEW_JSON_DESCRIPTION
             )
@@ -217,9 +220,10 @@ internal class NimbusViewModel(
     ) {
         try {
             page.setLoading()
-            val tree = nimbusConfig.core.createNodeFromJson(json)
-            view.renderer.paint(tree)
-        } catch (e: Throwable) {
+            val tree = nimbusConfig.nodeBuilder.buildFromJsonString(json)
+            tree.initialize(view)
+            page.setContent(tree)
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
             page.setError(
                 throwable = e,
                 retry = {

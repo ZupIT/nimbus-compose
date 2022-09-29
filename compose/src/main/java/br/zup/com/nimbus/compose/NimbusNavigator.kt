@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import br.zup.com.nimbus.compose.core.ui.internal.NimbusNavHost
+import br.zup.com.nimbus.compose.internal.NimbusNavHost
 import com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 

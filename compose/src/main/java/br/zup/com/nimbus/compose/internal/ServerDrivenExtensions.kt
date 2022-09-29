@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui
+package br.zup.com.nimbus.compose.internal
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController

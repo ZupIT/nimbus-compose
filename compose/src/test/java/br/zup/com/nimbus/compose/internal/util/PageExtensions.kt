@@ -1,10 +1,10 @@
-package br.zup.com.nimbus.compose.core.ui.internal.util
+package br.zup.com.nimbus.compose.internal.util
 
 import br.zup.com.nimbus.compose.model.Page
 
 fun Page.observe(): PageStateObserver {
     val observer = PageStateObserver()
-    this.onChange {
+    this.testOnChange {
         observer.change(it)
     }
     return observer

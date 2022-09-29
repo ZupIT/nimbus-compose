@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal.util
+package br.zup.com.nimbus.compose.internal.util
 
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import kotlinx.coroutines.CompletableDeferred

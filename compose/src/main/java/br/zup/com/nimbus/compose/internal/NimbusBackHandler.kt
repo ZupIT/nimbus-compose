@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
