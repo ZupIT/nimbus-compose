@@ -2,11 +2,19 @@ package br.zup.com.nimbus.compose.internal.deserialization
 
 import br.zup.com.nimbus.compose.deserialization.NimbusDeserializer
 import br.zup.com.nimbus.compose.deserialization.annotation.Root
+import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
 import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+import com.zup.nimbus.core.scope.closestState
+import com.zup.nimbus.core.tree.dynamic.DynamicAction
+import com.zup.nimbus.core.tree.dynamic.DynamicEvent
 import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.Assert.assertTrue
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
 class Person {
     var id: String = ""
@@ -14,11 +22,13 @@ class Person {
     var birthDate: Int? = null
     var documents: List<Document>? = null
     @Root var parents: ParentsData? = null
+    var onPress: (() -> Unit)? = null
+    var onChange: ((String) -> Unit)? = null
 }
 
 class ParentsData(
-    val mother: Person?,
-    val father: Person?,
+    val mother: Person,
+    val father: Person,
 )
 
 class Document(
@@ -36,6 +46,9 @@ val paulProps = mapOf<String, Any?>(
     "name" to "Paul Stone",
 )
 
+val onPress = DynamicEvent("onPress")
+val onChange = DynamicEvent("onChange")
+
 val johnProps = mapOf<String, Any?>(
     "id" to "003",
     "name" to "John Stone",
@@ -46,9 +59,31 @@ val johnProps = mapOf<String, Any?>(
     ),
     "mother" to johannaProps,
     "father" to paulProps,
+    "onPress" to onPress,
+    "onChange" to onChange,
 )
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GenericClassDeserializerTest {
+    var action1Called = false
+    var action2CalledWith: ActionTriggeredEvent? = null
+
+    @BeforeAll
+    fun createEvents() {
+        onPress.actions = listOf(
+            DynamicAction("test1", handler = { action1Called = true }, initHandler = null)
+        )
+        onChange.actions = listOf(
+            DynamicAction("test2", handler = { action2CalledWith = it }, initHandler = null)
+        )
+    }
+
+    @BeforeEach
+    fun reset() {
+        action1Called = false
+        action2CalledWith = null
+    }
+
     @Test
     fun test() {
         val scope = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test"))
@@ -68,5 +103,9 @@ class GenericClassDeserializerTest {
         assertEquals(johannaProps["name"], person?.parents?.mother?.name)
         assertEquals(paulProps["id"], person?.parents?.father?.id)
         assertEquals(paulProps["name"], person?.parents?.father?.name)
+        person?.onPress?.let { it() }
+        assertTrue(action1Called)
+        person?.onChange?.let { it("Test") }
+        assertEquals("Test", action2CalledWith?.scope?.closestState("onChange")?.get())
     }
 }
