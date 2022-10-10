@@ -89,8 +89,6 @@ class GenericClassDeserializerTest {
         val scope = Nimbus(ServerDrivenConfig(baseUrl = "", platform = "test"))
         val data = AnyServerDrivenData(johnProps)
         val person = NimbusDeserializer.deserialize(data, scope, Person::class)
-        data.errors.forEach { println("> $it") }
-        assertEquals(0, data.errors.size)
         assertEquals(johnProps["id"], person?.id)
         assertEquals(johnProps["name"], person?.name)
         assertEquals(johnProps["birthDate"], person?.birthDate)
