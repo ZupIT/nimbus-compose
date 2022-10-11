@@ -16,6 +16,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
+enum class Genre {
+    Male,
+    Female,
+    Other,
+}
+
 class Person {
     var id: String = ""
     var name: String = ""
@@ -24,6 +30,7 @@ class Person {
     @Root var parents: ParentsData? = null
     var onPress: (() -> Unit)? = null
     var onChange: ((String) -> Unit)? = null
+    var genre: Genre? = null
 }
 
 class ParentsData(
@@ -61,6 +68,7 @@ val johnProps = mapOf<String, Any?>(
     "father" to paulProps,
     "onPress" to onPress,
     "onChange" to onChange,
+    "genre" to "male",
 )
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -92,6 +100,7 @@ class GenericClassDeserializerTest {
         assertEquals(johnProps["id"], person?.id)
         assertEquals(johnProps["name"], person?.name)
         assertEquals(johnProps["birthDate"], person?.birthDate)
+        assertEquals(Genre.Male, person?.genre)
         assertEquals(2, person?.documents?.size)
         assertEquals("ssn", person?.documents?.get(0)?.name)
         assertEquals("47855110", person?.documents?.get(0)?.value)

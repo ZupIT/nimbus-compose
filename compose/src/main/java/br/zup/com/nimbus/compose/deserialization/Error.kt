@@ -59,6 +59,25 @@ internal object ConstructorErrorFactory: DeserializationErrorFactory() {
             "\"${error.property.name}\" is not available."
 }
 
+internal object FunctionErrorFactory: DeserializationErrorFactory() {
+    override fun ignore(error: AutoDeserializationError): String = "Function " +
+            "argument named \"${error.property}\" annotated with @Ignore must be either optional " +
+            "or nullable."
+
+    override fun injectScope(error: AutoDeserializationError, scope: Scope): String =
+        "Function requires the scope to be injected, but the current scope is of a different " +
+                "type than the one expected by the constructor. Expected: " +
+                "${error.property.clazz.qualifiedName}, current: ${scope::class.qualifiedName}"
+
+    override fun rootProperty(error: AutoDeserializationError): String = "Could not deserialize " +
+            "type because the properties required to build the non-optional, non-nullable " +
+            "property \"${error.property.name}\" are not available."
+
+    override fun commonProperty(error: AutoDeserializationError): String = "Could not " +
+            "deserialize type because non-optional, non-nullable property " +
+            "\"${error.property.name}\" is not available."
+}
+
 internal object PropertyErrorFactory: DeserializationErrorFactory() {
     private fun generic(annotationType: String): String = "Error while applying @$annotationType " +
             "to member property. This is an error within the Server Driven Library. Please, report."

@@ -21,6 +21,8 @@ import kotlin.reflect.jvm.jvmErasure
 
 typealias DeserializationFunction<T> = (data: AnyServerDrivenData) -> T
 
+class DeserializationAttempt(val result: Map<String, Any?>, val error: Throwable? = null)
+
 open class DeserializableProperty(
     val name: String,
     val annotations: List<Annotation>,
@@ -110,7 +112,6 @@ object NimbusDeserializer {
         scope: Scope,
     ): Any? {
         return when {
-            data.isNull() -> null
             customDeserializers.containsKey(clazz) -> {
                 customDeserializers[clazz]?.let { it(data) }
             }
@@ -236,7 +237,26 @@ object NimbusDeserializer {
         properties: List<DeserializableProperty>,
         data: AnyServerDrivenData,
         scope: Scope,
-    ): Map<String, Any?> = deserializeProperties(properties, data, scope) { it.name }
+    ): Map<String, Any?>{
+        try {
+            return deserializeProperties(properties, data, scope) { it.name }
+        } catch (e: AutoDeserializationError) {
+            throw FunctionErrorFactory.fromAutoDeserializationError(e, scope)
+        }
+    }
+
+    fun tryToDeserializeProperties(
+        properties: List<DeserializableProperty>,
+        data: AnyServerDrivenData,
+        scope: Scope,
+    ): DeserializationAttempt {
+        return try {
+            val deserialized = deserializeProperties(properties, data, scope)
+            DeserializationAttempt(deserialized)
+        } catch (t: Throwable) {
+            DeserializationAttempt(emptyMap(), t)
+        }
+    }
 
     private fun <T: Any>buildFromConstructor(
         data: AnyServerDrivenData,
