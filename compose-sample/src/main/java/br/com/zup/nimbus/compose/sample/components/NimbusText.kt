@@ -2,10 +2,10 @@ package br.com.zup.nimbus.compose.sample.components
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import com.zup.nimbus.processor.ServerDrivenComponent
+import com.zup.nimbus.processor.annotation.AutoDeserialize
 
 @Composable
-@ServerDrivenComponent
+@AutoDeserialize
 fun NimbusText(text: String) {
     Text(text = text)
 }

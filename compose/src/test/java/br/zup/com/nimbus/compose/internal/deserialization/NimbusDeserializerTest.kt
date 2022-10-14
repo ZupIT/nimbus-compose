@@ -1,7 +1,7 @@
 package br.zup.com.nimbus.compose.internal.deserialization
 
 import br.zup.com.nimbus.compose.deserialization.NimbusDeserializer
-import br.zup.com.nimbus.compose.deserialization.annotation.Root
+import com.zup.nimbus.processor.annotation.Root
 import com.zup.nimbus.core.ActionTriggeredEvent
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
@@ -27,7 +27,8 @@ class Person {
     var name: String = ""
     var birthDate: Int? = null
     var documents: List<Document>? = null
-    @Root var parents: ParentsData? = null
+    @com.zup.nimbus.processor.annotation.Root
+    var parents: ParentsData? = null
     var onPress: (() -> Unit)? = null
     var onChange: ((String) -> Unit)? = null
     var genre: Genre? = null

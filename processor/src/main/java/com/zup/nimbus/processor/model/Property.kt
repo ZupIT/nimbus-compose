@@ -1,0 +1,56 @@
+package com.zup.nimbus.processor.model
+
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
+import com.zup.nimbus.processor.ClassNames
+import com.zup.nimbus.processor.annotation.Alias
+import com.zup.nimbus.processor.annotation.Root
+import com.zup.nimbus.processor.error.InvalidRootMark
+import com.zup.nimbus.processor.error.NamelessPropertyError
+import com.zup.nimbus.processor.utils.getAnnotation
+import com.zup.nimbus.processor.utils.getQualifiedName
+import com.zup.nimbus.processor.utils.hasAnnotation
+import com.zup.nimbus.processor.utils.isKnown
+
+class Property(
+    val name: String,
+    val alias: String,
+    val type: KSType,
+    val category: PropertyCategory,
+) {
+    companion object {
+        private fun validateRoot(type: KSType) {
+            if(type.isKnown()) throw InvalidRootMark()
+        }
+
+        private fun validateNullability(param: KSValueParameter, name: String, type: KSType) {
+            if(param.hasDefault && !type.isMarkedNullable) {
+                println("Warning: getting default values via annotation processors is " +
+                        "unsupported. Parameter with name $name at ${param.location} will be " +
+                        "handled as required by the auto-deserialization.")
+            }
+        }
+
+        fun fromParameter(param: KSValueParameter): Property {
+            val name = param.name?.getShortName() ?: throw NamelessPropertyError()
+            val type = param.type.resolve()
+            validateNullability(param, name, type)
+            val category = when {
+                param.hasAnnotation<Root>() -> {
+                    validateRoot(type)
+                    PropertyCategory.Root
+                }
+                param.type.resolve().getQualifiedName()
+                        == ClassNames.DeserializationContext.canonicalName -> PropertyCategory.Context
+                param.type.hasAnnotation(ClassNames.Composable) -> PropertyCategory.Root
+                else -> PropertyCategory.Common
+            }
+            return Property(
+                name = name,
+                alias = param.getAnnotation<Alias>()?.name ?: name,
+                type = type,
+                category = category,
+            )
+        }
+    }
+}
