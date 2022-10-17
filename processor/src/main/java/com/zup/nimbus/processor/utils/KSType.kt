@@ -5,8 +5,9 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.zup.nimbus.processor.error.ListTypeError
 import com.zup.nimbus.processor.error.MapTypeError
 
-fun KSType.getQualifiedName(): String? = this.declaration.qualifiedName?.getShortName()
-fun KSType.getSimpleName(): String = this.declaration.simpleName.getShortName()
+fun KSType.getQualifiedName(): String? = this.declaration.qualifiedName?.asString()
+fun KSType.getSimpleName(): String = this.declaration.simpleName.asString()
+fun KSType.getPackageName(): String = this.declaration.packageName.asString()
 
 fun KSType.isString(): Boolean = this.getQualifiedName() == String::class.qualifiedName
 fun KSType.isBoolean(): Boolean = this.getQualifiedName() == Boolean::class.qualifiedName

@@ -1,7 +1,9 @@
 package com.zup.nimbus.processor.model
 
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Location
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.annotation.Alias
 import com.zup.nimbus.processor.annotation.Root
@@ -17,6 +19,8 @@ class Property(
     val alias: String,
     val type: KSType,
     val category: PropertyCategory,
+    val location: Location,
+    val parent: KSFunctionDeclaration,
 ) {
     companion object {
         private fun validateRoot(type: KSType) {
@@ -32,7 +36,7 @@ class Property(
         }
 
         fun fromParameter(param: KSValueParameter): Property {
-            val name = param.name?.getShortName() ?: throw NamelessPropertyError()
+            val name = param.name?.asString() ?: throw NamelessPropertyError()
             val type = param.type.resolve()
             validateNullability(param, name, type)
             val category = when {
@@ -50,6 +54,8 @@ class Property(
                 alias = param.getAnnotation<Alias>()?.name ?: name,
                 type = type,
                 category = category,
+                location = param.location,
+                parent = param.parent as KSFunctionDeclaration,
             )
         }
     }

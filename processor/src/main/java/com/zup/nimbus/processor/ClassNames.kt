@@ -1,7 +1,6 @@
 package com.zup.nimbus.processor
 
 import com.squareup.kotlinpoet.ClassName
-import com.zup.nimbus.processor.old.PackageNames
 
 object ClassNames {
     val Composable = ClassName(PackageNames.composeRuntime, "Composable")

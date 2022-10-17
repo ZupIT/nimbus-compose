@@ -14,7 +14,7 @@ object FunctionCaller {
         val cast = when {
             property.type.isList() -> " as ${property.type}"
             property.type.isMap() -> " as ${property.type}"
-            !property.type.isKnown() && !property.type.isMarkedNullable -> "!!"
+            // !property.type.isKnown() && !property.type.isMarkedNullable -> "!!"
             else -> ""
         }
         return "${property.name} = $value$cast"

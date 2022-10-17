@@ -9,28 +9,35 @@ import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.error.UndeserializableEntity
 import com.zup.nimbus.processor.model.FunctionWriterResult
 import com.zup.nimbus.processor.model.Property
+import com.zup.nimbus.processor.utils.getSimpleName
 
 class EntityWriter(
     private val type: KSType,
     private val deserializers: List<KSFunctionDeclaration>,
 ) {
+    companion object {
+        fun createFunctionName(type: KSType): String {
+            return "create${type.getSimpleName()}FromAnyServerDrivenData"
+        }
+    }
+
     private fun writeDeserializationFunction(
         className: ClassName,
         properties: List<Property>,
     ): FunctionWriterResult {
-        val fnBuilder = FunSpec.builder(className.canonicalName.replace(".", "_"))
+        val fnBuilder = FunSpec.builder(createFunctionName(type))
             .returns(className)
             .addParameter("properties", ClassNames.AnyServerDrivenData)
             .addParameter("context", ClassNames.DeserializationContext)
-        val result = FunctionParameterWriter(properties, deserializers, fnBuilder).write()
+        val result = FunctionWriter(properties, deserializers, fnBuilder).write()
         fnBuilder.addCode(
             """
-                |return %L(
-                |  %L
-                |)
-                """.trimMargin(),
+            |return %L(
+            |  %L
+            |)
+            """.trimMargin(),
             className.simpleName,
-            FunctionCaller.buildParameterAssignments(properties).joinToString(",\n|  ")
+            FunctionCaller.buildParameterAssignments(properties).joinToString(",\n  ")
         )
         return result
     }
@@ -41,8 +48,8 @@ class EntityWriter(
         )
         val properties = constructor.parameters.map { Property.fromParameter(it) }
         val className = ClassName(
-            declaration.packageName.getShortName(),
-            declaration.simpleName.getShortName(),
+            declaration.packageName.asString(),
+            declaration.simpleName.asString(),
         )
         return writeDeserializationFunction(className, properties)
     }

@@ -15,6 +15,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(mapOf("path" to ":processor")))
     ksp(project(":processor", "default"))
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9")
 
     //FIXME replace here with the published compose library of nimbus
     implementation(project(":compose"))

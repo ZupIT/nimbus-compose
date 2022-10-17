@@ -10,18 +10,29 @@ class ComponentWriter(
     private val component: KSFunctionDeclaration,
     private val deserializers: List<KSFunctionDeclaration>,
 ) {
+    companion object {
+        private val imports = setOf(
+            ClassNames.DeserializationContext,
+            ClassNames.AnyServerDrivenData,
+            ClassNames.NimbusTheme,
+            ClassNames.NimbusMode,
+            ClassNames.Text,
+            ClassNames.Color,
+        )
+    }
+
     fun write(): FunctionWriterResult {
-        val fnBuilder = FunSpec.builder(component.simpleName.getShortName())
+        val fnBuilder = FunSpec.builder(component.simpleName.asString())
             .addAnnotation(ClassNames.Composable)
             .addParameter("component", ClassNames.ComponentData)
             .addStatement("val context = DeserializationContext(component)")
             .addStatement("val properties = AnyServerDrivenData(component.node.properties)")
             .addStatement("val nimbus = NimbusTheme.nimbus")
         val properties = component.parameters.map { Property.fromParameter(it) }
-        val result = FunctionParameterWriter(properties, deserializers, fnBuilder).write()
+        val result = FunctionWriter(properties, deserializers, fnBuilder).write()
         fnBuilder.addCode(
             """
-            |if (!properties.hasError) {
+            |if (!properties.hasError()) {
             |  %L(
             |    %L
             |  )
@@ -29,9 +40,9 @@ class ComponentWriter(
             |   Text("Error while deserializing component.", color = Color.Red)
             |}
             """.trimMargin(),
-            component.simpleName,
-            FunctionCaller.buildParameterAssignments(properties).joinToString(",\n|    ")
+            component.simpleName.asString(),
+            FunctionCaller.buildParameterAssignments(properties).joinToString(",\n    ")
         )
-        return result
+        return result.combine(imports)
     }
 }

@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
-import com.zup.nimbus.processor.old.Root
 import com.zup.nimbus.processor.annotation.AutoDeserialize
 
 class TextInputEvents(
@@ -24,13 +23,13 @@ enum class TextInputType(val keyboard: KeyboardType) {
 }
 
 @Composable
-@AutoDeserialize
+//@AutoDeserialize
 fun TextInput(
     value: String,
     label: String,
     type: TextInputType? = null,
     enabled: Boolean? = null,
-    @Root events: TextInputEvents? = null,
+    events: TextInputEvents? = null,
 ) {
     val modifier = Modifier.onFocusChanged {
         if (it.isFocused) events?.onFocus?.let { it(value) }

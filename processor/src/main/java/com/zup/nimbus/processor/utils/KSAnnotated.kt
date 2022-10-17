@@ -18,6 +18,6 @@ inline fun <reified T: Annotation>KSAnnotated.hasAnnotation(): Boolean {
 
 fun KSAnnotated.hasAnnotation(className: ClassName): Boolean {
     return this.annotations.find {
-        it.annotationType.resolve().declaration.qualifiedName?.getShortName() == className.canonicalName
+        it.annotationType.resolve().declaration.qualifiedName?.asString() == className.canonicalName
     } != null
 }

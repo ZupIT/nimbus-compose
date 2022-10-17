@@ -32,4 +32,8 @@ class FunctionWriterResult(
             )
         }
     }
+
+    fun combine(imports: Set<ClassName>): FunctionWriterResult {
+        return FunctionWriterResult(typesToImport + imports, typesToAutoDeserialize, functionBuilders)
+    }
 }

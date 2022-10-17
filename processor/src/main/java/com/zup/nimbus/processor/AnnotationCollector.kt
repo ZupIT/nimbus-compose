@@ -19,10 +19,11 @@ object AnnotationCollector {
             val isNumberOfParamsCorrect = it.parameters.size == 1 || it.parameters.size == 2
             val isFirstParamCorrect = it.parameters.firstOrNull()?.type?.resolve()
                 ?.getQualifiedName() == ClassNames.AnyServerDrivenData.canonicalName
-            val isSecondParamCorrect = it.parameters.getOrNull(1)?.type?.resolve()
-                ?.getQualifiedName() == ClassNames.DeserializationContext.canonicalName
+            val isSecondParamCorrect = it.parameters.size == 1 ||
+                    it.parameters.getOrNull(1)?.type?.resolve()?.getQualifiedName() ==
+                    ClassNames.DeserializationContext.canonicalName
             if (!isNumberOfParamsCorrect || !isFirstParamCorrect || !isSecondParamCorrect)
-                throw InvalidDeserializerParameters()
+                throw InvalidDeserializerParameters(it)
         }
         return functions
     }
