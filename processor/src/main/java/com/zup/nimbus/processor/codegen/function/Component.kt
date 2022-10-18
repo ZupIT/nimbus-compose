@@ -6,7 +6,7 @@ internal object Component {
     fun write(ctx: FunctionWriterContext) {
         ctx.typesToImport.add(ClassNames.Column)
         ctx.builder.addStatement(
-            "val %L = context.component?.children ?: Column()",
+            "val %L = context.component?.children ?: { Column {} }",
             ctx.property.name,
         )
     }

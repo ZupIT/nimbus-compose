@@ -10,6 +10,7 @@ import com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import com.zup.nimbus.processor.annotation.Alias
 import com.zup.nimbus.processor.annotation.AutoDeserialize
 import com.zup.nimbus.processor.annotation.Deserializer
+import com.zup.nimbus.processor.annotation.Ignore
 import com.zup.nimbus.processor.annotation.Root
 
 @Composable
@@ -20,6 +21,10 @@ fun NimbusText(text: String) {
 
 enum class Test {
     TestA, TestB, TestC
+}
+
+interface TestInterface {
+    fun hello(): String
 }
 
 @Composable
@@ -73,6 +78,9 @@ fun ComprehensiveTest(
     @Root address2: Address?,
     addresses: List<Address>,
     people: Map<String, Person>?,
+    @Ignore ignoredInterface: TestInterface? = null,
+    // Composable
+    content: @Composable () -> Unit,
 ) {
     Text(text = text)
 }

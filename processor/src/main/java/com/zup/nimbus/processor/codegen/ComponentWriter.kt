@@ -5,7 +5,6 @@ import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.model.FunctionWriterResult
-import com.zup.nimbus.processor.model.Property
 
 internal object ComponentWriter {
     private val imports = setOf(
@@ -27,7 +26,7 @@ internal object ComponentWriter {
             .addParameter("component", ClassNames.ComponentData)
             .addStatement("val context = DeserializationContext(component)")
             .addStatement("val properties = AnyServerDrivenData(component.node.properties)")
-        val properties = component.parameters.map { Property.fromParameter(it) }
+        val properties = ParameterUtils.convertParametersIntoProperties(component.parameters)
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """
@@ -45,7 +44,7 @@ internal object ComponentWriter {
             |}
             """.trimMargin(),
             component.simpleName.asString(),
-            FunctionCaller.buildParameterAssignments(properties).joinToString(",\n    ")
+            ParameterUtils.buildParameterAssignments(properties).joinToString(",\n    ")
         )
         return result.combine(imports)
     }

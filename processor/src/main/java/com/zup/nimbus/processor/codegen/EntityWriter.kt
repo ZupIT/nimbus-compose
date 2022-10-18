@@ -34,7 +34,7 @@ internal object EntityWriter {
                 |)
                 """.trimMargin(),
                 className.simpleName,
-                FunctionCaller.buildParameterAssignments(properties).joinToString(",\n  ")
+                ParameterUtils.buildParameterAssignments(properties).joinToString(",\n  ")
             )
             return result
         }
@@ -43,7 +43,7 @@ internal object EntityWriter {
             val constructor = declaration.primaryConstructor ?: throw UndeserializableEntity(
                 type, "this class doesn't have a public constructor"
             )
-            val properties = constructor.parameters.map { Property.fromParameter(it) }
+            val properties = ParameterUtils.convertParametersIntoProperties(constructor.parameters)
             val className = ClassName(
                 declaration.packageName.asString(),
                 declaration.simpleName.asString(),

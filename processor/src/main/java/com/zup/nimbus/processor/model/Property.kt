@@ -46,7 +46,7 @@ class Property(
                 }
                 param.type.resolve().getQualifiedName()
                         == ClassNames.DeserializationContext.canonicalName -> PropertyCategory.Context
-                param.type.hasAnnotation(ClassNames.Composable) -> PropertyCategory.Root
+                param.type.hasAnnotation(ClassNames.Composable) -> PropertyCategory.Composable
                 else -> PropertyCategory.Common
             }
             return Property(

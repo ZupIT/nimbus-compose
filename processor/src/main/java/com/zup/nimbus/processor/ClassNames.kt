@@ -5,7 +5,7 @@ import com.squareup.kotlinpoet.ClassName
 object ClassNames {
     val Composable = ClassName(PackageNames.composeRuntime, "Composable")
     val Text = ClassName(PackageNames.composeMaterial, "Text")
-    val Column = ClassName(PackageNames.composeMaterial, "Column")
+    val Column = ClassName(PackageNames.composeLayout, "Column")
     val Color = ClassName(PackageNames.composeGraphics, "Color")
     val ComponentData = ClassName(PackageNames.nimbusCompose, "ComponentData")
     val NimbusTheme = ClassName(PackageNames.nimbusCompose, "NimbusTheme")

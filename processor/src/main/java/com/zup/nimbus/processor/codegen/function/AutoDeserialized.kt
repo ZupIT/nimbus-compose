@@ -9,16 +9,17 @@ import com.zup.nimbus.processor.error.UndeserializableEntity
 import com.zup.nimbus.processor.model.IdentifiableKSType
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getPackageName
-import com.zup.nimbus.processor.utils.getSimpleName
 
 internal object AutoDeserialized {
     private fun validate(property: Property) {
-        if (property.type.declaration.modifiers.contains(Modifier.SEALED)) {
-            throw UndeserializableEntity(
-                property.type,
-                "it's a sealed class",
-                property,
-            )
+        val modifiers = property.type.declaration.modifiers
+        val reason = when {
+            modifiers.contains(Modifier.SEALED) -> "it's a sealed class"
+            modifiers.contains(Modifier.ABSTRACT) -> "it's an abstract class"
+            else -> null
+        }
+        if (reason != null) {
+            throw UndeserializableEntity(property.type, reason, property)
         }
     }
 

@@ -6,4 +6,5 @@ object PackageNames {
     const val composeRuntime = "androidx.compose.runtime"
     const val composeMaterial = "androidx.compose.material"
     const val composeGraphics = "androidx.compose.ui.graphics"
+    const val composeLayout = "androidx.compose.foundation.layout"
 }
