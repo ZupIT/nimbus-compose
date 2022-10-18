@@ -64,7 +64,7 @@ class FileWriter(
             val type = allTypesToDeserialize.elementAt(index)
             val file = getFileBuilder(type.declaration)
             val result = EntityWriter(type, deserializers).write()
-            result.typesToImport.forEach { file.addImport(it) }
+            result.typesToImport.forEach { file.addImport(it, "") }
             result.functionBuilders.forEach { file.addFunction(it.build()) }
             allTypesToDeserialize.addAll(result.typesToAutoDeserialize)
             index++

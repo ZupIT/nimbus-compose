@@ -11,12 +11,12 @@ object FunctionCaller {
     private fun assignParameter(property: Property): String {
         val isContext = property.type.getQualifiedName() == ClassNames.DeserializationContext.canonicalName
         val value = if (isContext) "context" else property.name
-        val cast = when {
+        val cast = "" /*when {
             property.type.isList() -> " as ${property.type}"
             property.type.isMap() -> " as ${property.type}"
-            // !property.type.isKnown() && !property.type.isMarkedNullable -> "!!"
+            !property.type.isKnown() && !property.type.isMarkedNullable -> "!!"
             else -> ""
-        }
+        }*/
         return "${property.name} = $value$cast"
     }
 

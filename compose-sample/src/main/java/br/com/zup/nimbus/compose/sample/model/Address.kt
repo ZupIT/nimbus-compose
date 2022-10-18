@@ -4,4 +4,5 @@ data class Address(
     val street: String,
     val zip: String,
     val number: Int,
+    val size: AdaptiveSize?,
 )

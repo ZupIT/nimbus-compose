@@ -1,5 +1,6 @@
 package com.zup.nimbus.processor.codegen
 
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Modifier
@@ -7,9 +8,9 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.error.ErrorMessages
 import com.zup.nimbus.processor.error.IncompatibleCustomDeserializer
-import com.zup.nimbus.processor.error.RootPropertyMustBeDeserializable
 import com.zup.nimbus.processor.error.UndeserializableEntity
 import com.zup.nimbus.processor.model.FunctionWriterResult
+import com.zup.nimbus.processor.model.IdentifiableKSType
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.model.PropertyCategory
 import com.zup.nimbus.processor.utils.getPackageName
@@ -28,11 +29,7 @@ class FunctionWriter(
     private val fnBuilder: FunSpec.Builder,
 ) {
     private val typesToImport = mutableSetOf<ClassName>()
-    private val typesToAutoDeserialize = mutableSetOf<KSType>()
-
-    private fun addTypeToImport(type: KSType) {
-
-    }
+    private val typesToAutoDeserialize = mutableSetOf<IdentifiableKSType>()
 
     private fun getDeserializer(type: KSType): KSFunctionDeclaration? {
         return deserializers.find {
@@ -40,29 +37,54 @@ class FunctionWriter(
         }
     }
 
-    private fun propertyToDeserializerKeys(property: Property): String {
-        return getDeserializer(property.type)?.parameters?.joinToString(", ") {
-            "\"${it.name}\""
+    private fun callDeserializer(
+        deserializer: KSFunctionDeclaration,
+        propertiesRef: String = "properties",
+        contextRef: String = "context",
+    ): String {
+        val name = deserializer.simpleName.asString()
+        typesToImport.add(
+            ClassName(deserializer.packageName.asString(), name)
+        )
+        val contextParam = if (deserializer.parameters.size == 1) "" else ", $contextRef"
+        return "${name}(${propertiesRef}${contextParam})"
+    }
+
+    private fun propertyToDeserializerKeys(
+        deserializer: KSFunctionDeclaration?,
+        type: KSType,
+    ): String {
+        val params = if (deserializer != null) {
+            deserializer.parameters
+        } else {
+            val declaration = type.declaration
+            if (declaration is KSClassDeclaration) declaration.primaryConstructor?.parameters
+            else null
+        }
+        return params?.joinToString(", ") {
+            "\"${it.name?.asString()}\""
         } ?: ""
     }
 
-    private fun createItemOfType(type: KSType, itemRef: String): String {
+    private fun createItemOfType(type: KSType, itemRef: String, origin: Property): String {
         val nullable = if (type.isMarkedNullable) "OrNull" else ""
+        val optional = if (type.isMarkedNullable) "?" else ""
         val deserializer = getDeserializer(type)
         return when {
-            deserializer != null -> """
-                |${deserializer.simpleName.asString()}(${itemRef}, context) ?: run {
-                |  ${itemRef}.errors.add("Unexpected null value at $\{${itemRef}.path}")
-                |  null
-                |}
-                """".trimMargin()
+            deserializer != null -> {
+                if (!type.isMarkedNullable &&
+                    deserializer.returnType?.resolve()?.isMarkedNullable == true) {
+                    throw IncompatibleCustomDeserializer(origin, deserializer)
+                }
+                callDeserializer(deserializer, itemRef)
+            }
             type.isPrimitive() -> "${itemRef}.as${type.getSimpleName()}${nullable}()"
             type.isEnum() -> "${itemRef}.asEnum${nullable}(${type.getSimpleName()}.values)"
-            type.isList() -> "${itemRef}.asList${nullable}()?.map { " +
-                    "${createItemOfType(type.resolveListType(), "it")} }"
-            type.isMap() -> "${itemRef}.asMap${nullable}()?.mapValues { " +
-                    "${createItemOfType(type.resolveMapType(), "it.value")} }"
-            else -> "it.value"
+            type.isList() -> "${itemRef}.asList${nullable}()${optional}.map { " +
+                    "${createItemOfType(type.resolveListType(), "it", origin)} }"
+            type.isMap() -> "${itemRef}.asMap${nullable}()${optional}.mapValues { " +
+                    "${createItemOfType(type.resolveMapType(), "it.value", origin)} }"
+            else -> "${EntityWriter.createFunctionName(type)}(${itemRef}, context)"
         }
     }
 
@@ -84,42 +106,34 @@ class FunctionWriter(
 
     private fun writeRootProperty(property: Property) {
         val deserializer = getDeserializer(property.type)
-        val deserializerName: String
-        if (deserializer == null) {
-            typesToAutoDeserialize.add(property.type)
-            deserializerName = EntityWriter.createFunctionName(property.type)
-            typesToImport.add(ClassName(property.type.getPackageName(), deserializerName))
+        val call = if (deserializer == null) {
+            typesToAutoDeserialize.add(IdentifiableKSType(property.type))
+            val name = EntityWriter.createFunctionName(property.type)
+            typesToImport.add(ClassName(property.type.getPackageName(), name))
+            "$name(properties, context)"
         } else {
-            deserializerName = deserializer.simpleName.asString()
-            typesToImport.add(
-                ClassName(deserializer.packageName.asString(), deserializer.simpleName.asString())
-            )
+            if (!property.type.isMarkedNullable &&
+                deserializer.returnType?.resolve()?.isMarkedNullable == true) {
+                throw IncompatibleCustomDeserializer(property, deserializer)
+            }
+            callDeserializer(deserializer)
         }
         if (property.type.isMarkedNullable) {
             fnBuilder.addCode(
                 """
                 |val %L = run {
                 |  val propertyNames = listOf(%L)
-                |  if (properties.hasAnyOf(propertyNames)) %L(properties, context)
+                |  if (properties.hasAnyOfKeys(propertyNames)) %L
                 |  else null
                 |}
+                |
                 """.trimMargin(),
                 property.name,
-                propertyToDeserializerKeys(property),
-                deserializerName,
+                propertyToDeserializerKeys(deserializer, property.type),
+                call,
             )
         } else {
-            fnBuilder.addCode(
-                """
-                |val %L = %L(properties, context) ?: run {
-                |  properties.errors.add(%S)
-                |  null
-                |}
-                """.trimMargin(), // Now we need to differ auto-deserializable (never null) from custom deserializable (can be null)
-                property.name,
-                deserializerName,
-                ErrorMessages.couldNotBuildProperty,
-            )
+            fnBuilder.addStatement("val %L = %L", property.name, call)
         }
     }
 
@@ -132,11 +146,9 @@ class FunctionWriter(
                     throw IncompatibleCustomDeserializer(property, deserializer)
                 }
                 fnBuilder.addStatement(
-                    "val %L = %L(properties.get(%S)%L)",
+                    "val %L = %L",
                     property.name,
-                    deserializer.simpleName.asString(),
-                    property.alias,
-                    if (deserializer.parameters.size == 1) "" else ", context"
+                    callDeserializer(deserializer, "properties.get(\"${property.alias}\")"),
                 )
                 typesToImport.add(ClassName(
                     deserializer.packageName.asString(),
@@ -170,18 +182,20 @@ class FunctionWriter(
                 if (property.type.isMarkedNullable) "OrNull" else "",
             )
             property.type.isList() -> fnBuilder.addStatement(
-                "val %L = properties.get(%S).asList%L()?.map { %L }",
+                "val %L = properties.get(%S).asList%L()%L.map { %L }",
                 property.name,
                 property.alias,
                 if (property.type.isMarkedNullable) "OrNull" else "",
-                createItemOfType(property.type.resolveListType(), "it"),
+                if (property.type.isMarkedNullable) "?" else "",
+                createItemOfType(property.type.resolveListType(), "it", property),
             )
             property.type.isMap() -> fnBuilder.addStatement(
-                "val %L = properties.get(%S).asMap%L()?.mapValues { %L }",
+                "val %L = properties.get(%S).asMap%L()%L.mapValues { %L }",
                 property.name,
                 property.alias,
                 if (property.type.isMarkedNullable) "OrNull" else "",
-                createItemOfType(property.type.resolveMapType(), "it.value"),
+                if (property.type.isMarkedNullable) "?" else "",
+                createItemOfType(property.type.resolveMapType(), "it.value", property),
             )
             else -> {
                 // todo: treat entities with repeated names
@@ -192,7 +206,7 @@ class FunctionWriter(
                         property,
                     )
                 }
-                typesToAutoDeserialize.add(property.type)
+                typesToAutoDeserialize.add(IdentifiableKSType(property.type))
                 val deserializerName = EntityWriter.createFunctionName(property.type)
                 typesToImport.add(ClassName(property.type.getPackageName(), deserializerName))
                 if (property.type.isMarkedNullable) {

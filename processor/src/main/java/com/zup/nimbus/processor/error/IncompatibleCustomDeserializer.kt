@@ -8,7 +8,7 @@ import com.zup.nimbus.processor.utils.toLocationString
 
 class IncompatibleCustomDeserializer(property: Property, deserializer: KSFunctionDeclaration):
     DeserializationBuildError(
-        message = "The parameter ${property.name} of type ${property.type.getSimpleName()} " +
+        message = "The parameter ${property.name} of type ${property.type} " +
                 "expects a non-nullable value, but its deserializer may return null." +
                 "\n\tdeserializer declared at ${deserializer.returnType?.resolve()?.getQualifiedName()}" +
                 deserializer.location.toLocationString(),

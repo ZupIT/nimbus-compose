@@ -65,9 +65,14 @@ fun ComprehensiveTest(
     booleanMapListMapList: List<Map<String, List<Map<String, Boolean>>>?>,
     // Custom deserializer
     size: AdaptiveSize?,
+    sizes: List<AdaptiveSize?>?,
+    sizeMap: Map<String, AdaptiveSize?>,
     // Auto deserialized
     person: Person?,
     @Root address: Address,
+    @Root address2: Address?,
+    addresses: List<Address>,
+    people: Map<String, Person>?,
 ) {
     Text(text = text)
 }
