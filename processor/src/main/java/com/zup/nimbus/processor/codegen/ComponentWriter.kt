@@ -3,25 +3,24 @@ package com.zup.nimbus.processor.codegen
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.ClassNames
+import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.model.FunctionWriterResult
 import com.zup.nimbus.processor.model.Property
 
-class ComponentWriter(
-    private val component: KSFunctionDeclaration,
-    private val deserializers: List<KSFunctionDeclaration>,
-) {
-    companion object {
-        private val imports = setOf(
-            ClassNames.DeserializationContext,
-            ClassNames.AnyServerDrivenData,
-            ClassNames.NimbusTheme,
-            ClassNames.NimbusMode,
-            ClassNames.Text,
-            ClassNames.Color,
-        )
-    }
+internal object ComponentWriter {
+    private val imports = setOf(
+        ClassNames.DeserializationContext,
+        ClassNames.AnyServerDrivenData,
+        ClassNames.NimbusTheme,
+        ClassNames.NimbusMode,
+        ClassNames.Text,
+        ClassNames.Color,
+    )
 
-    fun write(): FunctionWriterResult {
+    fun write(
+        component: KSFunctionDeclaration,
+        deserializers: List<KSFunctionDeclaration>,
+    ): FunctionWriterResult {
         val componentName = component.simpleName.asString()
         val fnBuilder = FunSpec.builder(componentName)
             .addAnnotation(ClassNames.Composable)
@@ -29,7 +28,7 @@ class ComponentWriter(
             .addStatement("val context = DeserializationContext(component)")
             .addStatement("val properties = AnyServerDrivenData(component.node.properties)")
         val properties = component.parameters.map { Property.fromParameter(it) }
-        val result = FunctionWriter(properties, deserializers, fnBuilder).write()
+        val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """
             |if (!properties.hasError()) {
