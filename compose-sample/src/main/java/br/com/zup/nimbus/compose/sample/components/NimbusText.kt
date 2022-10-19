@@ -6,6 +6,7 @@ import br.com.zup.nimbus.compose.sample.model.AdaptiveSize
 import br.com.zup.nimbus.compose.sample.model.Address
 import br.com.zup.nimbus.compose.sample.model.Person
 import br.com.zup.nimbus.compose.sample.model.Sex
+import br.com.zup.nimbus.compose.sample.model.Tree
 import br.zup.com.nimbus.compose.deserialization.DeserializationContext
 import com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import com.zup.nimbus.processor.annotation.Alias
@@ -27,6 +28,8 @@ enum class Test {
 interface TestInterface {
     fun hello(): String
 }
+
+typealias TextInputEvent = ((value: String) -> Unit)?
 
 @Composable
 @AutoDeserialize
@@ -86,6 +89,11 @@ fun ComprehensiveTest(
     @Alias("change") onChange: (List<Map<String, Boolean>>) -> Unit,
     // context
     ctx: DeserializationContext,
+    // Generic types
+    stringTree: Tree<String>,
+    intTree: Tree<Int>,
+    // Type Aliases (Function)
+    onChangeValue: TextInputEvent,
 ) {
     Text(text = text)
 }

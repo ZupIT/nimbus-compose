@@ -3,6 +3,7 @@ package com.zup.nimbus.processor.codegen
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.annotation.Ignore
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.error.InvalidUseOfIgnore
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
@@ -11,7 +12,7 @@ import com.zup.nimbus.processor.utils.hasAnnotation
 internal object ParameterUtils {
     private fun assignParameter(property: Property): String {
         val isContext = property.type.getQualifiedName() == ClassNames.DeserializationContext.canonicalName
-        val value = if (isContext) "context" else property.name
+        val value = if (isContext) CONTEXT_REF else property.name
         val cast = "" /*when {
             property.type.isList() -> " as ${property.type}"
             property.type.isMap() -> " as ${property.type}"

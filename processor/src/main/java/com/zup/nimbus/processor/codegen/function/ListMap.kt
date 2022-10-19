@@ -1,6 +1,7 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.UnsupportedFunction
 import com.zup.nimbus.processor.utils.isEnum
 import com.zup.nimbus.processor.utils.isList
@@ -45,7 +46,7 @@ internal object ListMap {
         ctx.builder.addStatement(
             "val %L = %L",
             ctx.property.name,
-            getListCall(ctx, ctx.property.type, "properties.get(\"${ctx.property.alias}\")")
+            getListCall(ctx, ctx.property.type, "$PROPERTIES_REF.get(\"${ctx.property.alias}\")")
         )
     }
 
@@ -53,7 +54,7 @@ internal object ListMap {
         ctx.builder.addStatement(
             "val %L = %L",
             ctx.property.name,
-            getMapCall(ctx, ctx.property.type, "properties.get(\"${ctx.property.alias}\")")
+            getMapCall(ctx, ctx.property.type, "$PROPERTIES_REF.get(\"${ctx.property.alias}\")")
         )
     }
 }

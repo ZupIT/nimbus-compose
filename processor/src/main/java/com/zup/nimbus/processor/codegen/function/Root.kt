@@ -3,6 +3,7 @@ package com.zup.nimbus.processor.codegen.function
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.model.IdentifiableKSType
 
 internal object Root {
@@ -39,13 +40,14 @@ internal object Root {
             """
             |val %L = run {
             |  val propertyNames = listOf(%L)
-            |  if (properties.hasAnyOfKeys(propertyNames)) %L
+            |  if (%L.hasAnyOfKeys(propertyNames)) %L
             |  else null
             |}
             |
             """.trimMargin(),
             ctx.property.name,
             createListOfKeysForDeserializer(deserializer, ctx.property.type),
+            PROPERTIES_REF,
             getCallString(ctx, deserializer),
         )
     }

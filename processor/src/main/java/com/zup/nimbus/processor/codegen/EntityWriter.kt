@@ -7,6 +7,8 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.UndeserializableEntity
 import com.zup.nimbus.processor.model.FunctionWriterResult
 import com.zup.nimbus.processor.model.Property
@@ -24,8 +26,8 @@ internal object EntityWriter {
         ): FunctionWriterResult {
             val fnBuilder = FunSpec.builder(createFunctionName(type))
                 .returns(className)
-                .addParameter("properties", ClassNames.AnyServerDrivenData)
-                .addParameter("context", ClassNames.DeserializationContext)
+                .addParameter(PROPERTIES_REF, ClassNames.AnyServerDrivenData)
+                .addParameter(CONTEXT_REF, ClassNames.DeserializationContext)
             val result = FunctionWriter.write(properties, deserializers, fnBuilder)
             fnBuilder.addCode(
                 """

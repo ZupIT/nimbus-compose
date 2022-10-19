@@ -9,6 +9,9 @@ import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.model.PropertyCategory
 
 internal object FunctionWriter {
+    const val CONTEXT_REF = "__context"
+    const val PROPERTIES_REF = "__properties"
+
     private fun writeProperty(ctx: FunctionWriterContext) {
         when (ctx.property.category) {
             PropertyCategory.Composable -> Component.write(ctx)

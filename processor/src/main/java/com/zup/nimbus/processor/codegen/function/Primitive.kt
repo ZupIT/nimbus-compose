@@ -1,6 +1,7 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.utils.getSimpleName
 
 internal object Primitive {
@@ -10,7 +11,7 @@ internal object Primitive {
     }
 
     fun write(ctx: FunctionWriterContext) {
-        val propertyRef = "properties.get(\"${ctx.property.alias}\")"
+        val propertyRef = "$PROPERTIES_REF.get(\"${ctx.property.alias}\")"
         ctx.builder.addStatement(
             "val %L = %L",
             ctx.property.name,

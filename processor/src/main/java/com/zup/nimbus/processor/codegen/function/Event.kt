@@ -1,6 +1,7 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidFunction
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
@@ -58,17 +59,17 @@ internal object Event {
 
     private fun writeNullableEventCall(ctx: FunctionWriterContext, numberOfParams: Int) {
         ctx.builder.addStatement(
-            "val %L = %LEvent?.let { ev -> { %Lev.run(%L) } }",
+            "val %L = __%LEvent?.let { ev -> { %Lev.run(%L) } }",
             ctx.property.name,
             ctx.property.name,
-            if (numberOfParams == 0) "" else "$PARAM_NAME -> ",
+            if (numberOfParams == 0) "" else "$PARAM_NAME: Any -> ",
             if (numberOfParams == 0) "" else PARAM_NAME,
         )
     }
 
     private fun writeNonNullableEventCall(ctx: FunctionWriterContext, numberOfParams: Int) {
         ctx.builder.addStatement(
-            "val %L = { %L%LEvent.run(%L) }",
+            "val %L = { %L__%LEvent.run(%L) }",
             ctx.property.name,
             if (numberOfParams == 0) "" else "$PARAM_NAME: Any -> ",
             ctx.property.name,
@@ -79,8 +80,9 @@ internal object Event {
     fun write(ctx: FunctionWriterContext) {
         val numberOfParams = getNumberOfParametersAndValidate(ctx.property)
         ctx.builder.addStatement(
-            "val %LEvent = properties.get(%S).asEvent%L()",
+            "val __%LEvent = %L.get(%S).asEvent%L()",
             ctx.property.name,
+            PROPERTIES_REF,
             ctx.property.alias,
             if (ctx.property.type.isMarkedNullable) "OrNull" else "",
         )

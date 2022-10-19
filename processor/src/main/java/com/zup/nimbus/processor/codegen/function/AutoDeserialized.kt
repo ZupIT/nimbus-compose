@@ -5,6 +5,8 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.codegen.EntityWriter
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.UndeserializableEntity
 import com.zup.nimbus.processor.model.IdentifiableKSType
 import com.zup.nimbus.processor.model.Property
@@ -16,6 +18,7 @@ internal object AutoDeserialized {
         val reason = when {
             modifiers.contains(Modifier.SEALED) -> "it's a sealed class"
             modifiers.contains(Modifier.ABSTRACT) -> "it's an abstract class"
+            property.type.arguments.isNotEmpty() -> "it accepts type arguments (generics)"
             else -> null
         }
         if (reason != null) {
@@ -29,11 +32,14 @@ internal object AutoDeserialized {
         builder: FunSpec.Builder,
     ) {
         builder.addStatement(
-            "val %L = if (properties.containsKey(%S)) %L(properties.get(%S), context) else null",
+            "val %L = if (%L.containsKey(%S)) %L(%L.get(%S), %L) else null",
             property.name,
+            PROPERTIES_REF,
             property.alias,
             deserializerName,
+            PROPERTIES_REF,
             property.alias,
+            CONTEXT_REF,
         )
     }
 
@@ -43,18 +49,20 @@ internal object AutoDeserialized {
         builder: FunSpec.Builder,
     ) {
         builder.addStatement(
-            "val %L = %L(properties.get(%S), context)",
+            "val %L = %L(%L.get(%S), %L)",
             property.name,
             deserializerName,
+            PROPERTIES_REF,
             property.alias,
+            CONTEXT_REF,
         )
     }
 
     fun getCallString(
         ctx: FunctionWriterContext,
         type: KSType = ctx.property.type,
-        propertiesRef: String = "properties",
-        contextRef: String = "context",
+        propertiesRef: String = PROPERTIES_REF,
+        contextRef: String = CONTEXT_REF,
     ): String {
         val fnName = EntityWriter.createFunctionName(type)
         ctx.typesToImport.add(ClassName(type.getPackageName(), fnName))

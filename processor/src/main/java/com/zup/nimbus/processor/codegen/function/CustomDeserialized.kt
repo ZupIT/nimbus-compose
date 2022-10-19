@@ -3,9 +3,12 @@ package com.zup.nimbus.processor.codegen.function
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.IncompatibleCustomDeserializer
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
+import com.zup.nimbus.processor.utils.hasSameArguments
 
 internal object CustomDeserialized {
     private fun validate(
@@ -23,7 +26,10 @@ internal object CustomDeserialized {
         type: KSType,
         deserializers: List<KSFunctionDeclaration>,
     ): KSFunctionDeclaration? = deserializers.find {
-        it.returnType?.resolve()?.getQualifiedName() == type.getQualifiedName()
+        val returnType = it.returnType?.resolve()
+        returnType?.let { rtype ->
+            rtype.getQualifiedName() == type.getQualifiedName() && type.hasSameArguments(rtype)
+        } ?: false
     }
 
     fun findDeserializer(ctx: FunctionWriterContext): KSFunctionDeclaration? = findDeserializer(
@@ -35,8 +41,8 @@ internal object CustomDeserialized {
         ctx: FunctionWriterContext,
         deserializer: KSFunctionDeclaration,
         type: KSType,
-        propertiesRef: String = "properties",
-        contextRef: String = "context",
+        propertiesRef: String = PROPERTIES_REF,
+        contextRef: String = CONTEXT_REF,
     ): String {
         validate(ctx.property, deserializer, type)
         val name = deserializer.simpleName.asString()
@@ -50,7 +56,7 @@ internal object CustomDeserialized {
     fun getCallString(
         ctx: FunctionWriterContext,
         deserializer: KSFunctionDeclaration,
-        propertiesRef: String = "properties",
+        propertiesRef: String = PROPERTIES_REF,
         contextRef: String = "context",
     ): String = getCallString(ctx, deserializer, ctx.property.type, propertiesRef, contextRef)
 
@@ -58,7 +64,7 @@ internal object CustomDeserialized {
         ctx.builder.addStatement(
             "val %L = %L",
             ctx.property.name,
-            getCallString(ctx, deserializer, "properties.get(\"${ctx.property.alias}\")"),
+            getCallString(ctx, deserializer, "$PROPERTIES_REF.get(\"${ctx.property.alias}\")"),
         )
         ctx.typesToImport.add(ClassName(
             deserializer.packageName.asString(),

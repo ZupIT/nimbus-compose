@@ -1,11 +1,12 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.squareup.kotlinpoet.ClassName
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.utils.getPackageName
 import com.zup.nimbus.processor.utils.getSimpleName
 
 internal object Enum {
-    fun getCallString(ctx: FunctionWriterContext, propertiesRef: String = "properties"): String {
+    fun getCallString(ctx: FunctionWriterContext, propertiesRef: String = PROPERTIES_REF): String {
         ctx.typesToImport.add(
             ClassName(ctx.property.type.getPackageName(), ctx.property.type.getSimpleName())
         )

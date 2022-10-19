@@ -11,8 +11,8 @@ class UndeserializableEntity(
     reason: String,
     property: Property? = null,
 ): DeserializationBuildError(
-    "Cannot create a deserializer for type ${type.getSimpleName()} because " +
-            "$reason. Try creating a custom deserializer for it." +
+    "Cannot create a deserializer for type $type because $reason. " +
+            "Try ignoring this parameter (@Ignore) or creating a custom deserializer for it." +
             "\n\tundeserializable class at: ${type.getQualifiedName()}" +
             type.declaration.location.toLocationString(),
     property,

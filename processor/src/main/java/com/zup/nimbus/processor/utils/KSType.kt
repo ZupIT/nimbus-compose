@@ -1,6 +1,7 @@
 package com.zup.nimbus.processor.utils
 
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.Modifier
 import com.zup.nimbus.processor.error.ListTypeError
 import com.zup.nimbus.processor.error.MapTypeError
@@ -31,4 +32,14 @@ fun KSType.resolveMapType(): KSType {
     val valueType = this.arguments.getOrNull(1)?.type?.resolve()
     if (keyType?.isString() != true || valueType == null) throw MapTypeError()
     return valueType
+}
+
+fun KSType.hasSameArguments(other: KSType): Boolean {
+    if (this.arguments.size != other.arguments.size) return false
+    this.arguments.forEachIndexed { index, current ->
+        val currentType = current.type?.resolve()
+        val otherType = other.arguments.elementAt(index).type?.resolve()
+        if (currentType?.getQualifiedName() != otherType?.getQualifiedName()) return false
+    }
+    return true
 }
