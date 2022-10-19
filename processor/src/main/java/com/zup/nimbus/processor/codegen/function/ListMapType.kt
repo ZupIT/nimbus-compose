@@ -5,7 +5,7 @@ import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidListType
 import com.zup.nimbus.processor.error.InvalidMapType
 import com.zup.nimbus.processor.error.UnsupportedFunction
-import com.zup.nimbus.processor.utils.getQualifiedName
+import com.zup.nimbus.processor.utils.isAny
 import com.zup.nimbus.processor.utils.isEnum
 import com.zup.nimbus.processor.utils.isList
 import com.zup.nimbus.processor.utils.isMap
@@ -14,7 +14,7 @@ import com.zup.nimbus.processor.utils.isString
 import com.zup.nimbus.processor.utils.resolveListType
 import com.zup.nimbus.processor.utils.resolveMapType
 
-internal object ListMap {
+internal object ListMapType {
     private fun getListCall(ctx: FunctionWriterContext, type: KSType, propertiesRef: String): String {
         val nullable = if (type.isMarkedNullable) "OrNull" else ""
         val optional = if (type.isMarkedNullable) "?" else ""
@@ -42,8 +42,9 @@ internal object ListMap {
         val deserializer = CustomDeserialized.findDeserializer(type, ctx.deserializers)
         return when {
             deserializer != null -> CustomDeserialized.getCallString(ctx, deserializer, type, itemRef)
-            type.isPrimitive() -> Primitive.getCallString(type, itemRef)
-            type.isEnum() -> Enum.getCallString(ctx, itemRef)
+            type.isAny() -> AnyType.getCallString(type, itemRef)
+            type.isPrimitive() -> PrimitiveType.getCallString(type, itemRef)
+            type.isEnum() -> EnumType.getCallString(ctx, itemRef)
             type.isList() -> getListCall(ctx, type, itemRef)
             type.isMap() -> getMapCall(ctx, type, itemRef)
             type.isFunctionType -> throw UnsupportedFunction("maps or arrays", ctx.property)

@@ -1,5 +1,6 @@
 package com.zup.nimbus.processor.codegen.function
 
+import com.zup.nimbus.processor.utils.isAny
 import com.zup.nimbus.processor.utils.isEnum
 import com.zup.nimbus.processor.utils.isList
 import com.zup.nimbus.processor.utils.isMap
@@ -11,11 +12,12 @@ internal object CommonProperty {
         val type = ctx.property.type
         when {
             deserializer != null -> CustomDeserialized.write(ctx, deserializer)
-            type.isPrimitive() -> Primitive.write(ctx)
-            type.isEnum() -> Enum.write(ctx)
-            type.isFunctionType -> Event.write(ctx)
-            type.isList() -> ListMap.writeList(ctx)
-            type.isMap() -> ListMap.writeMap(ctx)
+            type.isAny() -> AnyType.write(ctx)
+            type.isPrimitive() -> PrimitiveType.write(ctx)
+            type.isEnum() -> EnumType.write(ctx)
+            type.isFunctionType -> EventType.write(ctx)
+            type.isList() -> ListMapType.writeList(ctx)
+            type.isMap() -> ListMapType.writeMap(ctx)
             else -> AutoDeserialized.write(ctx)
         }
     }

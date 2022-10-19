@@ -24,8 +24,7 @@ internal object FileWriter {
                 FunctionCategory.Component ->
                     ComponentWriter.write(fn.declaration, deserializers)
                 FunctionCategory.Action -> {
-                    // todo
-                    FunctionWriterResult(emptySet(), emptySet(), emptyList())
+                    ActionWriter.write(fn.declaration, deserializers)
                 }
                 FunctionCategory.Operation -> {
                     // todo

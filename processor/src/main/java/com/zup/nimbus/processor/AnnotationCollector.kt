@@ -6,8 +6,10 @@ import com.zup.nimbus.processor.annotation.AutoDeserialize
 import com.zup.nimbus.processor.annotation.Deserializer
 import com.zup.nimbus.processor.error.InvalidDeserializerParameters
 import com.zup.nimbus.processor.model.DeserializableFunction
+import com.zup.nimbus.processor.model.DeserializationType
 import com.zup.nimbus.processor.model.FunctionCategory
 import com.zup.nimbus.processor.utils.findAnnotations
+import com.zup.nimbus.processor.utils.getAnnotation
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 
@@ -43,22 +45,16 @@ object AnnotationCollector {
         return DeserializableFunction(fn, FunctionCategory.Operation)
     }
 
-    private fun isComponent(fn: KSFunctionDeclaration) = fn.hasAnnotation(ClassNames.Composable)
-
-    private fun isAction(fn: KSFunctionDeclaration) =
-        fn.parameters.size == 1 &&
-                fn.parameters.firstOrNull()?.type?.resolve()?.getQualifiedName() ==
-                ClassNames.ActionTriggeredEvent.canonicalName
-
     private fun createDeserializableFunctions(
         functions: Sequence<KSFunctionDeclaration>,
     ): List<DeserializableFunction> {
         val result = mutableListOf<DeserializableFunction>()
         functions.forEach {
-            when {
-                isComponent(it) -> result.add(validateComponent(it))
-                isAction(it) -> result.add(validateAction(it))
-                else -> result.add(validateOperation(it))
+            when(it.getAnnotation<AutoDeserialize>()?.type) {
+                DeserializationType.Component -> result.add(validateComponent(it))
+                DeserializationType.Action -> result.add(validateAction(it))
+                DeserializationType.Operation -> result.add(validateOperation(it))
+                else -> {}
             }
         }
         return result

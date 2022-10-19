@@ -9,6 +9,7 @@ fun KSType.getQualifiedName(): String? = this.declaration.qualifiedName?.asStrin
 fun KSType.getSimpleName(): String = this.declaration.simpleName.asString()
 fun KSType.getPackageName(): String = this.declaration.packageName.asString()
 
+fun KSType.isAny(): Boolean = this.getQualifiedName() == Any::class.qualifiedName
 fun KSType.isString(): Boolean = this.getQualifiedName() == String::class.qualifiedName
 fun KSType.isBoolean(): Boolean = this.getQualifiedName() == Boolean::class.qualifiedName
 fun KSType.isInt(): Boolean = this.getQualifiedName() == Int::class.qualifiedName

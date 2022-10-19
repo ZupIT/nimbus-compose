@@ -6,13 +6,14 @@ import com.zup.nimbus.processor.error.InvalidFunction
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.getSimpleName
+import com.zup.nimbus.processor.utils.isAny
 import com.zup.nimbus.processor.utils.isEnum
 import com.zup.nimbus.processor.utils.isKnown
 import com.zup.nimbus.processor.utils.isList
 import com.zup.nimbus.processor.utils.isMap
 import com.zup.nimbus.processor.utils.isPrimitive
 
-internal object Event {
+internal object EventType {
     private const val PARAM_NAME = "stateValue"
 
     private fun returnsUnit(type: KSType): Boolean {
@@ -36,7 +37,7 @@ internal object Event {
 
     private fun isTypeValid(type: KSType?): Boolean {
         return type?.let {
-                t -> t.isPrimitive() || isValidMap(t) || isValidList(t)
+                t -> t.isAny() || t.isPrimitive() || isValidMap(t) || isValidList(t)
         } ?: false
     }
 
