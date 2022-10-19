@@ -1,10 +1,9 @@
 package com.zup.nimbus.processor.utils
 
 import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.Modifier
-import com.zup.nimbus.processor.error.ListTypeError
-import com.zup.nimbus.processor.error.MapTypeError
+import com.zup.nimbus.processor.error.InvalidListType
+import com.zup.nimbus.processor.error.InvalidMapType
 
 fun KSType.getQualifiedName(): String? = this.declaration.qualifiedName?.asString()
 fun KSType.getSimpleName(): String = this.declaration.simpleName.asString()
@@ -24,14 +23,13 @@ fun KSType.isPrimitive(): Boolean = this.isString() || this.isBoolean() || this.
 fun KSType.isKnown(): Boolean = this.isPrimitive() || this.isList() || this.isMap()
         || this.isEnum() || this.isFunctionType
 
-fun KSType.resolveListType(): KSType =
-    this.arguments.firstOrNull()?.type?.resolve() ?: throw ListTypeError()
+fun KSType.resolveListType(): KSType? =
+    this.arguments.firstOrNull()?.type?.resolve()
 
-fun KSType.resolveMapType(): KSType {
+fun KSType.resolveMapType(): Pair<KSType?, KSType?> {
     val keyType = this.arguments.firstOrNull()?.type?.resolve()
     val valueType = this.arguments.getOrNull(1)?.type?.resolve()
-    if (keyType?.isString() != true || valueType == null) throw MapTypeError()
-    return valueType
+    return Pair(keyType, valueType)
 }
 
 fun KSType.hasSameArguments(other: KSType): Boolean {

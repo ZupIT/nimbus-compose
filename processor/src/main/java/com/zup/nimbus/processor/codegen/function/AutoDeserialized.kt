@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.codegen.EntityWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
-import com.zup.nimbus.processor.error.UndeserializableEntity
+import com.zup.nimbus.processor.error.UnsupportedDeserialization
 import com.zup.nimbus.processor.model.IdentifiableKSType
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getPackageName
@@ -22,7 +22,7 @@ internal object AutoDeserialized {
             else -> null
         }
         if (reason != null) {
-            throw UndeserializableEntity(property.type, reason, property)
+            throw UnsupportedDeserialization(property.type, reason, property)
         }
     }
 

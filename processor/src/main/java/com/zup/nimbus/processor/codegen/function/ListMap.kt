@@ -2,11 +2,15 @@ package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
+import com.zup.nimbus.processor.error.InvalidListType
+import com.zup.nimbus.processor.error.InvalidMapType
 import com.zup.nimbus.processor.error.UnsupportedFunction
+import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.isEnum
 import com.zup.nimbus.processor.utils.isList
 import com.zup.nimbus.processor.utils.isMap
 import com.zup.nimbus.processor.utils.isPrimitive
+import com.zup.nimbus.processor.utils.isString
 import com.zup.nimbus.processor.utils.resolveListType
 import com.zup.nimbus.processor.utils.resolveMapType
 
@@ -14,14 +18,19 @@ internal object ListMap {
     private fun getListCall(ctx: FunctionWriterContext, type: KSType, propertiesRef: String): String {
         val nullable = if (type.isMarkedNullable) "OrNull" else ""
         val optional = if (type.isMarkedNullable) "?" else ""
-        val mapped = createItemOfType(ctx, type.resolveListType(), "it")
+        val typeOfValues = type.resolveListType() ?: throw InvalidListType(ctx.property)
+        val mapped = createItemOfType(ctx, typeOfValues, "it")
         return "$propertiesRef.asList${nullable}()${optional}.map { $mapped }"
     }
 
     private fun getMapCall(ctx: FunctionWriterContext, type: KSType, propertiesRef: String): String {
         val nullable = if (type.isMarkedNullable) "OrNull" else ""
         val optional = if (type.isMarkedNullable) "?" else ""
-        val mapped = createItemOfType(ctx, type.resolveMapType(), "it.value")
+        val (typeOfKeys, typeOfValues) = type.resolveMapType()
+        if (typeOfKeys?.isString() != true || typeOfValues == null) {
+            throw InvalidMapType(ctx.property)
+        }
+        val mapped = createItemOfType(ctx, typeOfValues, "it.value")
         return "$propertiesRef.asMap${nullable}()${optional}.mapValues { $mapped }"
     }
 

@@ -7,8 +7,8 @@ import com.google.devtools.ksp.symbol.Location
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.annotation.Alias
 import com.zup.nimbus.processor.annotation.Root
-import com.zup.nimbus.processor.error.InvalidRootMark
-import com.zup.nimbus.processor.error.NamelessPropertyError
+import com.zup.nimbus.processor.error.InvalidUseOfRoot
+import com.zup.nimbus.processor.error.NamelessProperty
 import com.zup.nimbus.processor.utils.getAnnotation
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
@@ -23,8 +23,8 @@ class Property(
     val parent: KSFunctionDeclaration,
 ) {
     companion object {
-        private fun validateRoot(type: KSType) {
-            if(type.isKnown()) throw InvalidRootMark()
+        private fun validateRoot(param: KSValueParameter, type: KSType) {
+            if(type.isKnown()) throw InvalidUseOfRoot(param)
         }
 
         private fun validateNullability(param: KSValueParameter, name: String, type: KSType) {
@@ -36,12 +36,12 @@ class Property(
         }
 
         fun fromParameter(param: KSValueParameter): Property {
-            val name = param.name?.asString() ?: throw NamelessPropertyError()
+            val name = param.name?.asString() ?: throw NamelessProperty(param)
             val type = param.type.resolve()
             validateNullability(param, name, type)
             val category = when {
                 param.hasAnnotation<Root>() -> {
-                    validateRoot(type)
+                    validateRoot(param, type)
                     PropertyCategory.Root
                 }
                 param.type.resolve().getQualifiedName()

@@ -4,7 +4,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.zup.nimbus.processor.utils.toLocationString
 
-class InvalidUseOfIgnore(param: KSValueParameter): DeserializationBuildError(
+class InvalidUseOfIgnore(param: KSValueParameter): AutoDeserializationError(
     "Parameters annotated with @Ignore must have default values.${paramString(param)}"
 ) {
     companion object {

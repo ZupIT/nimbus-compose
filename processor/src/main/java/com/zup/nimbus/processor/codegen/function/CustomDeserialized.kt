@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
-import com.zup.nimbus.processor.error.IncompatibleCustomDeserializer
+import com.zup.nimbus.processor.error.DeserializerPossiblyNull
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasSameArguments
@@ -18,7 +18,7 @@ internal object CustomDeserialized {
     ) {
         if (!type.isMarkedNullable &&
             deserializer.returnType?.resolve()?.isMarkedNullable == true) {
-            throw IncompatibleCustomDeserializer(property, deserializer)
+            throw DeserializerPossiblyNull(property, deserializer)
         }
     }
 

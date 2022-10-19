@@ -9,7 +9,7 @@ import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
-import com.zup.nimbus.processor.error.UndeserializableEntity
+import com.zup.nimbus.processor.error.UnsupportedDeserialization
 import com.zup.nimbus.processor.model.FunctionWriterResult
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getSimpleName
@@ -42,7 +42,7 @@ internal object EntityWriter {
         }
 
         fun writeClassDeserializer(declaration: KSClassDeclaration): FunctionWriterResult {
-            val constructor = declaration.primaryConstructor ?: throw UndeserializableEntity(
+            val constructor = declaration.primaryConstructor ?: throw UnsupportedDeserialization(
                 type, "this class doesn't have a public constructor"
             )
             val properties = ParameterUtils.convertParametersIntoProperties(constructor.parameters)
@@ -58,7 +58,7 @@ internal object EntityWriter {
             if (declaration is KSClassDeclaration) {
                 return writeClassDeserializer(declaration)
             } else {
-                throw UndeserializableEntity(type, "it's not a class")
+                throw UnsupportedDeserialization(type, "it's not a class")
             }
         }
 
