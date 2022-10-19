@@ -6,6 +6,7 @@ import br.com.zup.nimbus.compose.sample.model.AdaptiveSize
 import br.com.zup.nimbus.compose.sample.model.Address
 import br.com.zup.nimbus.compose.sample.model.Person
 import br.com.zup.nimbus.compose.sample.model.Sex
+import br.zup.com.nimbus.compose.deserialization.DeserializationContext
 import com.zup.nimbus.core.deserialization.AnyServerDrivenData
 import com.zup.nimbus.processor.annotation.Alias
 import com.zup.nimbus.processor.annotation.AutoDeserialize
@@ -79,8 +80,12 @@ fun ComprehensiveTest(
     addresses: List<Address>,
     people: Map<String, Person>?,
     @Ignore ignoredInterface: TestInterface? = null,
-    // Composable
+    // Functions
     content: @Composable () -> Unit,
+    onPress: (() -> Unit)?,
+    @Alias("change") onChange: (List<Map<String, Boolean>>) -> Unit,
+    // context
+    ctx: DeserializationContext,
 ) {
     Text(text = text)
 }

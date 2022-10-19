@@ -13,7 +13,6 @@ internal object CommonProperty {
             deserializer != null -> CustomDeserialized.write(ctx, deserializer)
             type.isPrimitive() -> Primitive.write(ctx)
             type.isEnum() -> Enum.write(ctx)
-            // todo: verify arity and return type (consider type aliases?)
             type.isFunctionType -> Event.write(ctx)
             type.isList() -> ListMap.writeList(ctx)
             type.isMap() -> ListMap.writeMap(ctx)
