@@ -1,5 +1,6 @@
 package com.zup.nimbus.processor.codegen
 
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -15,6 +16,7 @@ internal object FileWriter {
     fun write(
         functionsToDeserialize: List<DeserializableFunction>,
         deserializers: List<KSFunctionDeclaration>,
+        resolver: Resolver,
     ): List<FileToWrite> {
         val allTypesToDeserialize = mutableSetOf<KSType>()
         val files = mutableMapOf<KSFile, FileSpec.Builder>()
@@ -23,13 +25,10 @@ internal object FileWriter {
             return when (fn.category) {
                 FunctionCategory.Component ->
                     ComponentWriter.write(fn.declaration, deserializers)
-                FunctionCategory.Action -> {
+                FunctionCategory.Action ->
                     ActionWriter.write(fn.declaration, deserializers)
-                }
-                FunctionCategory.Operation -> {
-                    // todo
-                    FunctionWriterResult(emptySet(), emptySet(), emptyList())
-                }
+                FunctionCategory.Operation ->
+                    OperationWriter.write(fn.declaration, deserializers, resolver)
             }
         }
 

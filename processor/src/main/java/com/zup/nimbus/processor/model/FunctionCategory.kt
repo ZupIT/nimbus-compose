@@ -1,5 +1,5 @@
 package com.zup.nimbus.processor.model
 
-enum class FunctionCategory {
+internal enum class FunctionCategory {
     Component, Action, Operation
 }

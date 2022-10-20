@@ -45,7 +45,7 @@ internal object EntityWriter {
             val constructor = declaration.primaryConstructor ?: throw UnsupportedDeserialization(
                 type, "this class doesn't have a public constructor"
             )
-            val properties = ParameterUtils.convertParametersIntoProperties(constructor.parameters)
+            val properties = ParameterUtils.convertParametersIntoNamedProperties(constructor.parameters)
             val className = ClassName(
                 declaration.packageName.asString(),
                 declaration.simpleName.asString(),

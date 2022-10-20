@@ -1,6 +1,7 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.ParameterUtils
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidListType
 import com.zup.nimbus.processor.error.InvalidMapType
@@ -56,7 +57,11 @@ internal object ListMapType {
         ctx.builder.addStatement(
             "val %L = %L",
             ctx.property.name,
-            getListCall(ctx, ctx.property.type, "$PROPERTIES_REF.get(\"${ctx.property.alias}\")")
+            getListCall(
+                ctx,
+                ctx.property.type,
+                ctx.property.getAccessString(PROPERTIES_REF),
+            )
         )
     }
 
@@ -64,7 +69,11 @@ internal object ListMapType {
         ctx.builder.addStatement(
             "val %L = %L",
             ctx.property.name,
-            getMapCall(ctx, ctx.property.type, "$PROPERTIES_REF.get(\"${ctx.property.alias}\")")
+            getMapCall(
+                ctx,
+                ctx.property.type,
+                ctx.property.getAccessString(PROPERTIES_REF),
+            )
         )
     }
 }

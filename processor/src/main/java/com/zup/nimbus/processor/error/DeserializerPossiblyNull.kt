@@ -5,7 +5,7 @@ import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.toLocationString
 
-class DeserializerPossiblyNull(property: Property, deserializer: KSFunctionDeclaration):
+internal class DeserializerPossiblyNull(property: Property, deserializer: KSFunctionDeclaration):
     AutoDeserializationError(
         message = "The parameter ${property.name} of type ${property.type} " +
                 "expects a non-nullable value, but its deserializer may return null." +

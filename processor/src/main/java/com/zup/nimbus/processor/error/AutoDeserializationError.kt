@@ -8,7 +8,7 @@ import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.toLocationString
 
-open class AutoDeserializationError(
+internal open class AutoDeserializationError(
     message: String,
     declaration: KSFunctionDeclaration? = null,
     location: Location? = null,

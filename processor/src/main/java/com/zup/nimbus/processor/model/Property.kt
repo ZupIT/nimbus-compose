@@ -2,22 +2,21 @@ package com.zup.nimbus.processor.model
 
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Location
 import com.zup.nimbus.processor.ClassNames
-import com.zup.nimbus.processor.annotation.Alias
 import com.zup.nimbus.processor.annotation.Root
 import com.zup.nimbus.processor.error.InvalidUseOfRoot
 import com.zup.nimbus.processor.error.NamelessProperty
-import com.zup.nimbus.processor.utils.getAnnotation
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 import com.zup.nimbus.processor.utils.isKnown
 
-class Property(
+internal abstract class Property(
     val name: String,
-    val alias: String,
     val type: KSType,
+    val typeReference: KSTypeReference,
     val category: PropertyCategory,
     val location: Location,
     val parent: KSFunctionDeclaration,
@@ -35,11 +34,18 @@ class Property(
             }
         }
 
-        fun fromParameter(param: KSValueParameter): Property {
-            val name = param.name?.asString() ?: throw NamelessProperty(param)
+        fun nameFromParameter(param: KSValueParameter): String {
+            return param.name?.asString() ?: throw NamelessProperty(param)
+        }
+
+        fun typeFromParameter(param: KSValueParameter): KSType {
             val type = param.type.resolve()
-            validateNullability(param, name, type)
-            val category = when {
+            validateNullability(param, nameFromParameter(param), type)
+            return type
+        }
+
+        fun categoryFromParam(param: KSValueParameter, type: KSType): PropertyCategory {
+            return when {
                 param.hasAnnotation<Root>() -> {
                     validateRoot(param, type)
                     PropertyCategory.Root
@@ -49,14 +55,17 @@ class Property(
                 param.type.hasAnnotation(ClassNames.Composable) -> PropertyCategory.Composable
                 else -> PropertyCategory.Common
             }
-            return Property(
-                name = name,
-                alias = param.getAnnotation<Alias>()?.name ?: name,
-                type = type,
-                category = category,
-                location = param.location,
-                parent = param.parent as KSFunctionDeclaration,
-            )
         }
     }
+
+    /**
+     * Creates the code for accessing this property in the AnyServerDrivenData referred by ref.
+     */
+    abstract fun getAccessString(ref: String): String
+
+    /**
+     * Creates the code for verifying if this property exists the AnyServerDrivenData referred by
+     * ref.
+     */
+    abstract fun getContainsString(ref: String): String
 }

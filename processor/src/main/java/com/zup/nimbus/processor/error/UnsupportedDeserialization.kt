@@ -5,7 +5,7 @@ import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.toLocationString
 
-class UnsupportedDeserialization(
+internal class UnsupportedDeserialization(
     type: KSType,
     reason: String,
     property: Property? = null,

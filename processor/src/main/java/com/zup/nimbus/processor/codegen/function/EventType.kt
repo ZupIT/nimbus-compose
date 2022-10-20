@@ -1,6 +1,7 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.ParameterUtils
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidFunction
 import com.zup.nimbus.processor.model.Property
@@ -81,10 +82,9 @@ internal object EventType {
     fun write(ctx: FunctionWriterContext) {
         val numberOfParams = getNumberOfParametersAndValidate(ctx.property)
         ctx.builder.addStatement(
-            "val __%LEvent = %L.get(%S).asEvent%L()",
+            "val __%LEvent = %L.asEvent%L()",
             ctx.property.name,
-            PROPERTIES_REF,
-            ctx.property.alias,
+            ctx.property.getAccessString(PROPERTIES_REF),
             if (ctx.property.type.isMarkedNullable) "OrNull" else "",
         )
         if (ctx.property.type.isMarkedNullable) writeNullableEventCall(ctx, numberOfParams)

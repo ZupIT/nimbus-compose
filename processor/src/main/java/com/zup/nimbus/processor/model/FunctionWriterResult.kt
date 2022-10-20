@@ -3,7 +3,7 @@ package com.zup.nimbus.processor.model
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 
-class FunctionWriterResult(
+internal class FunctionWriterResult(
     val typesToImport: Set<ClassName>,
     val typesToAutoDeserialize: Set<IdentifiableKSType>,
     val functionBuilders: List<FunSpec.Builder>,

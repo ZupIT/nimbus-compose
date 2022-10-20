@@ -5,6 +5,7 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.zup.nimbus.processor.codegen.EntityWriter
+import com.zup.nimbus.processor.codegen.ParameterUtils
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.UnsupportedDeserialization
@@ -32,13 +33,11 @@ internal object AutoDeserialized {
         builder: FunSpec.Builder,
     ) {
         builder.addStatement(
-            "val %L = if (%L.containsKey(%S)) %L(%L.get(%S), %L) else null",
+            "val %L = if (%L) %L(%L, %L) else null",
             property.name,
-            PROPERTIES_REF,
-            property.alias,
+            property.getContainsString(PROPERTIES_REF),
             deserializerName,
-            PROPERTIES_REF,
-            property.alias,
+            property.getAccessString(PROPERTIES_REF),
             CONTEXT_REF,
         )
     }
@@ -49,11 +48,10 @@ internal object AutoDeserialized {
         builder: FunSpec.Builder,
     ) {
         builder.addStatement(
-            "val %L = %L(%L.get(%S), %L)",
+            "val %L = %L(%L, %L)",
             property.name,
             deserializerName,
-            PROPERTIES_REF,
-            property.alias,
+            property.getAccessString(PROPERTIES_REF),
             CONTEXT_REF,
         )
     }

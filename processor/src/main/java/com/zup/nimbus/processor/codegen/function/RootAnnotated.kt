@@ -6,7 +6,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.model.IdentifiableKSType
 
-internal object Root {
+internal object RootAnnotated {
     private fun createListOfKeysForDeserializer(
         deserializer: KSFunctionDeclaration?,
         type: KSType,

@@ -16,7 +16,7 @@ internal object FunctionWriter {
         when (ctx.property.category) {
             PropertyCategory.Composable -> Component.write(ctx)
             PropertyCategory.Context -> {} // skip
-            PropertyCategory.Root -> Root.write(ctx)
+            PropertyCategory.Root -> RootAnnotated.write(ctx)
             PropertyCategory.Common -> CommonProperty.write(ctx)
         }
     }

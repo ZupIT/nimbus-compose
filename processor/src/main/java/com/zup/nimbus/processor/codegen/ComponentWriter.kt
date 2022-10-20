@@ -34,7 +34,7 @@ internal object ComponentWriter {
                 PROPERTIES_REF,
                 COMPONENT_REF,
             )
-        val properties = ParameterUtils.convertParametersIntoProperties(component.parameters)
+        val properties = ParameterUtils.convertParametersIntoNamedProperties(component.parameters)
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """

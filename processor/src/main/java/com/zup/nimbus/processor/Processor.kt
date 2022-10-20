@@ -25,7 +25,7 @@ class Processor(private val environment: SymbolProcessorEnvironment): SymbolProc
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val functionsToDeserialize = AnnotationCollector.collectDeserializableFunctions(resolver)
         val customDeserializers = AnnotationCollector.collectCustomDeserializers(resolver)
-        val filesToWrite = FileWriter.write(functionsToDeserialize, customDeserializers)
+        val filesToWrite = FileWriter.write(functionsToDeserialize, customDeserializers, resolver)
         filesToWrite.forEach { writeFile(it) }
         return (functionsToDeserialize.map { it.declaration } + customDeserializers)
             .filterNot { it.validate() }

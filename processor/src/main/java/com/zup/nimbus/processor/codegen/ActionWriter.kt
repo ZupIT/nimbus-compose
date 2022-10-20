@@ -6,9 +6,11 @@ import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
+import com.zup.nimbus.processor.error.InvalidUseOfComposable
 import com.zup.nimbus.processor.model.FunctionWriterResult
+import com.zup.nimbus.processor.utils.hasAnnotation
 
-object ActionWriter {
+internal object ActionWriter {
     private const val EVENT_REF = "__event"
 
     private val imports = setOf(
@@ -16,10 +18,17 @@ object ActionWriter {
         ClassNames.AnyServerDrivenData,
     )
 
+    private fun validate(action: KSFunctionDeclaration) {
+        action.parameters.forEach {
+            if (it.hasAnnotation(ClassNames.Composable)) throw InvalidUseOfComposable(it)
+        }
+    }
+
     fun write(
         action: KSFunctionDeclaration,
         deserializers: List<KSFunctionDeclaration>,
     ): FunctionWriterResult {
+        validate(action)
         val actionName = action.simpleName.asString()
         val fnBuilder = FunSpec.builder(actionName)
             .addParameter(EVENT_REF, ClassNames.ActionTriggeredEvent)
@@ -32,7 +41,7 @@ object ActionWriter {
                 PROPERTIES_REF,
                 EVENT_REF,
             )
-        val properties = ParameterUtils.convertParametersIntoProperties(action.parameters)
+        val properties = ParameterUtils.convertParametersIntoNamedProperties(action.parameters)
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """

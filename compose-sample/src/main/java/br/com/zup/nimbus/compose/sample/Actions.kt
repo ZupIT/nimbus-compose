@@ -4,9 +4,8 @@ import br.com.zup.nimbus.compose.sample.model.AdaptiveSize
 import br.zup.com.nimbus.compose.deserialization.DeserializationContext
 import com.zup.nimbus.processor.annotation.AutoDeserialize
 import com.zup.nimbus.processor.annotation.Root
-import com.zup.nimbus.processor.model.DeserializationType
 
-@AutoDeserialize(DeserializationType.Action)
+@AutoDeserialize
 fun myAction1(
     str: String,
     size: AdaptiveSize?,
@@ -33,7 +32,7 @@ class MyActionParams(
     ctx: DeserializationContext,
 )
 
-@AutoDeserialize(DeserializationType.Action)
+@AutoDeserialize
 fun myAction2(@Root params: MyActionParams) {
     print("MyAction2")
 }
