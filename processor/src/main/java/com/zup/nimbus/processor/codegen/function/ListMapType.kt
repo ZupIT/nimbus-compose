@@ -45,7 +45,7 @@ internal object ListMapType {
             deserializer != null -> CustomDeserialized.getCallString(ctx, deserializer, type, itemRef)
             type.isAny() -> AnyType.getCallString(type, itemRef)
             type.isPrimitive() -> PrimitiveType.getCallString(type, itemRef)
-            type.isEnum() -> EnumType.getCallString(ctx, itemRef)
+            type.isEnum() -> EnumType.getCallString(ctx, type, itemRef)
             type.isList() -> getListCall(ctx, type, itemRef)
             type.isMap() -> getMapCall(ctx, type, itemRef)
             type.isFunctionType -> throw UnsupportedFunction("maps or arrays", ctx.property)

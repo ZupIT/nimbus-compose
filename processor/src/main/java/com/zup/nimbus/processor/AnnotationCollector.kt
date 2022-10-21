@@ -15,35 +15,23 @@ import com.zup.nimbus.processor.utils.hasAnnotation
 import com.zup.nimbus.processor.utils.isUnit
 
 object AnnotationCollector {
+    private val validDeserializerTypes = listOf(
+        ClassNames.AnyServerDrivenData.canonicalName,
+        ClassNames.DeserializationContext.canonicalName,
+    )
+
     private fun validateDeserializers(
         functions: Sequence<KSFunctionDeclaration>,
     ): Sequence<KSFunctionDeclaration> {
-        functions.forEach {
-            val isNumberOfParamsCorrect = it.parameters.size == 1 || it.parameters.size == 2
-            val isFirstParamCorrect = it.parameters.firstOrNull()?.type?.resolve()
-                ?.getQualifiedName() == ClassNames.AnyServerDrivenData.canonicalName
-            val isSecondParamCorrect = it.parameters.size == 1 ||
-                    it.parameters.getOrNull(1)?.type?.resolve()?.getQualifiedName() ==
-                    ClassNames.DeserializationContext.canonicalName
-            if (!isNumberOfParamsCorrect || !isFirstParamCorrect || !isSecondParamCorrect)
-                throw InvalidDeserializerParameters(it)
+        functions.forEach { fn ->
+            val isNumberOfParamsCorrect = fn.parameters.size == 1 || fn.parameters.size == 2
+            val typesAsStrings = fn.parameters.map { it.type.resolve().getQualifiedName() }
+            val areTypesValid = typesAsStrings.find { !validDeserializerTypes.contains(it) } == null
+            val areTypesUnique = typesAsStrings.distinct().size == typesAsStrings.size
+            if (!isNumberOfParamsCorrect || !areTypesValid || !areTypesUnique)
+                throw InvalidDeserializerParameters(fn)
         }
         return functions
-    }
-
-    private fun validateComponent(fn: KSFunctionDeclaration): DeserializableFunction {
-        // todo: validate
-        return DeserializableFunction(fn, FunctionCategory.Component)
-    }
-
-    private fun validateAction(fn: KSFunctionDeclaration): DeserializableFunction {
-        // todo: validate
-        return DeserializableFunction(fn, FunctionCategory.Action)
-    }
-
-    private fun validateOperation(fn: KSFunctionDeclaration): DeserializableFunction {
-        // todo: validate
-        return DeserializableFunction(fn, FunctionCategory.Operation)
     }
 
     private fun isComponent(fn: KSFunctionDeclaration): Boolean =
@@ -59,9 +47,9 @@ object AnnotationCollector {
         val result = mutableListOf<DeserializableFunction>()
         functions.forEach {
             when {
-                isComponent(it) -> result.add(validateComponent(it))
-                isAction(it) -> result.add(validateAction(it))
-                else -> result.add(validateOperation(it))
+                isComponent(it) -> result.add(DeserializableFunction(it, FunctionCategory.Component))
+                isAction(it) -> result.add(DeserializableFunction(it, FunctionCategory.Action))
+                else -> result.add(DeserializableFunction(it, FunctionCategory.Operation))
             }
         }
         return result

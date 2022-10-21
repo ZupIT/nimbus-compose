@@ -27,32 +27,20 @@ internal object AutoDeserialized {
         }
     }
 
-    private fun writeNullable(
-        property: Property,
-        deserializerName: String,
-        builder: FunSpec.Builder,
-    ) {
-        builder.addStatement(
-            "val %L = if (%L) %L(%L, %L) else null",
-            property.name,
-            property.getContainsString(PROPERTIES_REF),
-            deserializerName,
-            property.getAccessString(PROPERTIES_REF),
-            CONTEXT_REF,
+    private fun writeNullable(ctx: FunctionWriterContext) {
+        ctx.builder.addStatement(
+            "val %L = if (%L) %L else null",
+            ctx.property.name,
+            ctx.property.getContainsString(PROPERTIES_REF),
+            getCallString(ctx = ctx, propertiesRef = ctx.property.getAccessString(PROPERTIES_REF)),
         )
     }
 
-    private fun writeNonNullable(
-        property: Property,
-        deserializerName: String,
-        builder: FunSpec.Builder,
-    ) {
-        builder.addStatement(
-            "val %L = %L(%L, %L)",
-            property.name,
-            deserializerName,
-            property.getAccessString(PROPERTIES_REF),
-            CONTEXT_REF,
+    private fun writeNonNullable(ctx: FunctionWriterContext) {
+        ctx.builder.addStatement(
+            "val %L = %L",
+            ctx.property.name,
+            getCallString(ctx = ctx, propertiesRef = ctx.property.getAccessString(PROPERTIES_REF)),
         )
     }
 
@@ -64,6 +52,7 @@ internal object AutoDeserialized {
     ): String {
         val fnName = EntityWriter.createFunctionName(type)
         ctx.typesToImport.add(ClassName(type.getPackageName(), fnName))
+        ctx.typesToAutoDeserialize.add(IdentifiableKSType(type))
         return "$fnName($propertiesRef, $contextRef)"
     }
 
@@ -71,10 +60,7 @@ internal object AutoDeserialized {
         val property = ctx.property
         // todo: treat entities with repeated names
         validate(property)
-        ctx.typesToAutoDeserialize.add(IdentifiableKSType(property.type))
-        val deserializerName = EntityWriter.createFunctionName(property.type)
-        ctx.typesToImport.add(ClassName(property.type.getPackageName(), deserializerName))
-        if (property.type.isMarkedNullable) writeNullable(property, deserializerName, ctx.builder)
-        else writeNonNullable(property, deserializerName, ctx.builder)
+        if (property.type.isMarkedNullable) writeNullable(ctx)
+        else writeNonNullable(ctx)
     }
 }

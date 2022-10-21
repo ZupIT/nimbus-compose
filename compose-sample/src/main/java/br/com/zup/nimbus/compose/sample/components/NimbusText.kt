@@ -64,6 +64,7 @@ fun ComprehensiveTest(
     stringList: List<String>?,
     @Alias("aliasedList") intListList: List<List<Int?>>,
     booleanListListList: List<List<List<Boolean>>?>,
+    enumList: List<Test?>,
     // Maps
     stringMap: Map<String, String>?,
     @Alias("aliasedMap") intMapMap: Map<String, Map<String, Int?>>,

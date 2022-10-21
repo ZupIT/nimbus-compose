@@ -3,6 +3,7 @@ package com.zup.nimbus.processor.codegen.function
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
+import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.ParameterUtils
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
@@ -50,15 +51,19 @@ internal object CustomDeserialized {
         ctx.typesToImport.add(
             ClassName(deserializer.packageName.asString(), name)
         )
-        val contextParam = if (deserializer.parameters.size == 1) "" else ", $contextRef"
-        return "${name}(${propertiesRef}${contextParam})"
+        val paramString = deserializer.parameters.joinToString(", ") {
+            if (it.type.resolve().getQualifiedName() ==
+                ClassNames.DeserializationContext.canonicalName) contextRef
+            else propertiesRef
+        }
+        return "${name}($paramString)"
     }
 
     fun getCallString(
         ctx: FunctionWriterContext,
         deserializer: KSFunctionDeclaration,
         propertiesRef: String = PROPERTIES_REF,
-        contextRef: String = "context",
+        contextRef: String = CONTEXT_REF,
     ): String = getCallString(ctx, deserializer, ctx.property.type, propertiesRef, contextRef)
 
     fun write(ctx: FunctionWriterContext, deserializer: KSFunctionDeclaration) {

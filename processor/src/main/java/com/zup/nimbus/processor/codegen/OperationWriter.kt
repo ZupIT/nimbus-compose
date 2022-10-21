@@ -8,11 +8,14 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.annotation.Root
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
+import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidUseOfComposable
 import com.zup.nimbus.processor.error.InvalidUseOfContext
@@ -27,8 +30,8 @@ internal object OperationWriter {
     private const val TREATED_ARGUMENTS_REF = "__treatedArguments"
 
     private val imports = setOf(
+        ClassNames.DeserializationContext,
         ClassNames.AnyServerDrivenData,
-        ClassNames.NimbusMode,
     )
 
     private fun validate(operation: KSFunctionDeclaration) {
@@ -104,8 +107,14 @@ internal object OperationWriter {
         validate(operation)
         val operationName = operation.simpleName.asString()
         val fnBuilder = FunSpec.builder(operationName)
-            .addParameter(ARGUMENTS_REF, List::class.parameterizedBy(Any::class))
+            .addParameter(
+                ARGUMENTS_REF,
+                List::class.asTypeName().parameterizedBy(
+                    Any::class.asTypeName().copy(nullable = true),
+                ),
+            )
             .returns(operation.returnType!!.toTypeName())
+            .addStatement("val %L = DeserializationContext()", CONTEXT_REF)
         val properties = treatVarArgs(
             ParameterUtils.convertParametersIntoIndexedProperties(operation.parameters),
             fnBuilder,

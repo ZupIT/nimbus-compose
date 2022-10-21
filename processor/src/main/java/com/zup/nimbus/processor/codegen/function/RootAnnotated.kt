@@ -28,7 +28,6 @@ internal object RootAnnotated {
         deserializer: KSFunctionDeclaration?,
     ): String {
         return if (deserializer == null) {
-            ctx.typesToAutoDeserialize.add(IdentifiableKSType(ctx.property.type))
             AutoDeserialized.getCallString(ctx)
         } else {
             CustomDeserialized.getCallString(ctx, deserializer)
