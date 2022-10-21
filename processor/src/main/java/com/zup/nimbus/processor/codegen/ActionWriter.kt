@@ -45,28 +45,18 @@ internal object ActionWriter {
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """
-            |if (!%L.hasError()) {
-            |  %L(
-            |    %L
-            |  )
-            |} else {
-            |  %L.scope.nimbus.logger.error(
-            |    "Can't deserialize properties of the action ${'$'}{%L.action.name} in the event " +
-            |            "${'$'}{%L.scope.name} of the component with id ${'$'}{%L.scope.node.id} " +
-            |            "into the Action Handler %L. See the errors below:" +
-            |            %L.errorsAsString()
+            |if ($PROPERTIES_REF.hasError()) {
+            |  throw IllegalArgumentException(
+            |     "Can't deserialize properties of the action ${'$'}{$EVENT_REF.action.name} in the event " +
+            |            "${'$'}{$EVENT_REF.scope.name} of the component with id ${'$'}{$EVENT_REF.scope.node.id} " +
+            |            "into the Action Handler $actionName. See the errors below:" +
+            |            $PROPERTIES_REF.errorsAsString()
             |  )
             |}
-            """.trimMargin(),
-            PROPERTIES_REF,
-            action.simpleName.asString(),
-            ParameterUtils.buildParameterAssignments(properties).joinToString(",\n    "),
-            EVENT_REF,
-            EVENT_REF,
-            EVENT_REF,
-            EVENT_REF,
-            actionName,
-            PROPERTIES_REF,
+            |${action.simpleName.asString()}(
+            |  ${ParameterUtils.buildParameterAssignments(properties).joinToString(",\n  ")}
+            |)
+            |""".trimMargin(),
         )
 
         return result.combine(imports)

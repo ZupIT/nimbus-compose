@@ -38,25 +38,19 @@ internal object ComponentWriter {
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """
-            |if (!%L.hasError()) {
-            |  %L(
-            |    %L
+            |if (!$PROPERTIES_REF.hasError()) {
+            |  ${component.simpleName.asString()}(
+            |    ${ParameterUtils.buildParameterAssignments(properties).joinToString(",\n    ")}
             |  )
             |} else if (NimbusTheme.nimbus.mode == NimbusMode.Development) {
             |  NimbusTheme.nimbus.logger.error(
-            |    "Can't deserialize properties of the component with id ${'$'}{%L.node.id} " +
-            |            "into the composable %L. See the errors below:" +
-            |            %L.errorsAsString()
+            |    "Can't deserialize properties of the component with id ${'$'}{$COMPONENT_REF.node.id} " +
+            |            "into the composable $componentName. See the errors below:" +
+            |            $PROPERTIES_REF.errorsAsString()
             |  )
             |  Text("Error while deserializing component. Check the logs for details.", color = Color.Red)
             |}
-            """.trimMargin(),
-            PROPERTIES_REF,
-            component.simpleName.asString(),
-            ParameterUtils.buildParameterAssignments(properties).joinToString(",\n    "),
-            COMPONENT_REF,
-            componentName,
-            PROPERTIES_REF,
+            |""".trimMargin()
         )
         return result.combine(imports)
     }

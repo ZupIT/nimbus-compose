@@ -119,22 +119,16 @@ internal object OperationWriter {
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(
             """
-            |if (%L.hasError()) {
+            |if ($PROPERTIES_REF.hasError()) {
             |  throw IllegalArgumentException(
-            |    "Could not deserialize arguments into Operation %L. See the errors below:" +
-            |            %L.errorsAsString()
-            |  )
-            |} else {
-            |  return %L(
-            |    %L
+            |    "Could not deserialize arguments into Operation $operationName. See the errors below:" +
+            |            $PROPERTIES_REF.errorsAsString()
             |  )
             |}
+            |return ${operation.simpleName.asString()}(
+            |  ${ParameterUtils.buildParameterAssignments(properties).joinToString(",\n  ")}
+            |)
             |""".trimMargin(),
-            PROPERTIES_REF,
-            operationName,
-            PROPERTIES_REF,
-            operation.simpleName.asString(),
-            ParameterUtils.buildParameterAssignments(properties).joinToString(",\n    "),
         )
 
         return result.combine(imports)
