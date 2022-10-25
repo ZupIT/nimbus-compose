@@ -211,18 +211,20 @@ class NimbusViewModelTest : BaseTest() {
             //Given
             val url = RandomData.httpUrl()
             val viewRequest = ViewRequest(url)
-            val expectedModalState = NimbusViewModelModalState.OnShowModalModalState(viewRequest)
-            val expectedSecondModalState = NimbusViewModelModalState.OnHideModalState
+            val expectedShowModal = NimbusViewModelModalState.OnShowModalModalState(viewRequest)
+            val expectedHideModal = NimbusViewModelModalState.OnHideModalState
 
             //When
             initFirstViewWithSuccess()
             serverDrivenNavigatorSlot.present(viewRequest)
+            viewModel.nimbusViewModelModalState.test {
+                assertEquals(expectedShowModal, awaitItem())
+            }
+            //When
             serverDrivenNavigatorSlot.dismiss()
-
             //Then
             viewModel.nimbusViewModelModalState.test {
-                assertEquals(expectedModalState, awaitItem())
-                assertEquals(expectedSecondModalState, awaitItem())
+                assertEquals(expectedHideModal, awaitItem())
             }
 
         }
