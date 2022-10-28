@@ -1,8 +1,6 @@
 package br.zup.com.nimbus.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import java.util.Arrays
 import kotlin.system.measureTimeMillis
@@ -59,23 +57,7 @@ private fun componentsAreEquals(node: ServerDrivenNode, comparable: ServerDriven
     )
 }
 
-@Immutable
-@Stable
 class ComponentData(
     val node: ServerDrivenNode,
-    val parent: ServerDrivenNode?,
     val children: @Composable () -> Unit,
-) {
-    private val hash: Int = node.properties?.hashCode() ?: 0
-
-    override fun hashCode(): Int {
-        return hash
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return when (other) {
-            is ComponentData -> componentsAreEquals(other.node, node)
-            else -> false
-        }
-    }
-}
+)

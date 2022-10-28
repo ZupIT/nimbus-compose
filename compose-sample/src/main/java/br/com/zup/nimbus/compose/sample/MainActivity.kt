@@ -20,8 +20,7 @@ import com.zup.nimbus.core.network.ViewRequest
 class MainActivity : ComponentActivity() {
     private val nimbus = Nimbus(
         baseUrl = BASE_URL,
-        components = listOf(layoutLib, customLib, materialLib),
-        logger = AppLogger(),
+        ui = listOf(layoutLib, customLib, materialLib),
         errorView = { throwable: Throwable, retry: () -> Unit ->
             CustomError(throwable = throwable, retry = retry)
         },

@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,10 +36,6 @@ internal fun NimbusModalView(
                 !navHostHelper.pop()
             }
         ) {
-            NimbusDisposableEffect(
-                onDispose = {
-                    navHostHelper.dispose()
-                })
             NimbusNavHost(
                 modalParentHelper = modalTransitionDialogHelper,
                 nimbusNavHostHelper = navHostHelper,

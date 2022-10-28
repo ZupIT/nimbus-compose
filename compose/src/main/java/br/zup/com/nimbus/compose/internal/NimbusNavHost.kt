@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -68,7 +68,7 @@ internal fun NimbusNavHost(
                 }
                 currentPage?.let { page ->
                     NimbusBackHandler()
-                    NimbusView(page = page)
+                    page.Compose()
                     NimbusModalView(
                         nimbusViewModel = nimbusViewModel,
                         modalParentHelper = modalParentHelper
@@ -88,9 +88,6 @@ private fun ConfigureNavHostHelper(
         override fun isFirstScreen(): Boolean = nimbusViewModel.getPageCount() == 1
 
         override fun pop(): Boolean = nimbusViewModel.pop()
-        override fun dispose() {
-            nimbusViewModel.dispose()
-        }
     }
 }
 
@@ -109,17 +106,15 @@ private fun initNavHost(
 
 interface NimbusNavHostHelper {
 
-    var nimbusNavHostExecutor: NimbusNavHostHelper.NimbusNavHostExecutor?
+    var nimbusNavHostExecutor: NimbusNavHostExecutor?
 
     interface NimbusNavHostExecutor {
         fun isFirstScreen(): Boolean
         fun pop(): Boolean
-        fun dispose()
     }
 
     fun isFirstScreen(): Boolean
     fun pop(): Boolean
-    fun dispose()
 }
 
 /**
@@ -131,7 +126,4 @@ internal class NimbusNavHostHelperImpl : NimbusNavHostHelper {
     override fun isFirstScreen(): Boolean  = nimbusNavHostExecutor?.isFirstScreen() ?: false
 
     override fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
-    override fun dispose() {
-        nimbusNavHostExecutor?.dispose()
-    }
 }

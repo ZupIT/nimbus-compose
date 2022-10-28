@@ -1,20 +1,18 @@
-package br.zup.com.nimbus.compose.core.ui.internal
+package br.zup.com.nimbus.compose.internal
 
 import app.cash.turbine.test
-import br.zup.com.nimbus.compose.core.ui.internal.util.CoroutinesTestExtension
-import br.zup.com.nimbus.compose.core.ui.internal.util.PageStateObserver
-import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData
-import br.zup.com.nimbus.compose.core.ui.internal.util.RandomData.jsonExample
-import br.zup.com.nimbus.compose.core.ui.internal.util.invokeHiddenMethod
-import br.zup.com.nimbus.compose.core.ui.internal.util.observe
+import br.zup.com.nimbus.compose.internal.util.CoroutinesTestExtension
+import br.zup.com.nimbus.compose.internal.util.PageStateObserver
+import br.zup.com.nimbus.compose.internal.util.RandomData
+import br.zup.com.nimbus.compose.internal.util.RandomData.jsonExample
+import br.zup.com.nimbus.compose.internal.util.invokeHiddenMethod
+import br.zup.com.nimbus.compose.internal.util.observe
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
+import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.render.Listener
-import com.zup.nimbus.core.render.Renderer
-import com.zup.nimbus.core.render.ServerDrivenView
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.mockk.Runs
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -35,17 +33,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExperimentalCoroutinesApi
 @ExtendWith(CoroutinesTestExtension::class)
 class NimbusViewModelTest : BaseTest() {
-    private val serverDrivenView: ServerDrivenView = mockk()
-    private val serverDrivenNode: ServerDrivenNode = mockk()
-    private val renderer: Renderer = mockk()
+    private val serverDrivenNode: RootNode = mockk()
     private val page: Page = mockk()
     private lateinit var viewModel: NimbusViewModel
 
     //Slots
-    private val pageOnChangeSlot = slot<Listener>()
-    lateinit var serverDrivenNavigatorSlot: ServerDrivenNavigator
-
+    private val pageOnChangeSlot = slot<((NimbusPageState) -> Unit)>()
     private val pageObserverSlot = mutableListOf<PageStateObserver>()
+    lateinit var serverDrivenNavigatorSlot: ServerDrivenNavigator
 
     @BeforeEach
     fun before() {
@@ -55,13 +50,10 @@ class NimbusViewModelTest : BaseTest() {
             pageObserverSlot.add(page.observe())
             true
         }
-        every { nimbusConfig.core.createView(captureLambda(), any()) } answers {
-            serverDrivenNavigatorSlot = lambda<() -> ServerDrivenNavigator>().captured.invoke()
-            serverDrivenView
+        val viewSlot = slot<ServerDrivenView>()
+        every { serverDrivenNode.initialize(capture(viewSlot)) } answers {
+            serverDrivenNavigatorSlot = viewSlot.captured.navigator
         }
-        every { serverDrivenView.renderer } returns renderer
-        every { renderer.paint(any()) } just Runs
-        every { serverDrivenView.onChange(capture(pageOnChangeSlot)) } answers { serverDrivenNode }
         every { pagesManager.popLastPage() } returns true
 
         clearMocks(pagesManager, answers = false)
@@ -96,7 +88,7 @@ class NimbusViewModelTest : BaseTest() {
                 NimbusPageState.PageStateOnError(throwable = expectedException, retry = {})
             val expectedOnShowPage = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
 
-            coEvery { nimbusConfig.core.viewClient.fetch(any()) } throws expectedException
+            coEvery { nimbusConfig.viewClient.fetch(any()) } throws expectedException
 
             //When
             viewModel.initFirstViewWithRequest(viewRequest)
@@ -115,13 +107,11 @@ class NimbusViewModelTest : BaseTest() {
         // Given
         val viewRequest = ViewRequest(url = RandomData.httpUrl())
 
-        shouldEmitRenderNodeFromCore(renderNode)
+        shouldEmitRenderNodeFromCore(serverDrivenNode)
 
         //When
         viewModel.initFirstViewWithRequest(viewRequest)
-        val observer = pageObserverSlot.last()
-        emitOnChangeServerDrivenNode(serverDrivenNode)
-        return observer
+        return pageObserverSlot.last()
     }
 
     @DisplayName("When initFirstViewWithJson")
@@ -134,14 +124,14 @@ class NimbusViewModelTest : BaseTest() {
             val json = jsonExample()
             val expectedFirstEmission = NimbusPageState.PageStateOnLoading
             val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
-            shouldEmitRenderNodeFromCore(renderNode)
+            shouldEmitRenderNodeFromCore(serverDrivenNode)
 
             //When
             viewModel.initFirstViewWithJson(json)
 
             val observer = pageObserverSlot.last()
 
-            emitOnChangeServerDrivenNode(serverDrivenNode)
+            //emitOnChangeServerDrivenNode(serverDrivenNode)
 
             //Then
             val stateHistory = observer.awaitStateChanges(2)
@@ -266,10 +256,9 @@ class NimbusViewModelTest : BaseTest() {
         expectedOnShowPage: NimbusPageState.PageStateOnShowPage,
     ) {
         observer.clear()
-        shouldEmitRenderNodeFromCore(renderNode)
+        shouldEmitRenderNodeFromCore(serverDrivenNode)
         //Simulates user clicking retry button on error screen
         secondItem.retry.invoke()
-        emitOnChangeServerDrivenNode(serverDrivenNode)
         val stateHistory = observer.awaitStateChanges(2)
         assertEquals(expectedLoading, stateHistory[0])
         assertEquals(expectedOnShowPage, stateHistory[1])
@@ -382,10 +371,5 @@ class NimbusViewModelTest : BaseTest() {
         val errorState = stateHistory[1] as NimbusPageState.PageStateOnError
         assertEquals(expectedPageError.throwable, errorState.throwable)
         return errorState
-    }
-
-    private fun emitOnChangeServerDrivenNode(serverDrivenNode: ServerDrivenNode) {
-        val list = pageOnChangeSlot.captured
-        list.invoke(serverDrivenNode)
     }
 }

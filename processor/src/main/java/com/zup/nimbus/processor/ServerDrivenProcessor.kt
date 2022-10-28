@@ -28,6 +28,54 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
         getSymbolsWithAnnotation(kClass.qualifiedName.toString())
             .filterIsInstance<KSFunctionDeclaration>()
 
+    private fun handleDeserializer(param: ParameterInfo, fnBuilder: FunSpec.Builder) {
+        if (param.isRoot) {
+            fnBuilder.addStatement(
+                "val %L = %L.deserialize(properties, data, %S)",
+                param.name,
+                param.deserializer!!.simpleName,
+                param.name,
+            )
+        } else if (param.nullable) {
+            fnBuilder.addCode("""
+                        |val %L = if (properties.enter(%S, true)) {
+                        |    val result = %L.deserialize(properties, data, %S)
+                        |    properties.leave()
+                        |    result
+                        |} else null
+                        |""".trimMargin(),
+                param.name, param.name, param.deserializer!!.simpleName, param.name
+            )
+        } else {
+            fnBuilder.addStatement("properties.enter(%S, false)", param.name)
+            fnBuilder.addStatement(
+                "val %L = %L.deserialize(properties, data, %S)",
+                param.name,
+                param.deserializer!!.simpleName,
+                param.name,
+            )
+            fnBuilder.addStatement("properties.leave()", param.name)
+        }
+    }
+
+    private fun handleServerDrivenAction(param: ParameterInfo, fnBuilder: FunSpec.Builder) {
+        fnBuilder.addStatement(
+            "val %LEvent = properties.asEvent%L(%S)",
+            param.name,
+            if (param.nullable) "OrNull" else "",
+            param.name,
+        )
+        val template = if (param.nullable) "val %L: (%L)? = %LEvent?.let { event -> { event.run(%L) } }"
+        else "val %L: %L = { %LEvent.run(%L) }"
+        fnBuilder.addStatement(
+            template,
+            param.name,
+            if (param.arity == 0) "() -> Unit" else "(Any) -> Unit",
+            param.name,
+            if (param.arity == 0) "" else "it",
+        )
+    }
+
     private fun createNimbusComposable(
         builder: FileSpec.Builder,
         fn: KSFunctionDeclaration,
@@ -42,18 +90,11 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .addStatement("properties.start()")
 
         component.parameters.forEach {
-            if (it.isParentName) {
-                if (!it.nullable) throw RequiredParentException(it.name, fn)
-                fnBuilder.addStatement("val %L = data.parent?.component", it.name)
-            } else if (it.deserializer != null) {
+            if (it.deserializer != null) {
                 if (it.deserializer.packageName != fn.packageName.asString()) {
                     builder.addClassImport(it.deserializer)
                 }
-                fnBuilder.addStatement(
-                    "val %L = %L.deserialize(data)",
-                    it.name,
-                    it.deserializer.simpleName,
-                )
+                handleDeserializer(it, fnBuilder)
             }
             else {
                 when (it.category) {
@@ -74,26 +115,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                             it.type,
                         )
                     }
-                    TypeCategory.ServerDrivenAction -> {
-                        if (it.arity == 0) {
-                            fnBuilder.addStatement(
-                                "val %LAction = remember(properties) { properties.asAction%L(%S) }",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                            val template = if (it.nullable) "val %L = %LAction?.let{ remember(properties) { { it(null) } } }"
-                            else "val %L = remember(properties) { { %LAction(null) } }"
-                            fnBuilder.addStatement(template, it.name, it.name)
-                        } else {
-                            fnBuilder.addStatement(
-                                "val %L = remember(properties) { properties.asAction%L(%S) }",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                        }
-                    }
+                    TypeCategory.ServerDrivenAction -> handleServerDrivenAction(it, fnBuilder)
                     TypeCategory.Composable -> fnBuilder.addStatement(
                         "val %L = data.children",
                         it.name,
@@ -102,7 +124,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                         mustDeserialize.addAll(it.mustDeserialize)
                         builder.addImport(it.packageName, it.type)
                         fnBuilder.addStatement(
-                            "val %L = NimbusEntityDeserializer.deserialize(properties, %L::class)",
+                            "val %L = NimbusEntityDeserializer.deserialize(properties, data, %L::class)",
                             it.name,
                             it.type,
                         )
@@ -165,6 +187,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
             .replace(".", "_")
         val fnBuilder = FunSpec.builder(name)
             .addParameter("properties", ClassNames.ComponentDeserializer)
+            .addParameter("data", ClassNames.ComponentData)
             .addModifiers(KModifier.PRIVATE)
             .returns(ClassName(clazz.packageName.asString(), clazz.simpleName.asString()))
         val constructorInfo = FunctionInfo(
@@ -175,11 +198,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                 if (it.deserializer.packageName != clazz.packageName.asString()) {
                     builder.addClassImport(it.deserializer)
                 }
-                fnBuilder.addStatement(
-                    "val %L = %L.deserialize(data)",
-                    it.name,
-                    it.deserializer.simpleName,
-                )
+                handleDeserializer(it, fnBuilder)
             }
             else {
                 when (it.category) {
@@ -200,26 +219,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                             it.type,
                         )
                     }
-                    TypeCategory.ServerDrivenAction -> {
-                        if (it.arity == 0) {
-                            fnBuilder.addStatement(
-                                "val %LAction = properties.asAction%L(%S)",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                            val template = if (it.nullable) "val %L = %LAction?.let{ { it(null) } }"
-                            else "val %L = { %LAction(null) }"
-                            fnBuilder.addStatement(template, it.name, it.name)
-                        } else {
-                            fnBuilder.addStatement(
-                                "val %L = properties.asAction%L(%S)",
-                                it.name,
-                                if (it.nullable) "OrNull" else "",
-                                it.name,
-                            )
-                        }
-                    }
+                    TypeCategory.ServerDrivenAction -> handleServerDrivenAction(it, fnBuilder)
                     else -> {
                         throw UnsupportedTypeException(
                             it.name,
@@ -262,6 +262,10 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                                     ParameterSpec.builder(
                                         "properties",
                                         ClassNames.ComponentDeserializer,
+                                    ).build(),
+                                    ParameterSpec.builder(
+                                        "data",
+                                        ClassNames.ComponentData,
                                     ).build()
                                 ),
                                 returnType = Any::class.asTypeName(),
@@ -274,7 +278,7 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                         "mutableMapOf(%L)",
                         mustDeserialize.joinToString(", ") {
                             val name = "${it.packageName.asString()}.${it.simpleName.asString()}"
-                            "\"$name\" to { ${name.replace(".", "_")}(it) }"
+                            "\"$name\" to { properties, data -> ${name.replace(".", "_")}(properties, data) }"
                         },
                     )
                 )
@@ -295,11 +299,12 @@ class ServerDrivenProcessor(private val environment: SymbolProcessorEnvironment)
                         )
                     )
                     .addParameter("properties", ClassNames.ComponentDeserializer)
+                    .addParameter("data", ClassNames.ComponentData)
                     .addParameter("clazz", TypeVariableName("U"))
                     .returns(TypeVariableName("T"))
                     .addStatement(
                         "return deserializers.get(clazz.qualifiedName ?: \"\")?.let " +
-                                "{ it(properties) as T } ?: throw IllegalArgumentException(%P)",
+                                "{ it(properties, data) as T } ?: throw IllegalArgumentException(%P)",
                         "\${clazz.simpleName} is an invalid Server Driven entity because no " +
                                 "deserializer has been found for it."
                     )

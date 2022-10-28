@@ -4,4 +4,5 @@ import kotlin.reflect.KClass
 
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.VALUE_PARAMETER)
-annotation class Computed<T: TypeDeserializer<*>>(val deserializer: KClass<T>)
+// FIXME: typing. should be: annotation class Computed<T: TypeDeserializer<*>>(val deserializer: KClass<T>)
+annotation class Computed(val deserializer: KClass<*>)
