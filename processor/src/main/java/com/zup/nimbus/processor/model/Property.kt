@@ -1,12 +1,12 @@
 package com.zup.nimbus.processor.model
 
+import br.com.zup.nimbus.annotation.Root
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Location
 import com.zup.nimbus.processor.ClassNames
-import com.zup.nimbus.processor.annotation.Root
 import com.zup.nimbus.processor.error.InvalidUseOfRoot
 import com.zup.nimbus.processor.error.NamelessProperty
 import com.zup.nimbus.processor.utils.getQualifiedName

@@ -2,7 +2,7 @@ package com.zup.nimbus.processor.codegen
 
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.zup.nimbus.processor.ClassNames
-import com.zup.nimbus.processor.annotation.Ignore
+import br.com.zup.nimbus.annotation.Ignore
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.error.InvalidUseOfIgnore
 import com.zup.nimbus.processor.model.IndexedProperty

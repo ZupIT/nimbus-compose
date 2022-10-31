@@ -1,15 +1,13 @@
 package com.zup.nimbus.processor
 
+import br.com.zup.nimbus.annotation.AutoDeserialize
+import br.com.zup.nimbus.annotation.Deserializer
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
-import com.zup.nimbus.processor.annotation.AutoDeserialize
-import com.zup.nimbus.processor.annotation.Deserializer
 import com.zup.nimbus.processor.error.InvalidDeserializerParameters
 import com.zup.nimbus.processor.model.DeserializableFunction
 import com.zup.nimbus.processor.model.FunctionCategory
 import com.zup.nimbus.processor.utils.findAnnotations
-import com.zup.nimbus.processor.utils.getAnnotation
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 import com.zup.nimbus.processor.utils.isUnit

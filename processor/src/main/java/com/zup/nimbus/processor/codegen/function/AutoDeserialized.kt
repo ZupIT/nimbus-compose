@@ -12,6 +12,7 @@ import com.zup.nimbus.processor.error.UnsupportedDeserialization
 import com.zup.nimbus.processor.model.IdentifiableKSType
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getPackageName
+import com.zup.nimbus.processor.utils.getQualifiedName
 
 internal object AutoDeserialized {
     private fun validate(property: Property) {

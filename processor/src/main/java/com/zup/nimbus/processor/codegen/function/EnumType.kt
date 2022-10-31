@@ -15,12 +15,18 @@ internal object EnumType {
         ctx.typesToImport.add(
             ClassName(type.getPackageName(), type.getSimpleName())
         )
-        val access = ctx.property.getAccessString(propertiesRef)
         val nullable = if (type.isMarkedNullable) "OrNull" else ""
-        return "$access.asEnum$nullable(${type.getSimpleName()}.values())"
+        return "$propertiesRef.asEnum$nullable(${type.getSimpleName()}.values())"
     }
 
     fun write(ctx: FunctionWriterContext) {
-        ctx.builder.addStatement("val %L = %L", ctx.property.name, getCallString(ctx))
+        ctx.builder.addStatement(
+            "val %L = %L",
+            ctx.property.name,
+            getCallString(
+                ctx,
+                propertiesRef = ctx.property.getAccessString(PROPERTIES_REF),
+            ),
+        )
     }
 }

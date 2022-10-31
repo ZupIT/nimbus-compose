@@ -1,7 +1,7 @@
 package br.com.zup.nimbus.compose.sample.model
 
 import com.zup.nimbus.core.deserialization.AnyServerDrivenData
-import com.zup.nimbus.processor.annotation.Deserializer
+import br.com.zup.nimbus.annotation.Deserializer
 
 sealed class AdaptiveSize {
     object Expand : AdaptiveSize()

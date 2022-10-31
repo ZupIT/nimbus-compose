@@ -1,4 +1,4 @@
-package com.zup.nimbus.processor.annotation
+package br.com.zup.nimbus.annotation
 
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FUNCTION)

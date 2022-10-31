@@ -13,7 +13,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
-import com.zup.nimbus.processor.annotation.Root
+import br.com.zup.nimbus.annotation.Root
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF

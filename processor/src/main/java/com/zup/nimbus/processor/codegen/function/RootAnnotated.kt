@@ -1,26 +1,20 @@
 package com.zup.nimbus.processor.codegen.function
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.zup.nimbus.processor.codegen.RootPropertyCalculator
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
-import com.zup.nimbus.processor.model.IdentifiableKSType
 
 internal object RootAnnotated {
     private fun createListOfKeysForDeserializer(
         deserializer: KSFunctionDeclaration?,
         type: KSType,
+        deserializers: List<KSFunctionDeclaration>,
     ): String {
-        val params = if (deserializer != null) {
-            deserializer.parameters
-        } else {
-            val declaration = type.declaration
-            if (declaration is KSClassDeclaration) declaration.primaryConstructor?.parameters
-            else null
-        }
-        return params?.joinToString(", ") {
-            "\"${it.name?.asString()}\""
-        } ?: ""
+        val params = deserializer?.parameters?.mapNotNull { it.name?.asString() }
+            ?: RootPropertyCalculator.getAllParamsInTypeConstructor(type, deserializers)
+
+        return params.joinToString(", ") { "\"$it\"" }
     }
 
     private fun getCallString(
@@ -45,7 +39,7 @@ internal object RootAnnotated {
             |
             """.trimMargin(),
             ctx.property.name,
-            createListOfKeysForDeserializer(deserializer, ctx.property.type),
+            createListOfKeysForDeserializer(deserializer, ctx.property.type, ctx.deserializers),
             PROPERTIES_REF,
             getCallString(ctx, deserializer),
         )

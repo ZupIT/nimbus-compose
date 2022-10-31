@@ -12,12 +12,12 @@ val ktorVersion = "1.6.8"
 val kotlinVersion = "1.6.10"
 
 dependencies {
-    api("br.com.zup.nimbus:nimbus-core-android:1.0.0-alpha")
+    api("br.com.zup.nimbus:nimbus-core-jvm:1.0.0-alpha")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-serialization:$ktorVersion")
-    implementation ("androidx.navigation:navigation-compose:2.4.2")
+    implementation("androidx.navigation:navigation-compose:2.4.2")
     implementation("com.google.android.material:material:1.6.1")
     implementation("androidx.appcompat:appcompat:1.4.2")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

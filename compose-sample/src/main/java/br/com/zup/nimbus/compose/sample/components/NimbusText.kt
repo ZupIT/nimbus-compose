@@ -7,13 +7,11 @@ import br.com.zup.nimbus.compose.sample.model.Address
 import br.com.zup.nimbus.compose.sample.model.Person
 import br.com.zup.nimbus.compose.sample.model.Sex
 import br.com.zup.nimbus.compose.sample.model.Tree
+import br.com.zup.nimbus.annotation.Alias
+import br.com.zup.nimbus.annotation.AutoDeserialize
+import br.com.zup.nimbus.annotation.Ignore
+import br.com.zup.nimbus.annotation.Root
 import br.zup.com.nimbus.compose.deserialization.DeserializationContext
-import com.zup.nimbus.core.deserialization.AnyServerDrivenData
-import com.zup.nimbus.processor.annotation.Alias
-import com.zup.nimbus.processor.annotation.AutoDeserialize
-import com.zup.nimbus.processor.annotation.Deserializer
-import com.zup.nimbus.processor.annotation.Ignore
-import com.zup.nimbus.processor.annotation.Root
 
 @Composable
 @AutoDeserialize

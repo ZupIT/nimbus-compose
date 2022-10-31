@@ -2,8 +2,8 @@ package br.com.zup.nimbus.compose.sample
 
 import br.com.zup.nimbus.compose.sample.model.AdaptiveSize
 import br.zup.com.nimbus.compose.deserialization.DeserializationContext
-import com.zup.nimbus.processor.annotation.AutoDeserialize
-import com.zup.nimbus.processor.annotation.Root
+import br.com.zup.nimbus.annotation.AutoDeserialize
+import br.com.zup.nimbus.annotation.Root
 
 @AutoDeserialize
 fun myAction1(

@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Location
-import com.zup.nimbus.processor.annotation.Alias
+import br.com.zup.nimbus.annotation.Alias
 import com.zup.nimbus.processor.error.InvalidUseOfVararg
 import com.zup.nimbus.processor.utils.getAnnotation
 

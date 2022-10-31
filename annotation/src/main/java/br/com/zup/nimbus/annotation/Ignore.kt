@@ -1,5 +1,5 @@
-package com.zup.nimbus.processor.annotation
+package br.com.zup.nimbus.annotation
 
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.VALUE_PARAMETER)
-annotation class Root
+annotation class Ignore

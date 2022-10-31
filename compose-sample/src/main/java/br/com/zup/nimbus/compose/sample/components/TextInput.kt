@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
-import com.zup.nimbus.processor.annotation.AutoDeserialize
 
 class TextInputEvents(
     val onChange: ((String) -> Unit)?,
