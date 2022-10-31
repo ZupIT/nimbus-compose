@@ -33,18 +33,19 @@ internal fun NimbusNavHost(
         )
     ),
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
-    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelperImpl(),
+    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
     json: String = "",
 ) {
 
-    NimbusNavigationEffect(nimbusViewModel, navController)
+    CollectFlow(nimbusViewModel.nimbusViewNavigationState) { navigationState ->
+        navigationState.handleNavigation(navController)
+    }
 
     NimbusDisposableEffect(
         onCreate = {
             initNavHost(nimbusViewModel, viewRequest, json)
+            configureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
         })
-
-    ConfigureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
 
     ProvideNavigatorState(navHostHelper = nimbusNavHostHelper) {
         NavHost(
@@ -59,14 +60,9 @@ internal fun NimbusNavHost(
                     defaultValue = VIEW_INITIAL_URL
                 })
             ) { backStackEntry ->
-                val arguments = requireNotNull(backStackEntry.arguments)
-                val currentPageUrl = arguments.getString(VIEW_URL)
-                val currentPage = currentPageUrl?.let {
-                    nimbusViewModel.getPageBy(
-                        it
-                    )
-                }
-                currentPage?.let { page ->
+                nimbusViewModel.getPageBy(
+                    backStackEntry.getPageUrl()
+                )?.let { page ->
                     NimbusBackHandler()
                     page.Compose()
                     NimbusModalView(
@@ -79,8 +75,7 @@ internal fun NimbusNavHost(
     }
 }
 
-@Composable
-private fun ConfigureNavHostHelper(
+private fun configureNavHostHelper(
     nimbusNavHostHelper: NimbusNavHostHelper,
     nimbusViewModel: NimbusViewModel,
 ) {
@@ -104,26 +99,18 @@ private fun initNavHost(
 
 }
 
-interface NimbusNavHostHelper {
+/**
+ * This helper can be used to control some behaviour from outside the NimbusNavHost composable
+ */
+internal class NimbusNavHostHelper {
 
-    var nimbusNavHostExecutor: NimbusNavHostExecutor?
+     var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
+     fun isFirstScreen(): Boolean  = nimbusNavHostExecutor?.isFirstScreen() ?: false
+
+     fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
 
     interface NimbusNavHostExecutor {
         fun isFirstScreen(): Boolean
         fun pop(): Boolean
     }
-
-    fun isFirstScreen(): Boolean
-    fun pop(): Boolean
-}
-
-/**
- * This helper can be used to control some behaviour from outside the NimbusNavHost composable
- */
-internal class NimbusNavHostHelperImpl : NimbusNavHostHelper {
-
-    override var nimbusNavHostExecutor: NimbusNavHostHelper.NimbusNavHostExecutor? = null
-    override fun isFirstScreen(): Boolean  = nimbusNavHostExecutor?.isFirstScreen() ?: false
-
-    override fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
 }

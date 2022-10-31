@@ -7,20 +7,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import br.zup.com.nimbus.compose.ui.components.ErrorDefault
-import br.zup.com.nimbus.compose.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.internal.NimbusNavHostHelper
 import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
+import br.zup.com.nimbus.compose.ui.components.ErrorDefault
+import br.zup.com.nimbus.compose.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.ui.composeUILibrary
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.ServerDrivenState
 import com.zup.nimbus.core.log.Logger
 import com.zup.nimbus.core.network.HttpClient
 import com.zup.nimbus.core.network.UrlBuilder
 import com.zup.nimbus.core.network.ViewClient
 import com.zup.nimbus.core.tree.IdManager
-import com.zup.nimbus.core.ui.UILibraryManager
 import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
 
 typealias ComponentHandler = @Composable (ComponentData) -> Unit
@@ -30,7 +28,7 @@ typealias ErrorHandler = @Composable (throwable: Throwable, retry: () -> Unit) -
 const val PLATFORM_NAME = "android"
 
 @Stable
-class NimbusNavigatorState(
+internal class NimbusNavigatorState(
     val navHostHelper: NimbusNavHostHelper,
 )
 
@@ -95,7 +93,7 @@ private fun configureStaticState(applicationContext: Context) {
 }
 
 @Composable
-fun ProvideNavigatorState(
+internal fun ProvideNavigatorState(
     navHostHelper: NimbusNavHostHelper,
     content: @Composable () -> Unit,
 ) {
@@ -127,7 +125,7 @@ object NimbusTheme {
         @Composable
         get() = LocalNimbus.current
 
-    val nimbusNavigatorState: NimbusNavigatorState
+    internal val nimbusNavigatorState: NimbusNavigatorState
         @Composable
         get() = LocalNavigator.current
 }

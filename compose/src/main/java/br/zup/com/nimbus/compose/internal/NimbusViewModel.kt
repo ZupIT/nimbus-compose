@@ -102,8 +102,8 @@ internal class NimbusViewModel(
         doPushWithJson(json)
     }
 
-    fun getPageBy(url: String): Page? {
-        return pagesManager.getPageBy(url)
+    fun getPageBy(url: String?): Page? {
+        return  url?.let { pagesManager.getPageBy(url) }
     }
 
     fun getPageCount() = pagesManager.getPageCount()
@@ -160,7 +160,6 @@ internal class NimbusViewModel(
             )
             val url = if (initialRequest) VIEW_INITIAL_URL else request.url
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view)
             pushNavigation(page = page, initialRequest = initialRequest)
@@ -203,7 +202,6 @@ internal class NimbusViewModel(
             )
             val url = VIEW_INITIAL_URL
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view
             )
