@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
@@ -158,7 +157,7 @@ internal class NimbusViewModel(
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
             )
-            val url = if (initialRequest) VIEW_INITIAL_URL else request.url
+            val url = request.url
             val page = Page(
                 id = url,
                 view = view)
@@ -200,7 +199,7 @@ internal class NimbusViewModel(
                 getNavigator = { serverDrivenNavigator },
                 description = VIEW_JSON_DESCRIPTION
             )
-            val url = VIEW_INITIAL_URL
+            val url = VIEW_JSON_DESCRIPTION
             val page = Page(
                 id = url,
                 view = view
