@@ -41,6 +41,12 @@ internal fun NimbusNavHost(
         navigationState.handleNavigation(navController)
     }
 
+    CollectFlow(nimbusViewModel.nimbusViewModelModalState) { navigationState ->
+        if(navigationState is NimbusViewModelModalState.OnHideModalState) {
+            modalParentHelper.triggerAnimatedClose()
+        }
+    }
+
     NimbusDisposableEffect(
         onCreate = {
             initNavHost(nimbusViewModel, viewRequest, json)
@@ -63,11 +69,13 @@ internal fun NimbusNavHost(
                 nimbusViewModel.getPageBy(
                     backStackEntry.getPageUrl()
                 )?.let { page ->
-                    NimbusBackHandler()
+                    NimbusBackHandler(onDismiss =
+                    {
+                        modalParentHelper.triggerAnimatedClose()
+                    })
                     page.Compose()
                     NimbusModalView(
-                        nimbusViewModel = nimbusViewModel,
-                        modalParentHelper = modalParentHelper
+                        nimbusViewModel = nimbusViewModel
                     )
                 }
             }

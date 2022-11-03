@@ -2,10 +2,10 @@ package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -18,15 +18,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Figured out by trial and error
@@ -40,11 +39,12 @@ private const val DIALOG_BUILD_TIME = 300L
 @Composable
 internal fun ModalTransitionDialog(
     onDismissRequest: () -> Unit,
-    onCanDismissRequest: () -> Boolean,
     dismissOnBackPress: Boolean = true,
-    modifier: Modifier = Modifier.fillMaxSize(),
+    modifier: Modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White),
     modalTransitionDialogHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
-    content: @Composable (ModalTransitionDialogHelper) -> Unit,
+    content: @Composable (ModalTransitionDialogHelper) -> Unit
 ) {
 
     val onCloseFlow: MutableStateFlow<Boolean> = remember { MutableStateFlow(false) }
@@ -52,53 +52,47 @@ internal fun ModalTransitionDialog(
     val animateContentBackTrigger = remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
-        withContext(CoroutineDispatcherLib.backgroundPool) {
-            launch {
-                delay(DIALOG_BUILD_TIME)
-                animateContentBackTrigger.value = true
-            }
-            launch {
-                onCloseFlow.collectLatest { shouldClose ->
-                    if(shouldClose)
-                        startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
-                }
+        launch {
+            delay(DIALOG_BUILD_TIME)
+            animateContentBackTrigger.value = true
+        }
+        launch {
+            onCloseFlow.collectLatest { shouldClose ->
+                if(shouldClose)
+                    startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
             }
         }
     }
 
     Dialog(
         onDismissRequest = {
-            coroutineScope.launch(CoroutineDispatcherLib.backgroundPool) {
-                startDismissWithExitAnimation(animateContentBackTrigger,
-                    onDismissRequest,
-                    onCanDismissRequest)
+            coroutineScope.launch {
+                startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
             }
         },
         properties = DialogProperties(usePlatformDefaultWidth = false,
             dismissOnBackPress = dismissOnBackPress,
             dismissOnClickOutside = false)
     ) {
-        Box(modifier = modifier) {
+//        Box(modifier = modifier) {
             AnimatedModalBottomSheetTransition(
+                modifier = modifier,
                 visible = animateContentBackTrigger.value) {
-                modalTransitionDialogHelper.coroutineScope = coroutineScope
                 modalTransitionDialogHelper.onCloseFlow = onCloseFlow
+                modalTransitionDialogHelper.coroutineScope = coroutineScope
                 content(modalTransitionDialogHelper)
             }
-        }
+//        }
     }
 }
 
 private suspend fun startDismissWithExitAnimation(
     animateContentBackTrigger: MutableState<Boolean>,
-    onDismissRequest: () -> Unit,
-    onCanDismissRequest: () -> Boolean = { true },
+    onDismissRequest: () -> Unit
 ) {
-    if (onCanDismissRequest()) {
-        animateContentBackTrigger.value = false
-        delay(ANIMATION_TIME)
-        onDismissRequest()
-    }
+    animateContentBackTrigger.value = false
+    delay(ANIMATION_TIME)
+    onDismissRequest()
 }
 
 /**
@@ -110,27 +104,28 @@ internal class ModalTransitionDialogHelper {
     var coroutineScope: CoroutineScope? = null
     var onCloseFlow: MutableStateFlow<Boolean>? = null
     fun triggerAnimatedClose() {
-        coroutineScope?.launch(CoroutineDispatcherLib.backgroundPool) {
+        coroutineScope?.launch {
             onCloseFlow?.tryEmit(true)
         }
     }
 }
 
 internal const val ANIMATION_TIME = 500L
+internal const val DELAY_SHOW_CONTENT = ANIMATION_TIME + 100L
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun AnimatedModalBottomSheetTransition(
     visible: Boolean,
-    content: @Composable AnimatedVisibilityScope.() -> Unit,
+    modifier: Modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White),
+    content: @Composable AnimatedVisibilityScope.() -> Unit
 ) {
     var animateContentShowTrigger by remember { mutableStateOf(false) }
     if (visible) {
         LaunchedEffect(key1 = Unit) {
-            withContext(CoroutineDispatcherLib.backgroundPool) {
-                delay(ANIMATION_TIME)
-                animateContentShowTrigger = true
-            }
+            delay(DELAY_SHOW_CONTENT)
+            animateContentShowTrigger = true
         }
     }
     AnimatedVisibility(
@@ -144,8 +139,11 @@ internal fun AnimatedModalBottomSheetTransition(
             targetOffsetY = { fullHeight -> fullHeight }
         ),
         content = {
-            if (animateContentShowTrigger)
-                content()
+            Box(modifier = modifier) {
+                if (animateContentShowTrigger)
+                    content()
+            }
+
         }
     )
 }
