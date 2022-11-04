@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 internal sealed class NimbusViewModelModalState {
-    object HiddenModalState : NimbusViewModelModalState()
+    object RootState : NimbusViewModelModalState()
     object OnHideModalState : NimbusViewModelModalState()
     data class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
 }
@@ -33,7 +33,7 @@ internal class NimbusViewModel(
 ) : ViewModel() {
 
     private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
-        MutableStateFlow(NimbusViewModelModalState.HiddenModalState)
+        MutableStateFlow(NimbusViewModelModalState.RootState)
 
     val nimbusViewModelModalState: StateFlow<NimbusViewModelModalState>
         get() = _nimbusViewModelModalState
@@ -81,7 +81,7 @@ internal class NimbusViewModel(
     }
 
     fun setModalHiddenState() {
-        setNimbusViewModelModalState(NimbusViewModelModalState.HiddenModalState)
+        setNimbusViewModelModalState(NimbusViewModelModalState.RootState)
     }
 
     fun pop(): Boolean {

@@ -13,11 +13,12 @@ import androidx.compose.ui.graphics.Color
 @Composable
 internal fun NimbusModalView(
     nimbusViewModel: NimbusViewModel,
-    modifier: Modifier = Modifier.fillMaxSize()
+    modifier: Modifier = Modifier
+        .fillMaxSize()
         .background(Color.White),
 ) {
     var nimbusViewModelModalState: NimbusViewModelModalState by remember {
-        mutableStateOf(NimbusViewModelModalState.HiddenModalState)
+        mutableStateOf(NimbusViewModelModalState.RootState)
     }
     val navHostHelper = NimbusNavHostHelper()
     val modalParentHelper = ModalTransitionDialogHelper()

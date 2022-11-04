@@ -356,7 +356,7 @@ class NimbusViewModelTest : BaseTest() {
         @DisplayName("Then should return receive a hidden state emission")
         @Test
         fun testGivenAPopWithOnlyOnePageShouldReturnFalse() = runTest {
-            val expectedModalState = NimbusViewModelModalState.HiddenModalState
+            val expectedModalState = NimbusViewModelModalState.RootState
 
             //When
             viewModel.setModalHiddenState()
