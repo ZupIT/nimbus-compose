@@ -13,6 +13,7 @@ import kotlin.reflect.KClass
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 private const val DEFAULT_SOURCE_FILE = "MyTest.kt"
 private const val SRC_DIR = "sources"
@@ -22,6 +23,12 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
     fun loadClass(name: String?): Class<*> = result.classLoader.loadClass(name)
         ?: throw ClassNotFoundException()
 
+    fun loadEnum(name: String, value: String): Enum<*>? {
+        val clazz = loadClass(name)
+        val enumConstants = clazz.enumConstants as Array<Enum<*>>
+        return enumConstants.find { it.name == value }
+    }
+
     fun loadSourceClass() = loadClass(
         DEFAULT_SOURCE_FILE.replace(".kt", "Kt"),
     )
@@ -29,6 +36,30 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
     fun loadGeneratedClass() = loadClass(
         DEFAULT_SOURCE_FILE.replace(".kt", "_generatedKt"),
     )
+
+    /**
+     * Creates an instance of a class with an empty constructor and sets the field "value" with the
+     * value passed as parameter.
+     */
+    fun instanceOf(className: String, value: Any): Any {
+        val clazz = loadClass(className)
+        val instance = clazz.getDeclaredConstructor().newInstance()
+        val setter = clazz.declaredMethods.find { it.name == "setValue" }
+            ?: throw(NoSuchMethodError("setValue"))
+        setter.invoke(instance, value)
+        return instance
+    }
+
+    /**
+     * Creates an instance of a class using its first constructor which must accept the values
+     * passed as parameters.
+     */
+    fun instanceOf(className: String, values: List<Any?>): Any {
+        val clazz = loadClass(className)
+        val constructor = clazz.declaredConstructors.firstOrNull()
+            ?: throw NoSuchMethodError("constructor")
+        return constructor.newInstance(*values.toTypedArray())
+    }
 
     fun runEventForActionHandler(
         functionName: String,
@@ -48,9 +79,16 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
     ) {
         try {
             runEventForActionHandler(functionName, properties)
+            fail("Expected to throw")
         } catch (e: InvocationTargetException) {
             assertTrue(e.targetException is IllegalArgumentException)
             val message = e.targetException?.message ?: ""
+            // asserts the number of "Expected" found in the string.
+            assertEquals(
+                expectedErrors.size + 1,
+                message.split("Expected").size,
+                message
+            )
             expectedErrors.forEach { assertContains(message, it) }
         }
     }
@@ -65,7 +103,7 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
     fun assertResults(vararg expected: Any?) {
         val results = TestResult.fromCompilation(this).getAll()
         expected.forEachIndexed { index, value ->
-            assertEquals(value, results[index])
+            assertEquals(value, results[index], "assertion failed for index $index")
         }
     }
 
@@ -93,6 +131,9 @@ private fun compileWithProcessor(code: String, tempDir: File) {
         """
             import test.TestResult
             import br.com.zup.nimbus.annotation.AutoDeserialize
+            import br.com.zup.nimbus.annotation.Deserializer
+            import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+            import br.zup.com.nimbus.compose.deserialization.DeserializationContext
 
             $code
             """

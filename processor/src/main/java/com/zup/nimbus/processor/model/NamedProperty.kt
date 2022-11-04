@@ -37,5 +37,5 @@ internal class NamedProperty(
 
     override fun getAccessString(ref: String): String = """$ref.get("$alias")"""
 
-    override fun getContainsString(ref: String): String = """$ref.containsKey("$alias")"""
+    override fun getContainsString(ref: String): String = """$ref.hasValueForKey("$alias")"""
 }

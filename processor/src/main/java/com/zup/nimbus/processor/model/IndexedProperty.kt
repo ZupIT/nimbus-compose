@@ -34,5 +34,5 @@ internal class IndexedProperty(
 
     override fun getAccessString(ref: String): String = "$ref.at($index)"
 
-    override fun getContainsString(ref: String): String = "$ref.listSize() > $index"
+    override fun getContainsString(ref: String): String = "$ref.hasValueForIndex($index)"
 }
