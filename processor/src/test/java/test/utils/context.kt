@@ -109,6 +109,7 @@ class MockEvent(
     override val actions: List<ServerDrivenAction>,
     override val node: ServerDrivenNode = MockNode(),
 ): ServerDrivenEvent {
+    var currentStateValue: Any? = null
     override val name: String
         get() = DEFAULT_EVENT_NAME
     override val nimbus: Nimbus
@@ -124,7 +125,10 @@ class MockEvent(
     override fun run() {
         actions.forEach { it.handler(ActionTriggeredEvent(it, this, mutableSetOf())) }
     }
-    override fun run(implicitStateValue: Any?) = run()
+    override fun run(implicitStateValue: Any?) {
+        currentStateValue = implicitStateValue
+        run()
+    }
     override fun set(key: String, value: Any) {}
     override fun unset(key: String) {}
 }

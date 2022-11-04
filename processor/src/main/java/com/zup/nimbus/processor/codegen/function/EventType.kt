@@ -64,7 +64,7 @@ internal object EventType {
             "val %L = __%LEvent?.let { ev -> { %Lev.run(%L) } }",
             ctx.property.name,
             ctx.property.name,
-            if (numberOfParams == 0) "" else "$PARAM_NAME: Any -> ",
+            if (numberOfParams == 0) "" else "$PARAM_NAME: Any? -> ",
             if (numberOfParams == 0) "" else PARAM_NAME,
         )
     }
@@ -73,7 +73,7 @@ internal object EventType {
         ctx.builder.addStatement(
             "val %L = { %L__%LEvent.run(%L) }",
             ctx.property.name,
-            if (numberOfParams == 0) "" else "$PARAM_NAME: Any -> ",
+            if (numberOfParams == 0) "" else "$PARAM_NAME: Any? -> ",
             ctx.property.name,
             if (numberOfParams == 0) "" else PARAM_NAME,
         )

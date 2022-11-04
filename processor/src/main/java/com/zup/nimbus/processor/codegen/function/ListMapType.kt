@@ -35,11 +35,6 @@ internal object ListMapType {
         return "$propertiesRef.asMap${nullable}()${optional}.mapValues { $mapped }"
     }
 
-    private fun maybeNullItem(nullable: Boolean, itemRef: String, call: String): String {
-        return if (nullable) "if ($itemRef.isNull()) null else $call"
-        else call
-    }
-
     private fun createItemOfType(
         ctx: FunctionWriterContext,
         type: KSType,
@@ -54,11 +49,11 @@ internal object ListMapType {
             type.isList() -> getListCall(ctx, type, itemRef)
             type.isMap() -> getMapCall(ctx, type, itemRef)
             type.isFunctionType -> throw UnsupportedFunction("maps or arrays", ctx.property)
-            else -> maybeNullItem(
-                type.isMarkedNullable,
-                itemRef,
-                AutoDeserialized.getCallString(ctx, type, itemRef),
-            )
+            else -> {
+                val call = AutoDeserialized.getCallString(ctx, type, itemRef)
+                if (type.isMarkedNullable) "if ($itemRef.isNull()) null else $call"
+                else call
+            }
         }
     }
 

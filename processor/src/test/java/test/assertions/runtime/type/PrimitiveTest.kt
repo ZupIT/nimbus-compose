@@ -1,4 +1,4 @@
-package test.assertions
+package test.assertions.runtime.type
 
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -13,7 +13,7 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with primitive types are deserialized")
-class PrimitiveTypeTest {
+class PrimitiveTest {
     lateinit var compilation: CompilationResult
 
     @BeforeAll

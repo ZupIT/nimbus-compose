@@ -1,4 +1,4 @@
-package test.assertions
+package test.assertions.runtime.type
 
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
