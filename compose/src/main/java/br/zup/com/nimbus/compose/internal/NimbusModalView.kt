@@ -3,10 +3,8 @@ package br.zup.com.nimbus.compose.internal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
@@ -17,31 +15,23 @@ internal fun NimbusModalView(
         .fillMaxSize()
         .background(Color.White),
 ) {
-    var nimbusViewModelModalState: NimbusViewModelModalState by remember {
-        mutableStateOf(NimbusViewModelModalState.RootState)
-    }
-    val navHostHelper = NimbusNavHostHelper()
-    val modalParentHelper = ModalTransitionDialogHelper()
+    val nimbusViewModelModalState: NimbusViewModelModalState by
+        nimbusViewModel.nimbusViewModelModalState.collectAsState()
+
     if (nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
         val showModalState =
             (nimbusViewModelModalState as? NimbusViewModelModalState.OnShowModalModalState)
         ModalTransitionDialog(
-            modalTransitionDialogHelper = modalParentHelper,
             onDismissRequest = {
                 nimbusViewModel.setModalHiddenState()
             },
         ) {
-                NimbusNavHost(
-                    modalParentHelper = it,
-                    nimbusNavHostHelper = navHostHelper,
-                    viewRequest = showModalState?.viewRequest,
-                    modifier = modifier
-                )
+            NimbusNavHost(
+                modalParentHelper = it,
+                viewRequest = showModalState?.viewRequest,
+                modifier = modifier
+            )
         }
     }
 
-    CollectFlow(nimbusViewModel.nimbusViewModelModalState) {
-        if (it != nimbusViewModelModalState)
-            nimbusViewModelModalState = it
-    }
 }
