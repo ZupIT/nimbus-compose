@@ -1,5 +1,6 @@
 package br.zup.com.nimbus.compose.internal
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION_PARAM
@@ -30,6 +31,21 @@ internal fun NimbusViewModelNavigationState.handleNavigation(
         }
         else -> {
         }
+    }
+}
+
+@Composable
+internal fun NimbusViewModelModalState.HandleModalState(
+    onDismiss: () -> Unit,
+    onHideModal: () -> Unit,
+) {
+    if (this is NimbusViewModelModalState.OnShowModalModalState) {
+        NimbusModalView(
+            viewRequest = this.viewRequest,
+            onDismiss = onDismiss
+        )
+    } else if (this is NimbusViewModelModalState.OnHideModalState) {
+        onHideModal()
     }
 }
 

@@ -1,6 +1,8 @@
 package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -41,12 +43,6 @@ internal fun NimbusNavHost(
         navigationState.handleNavigation(navController)
     }
 
-    CollectFlow(nimbusViewModel.nimbusViewModelModalState) { navigationState ->
-        if(navigationState is NimbusViewModelModalState.OnHideModalState) {
-            modalParentHelper.triggerAnimatedClose()
-        }
-    }
-
     NimbusDisposableEffect(
         onCreate = {
             initNavHost(nimbusViewModel, viewRequest, json)
@@ -74,12 +70,36 @@ internal fun NimbusNavHost(
                         modalParentHelper.triggerAnimatedClose()
                     })
                     page.Compose()
-                    NimbusModalView(
-                        nimbusViewModel = nimbusViewModel
+
+                    val nimbusViewModelModalState: NimbusViewModelModalState by
+                    nimbusViewModel.nimbusViewModelModalState.collectAsState()
+                    nimbusViewModelModalState.HandleModalState(
+                        onDismiss = {
+                            nimbusViewModel.setModalHiddenState()
+                        },
+                        onHideModal = {
+                            modalParentHelper.triggerAnimatedClose()
+                        }
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HandleModalState(
+    nimbusViewModelModalState: NimbusViewModelModalState,
+    onDismiss: () -> Unit,
+    onHideModal: () -> Unit,
+) {
+    if (nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
+        NimbusModalView(
+            viewRequest = nimbusViewModelModalState.viewRequest,
+            onDismiss = onDismiss
+        )
+    } else if (nimbusViewModelModalState is NimbusViewModelModalState.OnHideModalState) {
+        onHideModal()
     }
 }
 
@@ -97,7 +117,7 @@ private fun configureNavHostHelper(
 private fun initNavHost(
     nimbusViewModel: NimbusViewModel,
     viewRequest: ViewRequest?,
-    json: String
+    json: String,
 ) {
 
     if (viewRequest != null)
@@ -112,10 +132,10 @@ private fun initNavHost(
  */
 internal class NimbusNavHostHelper {
 
-     var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
-     fun isFirstScreen(): Boolean  = nimbusNavHostExecutor?.isFirstScreen() ?: false
+    var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
+    fun isFirstScreen(): Boolean = nimbusNavHostExecutor?.isFirstScreen() ?: false
 
-     fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
+    fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
 
     interface NimbusNavHostExecutor {
         fun isFirstScreen(): Boolean

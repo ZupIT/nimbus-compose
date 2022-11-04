@@ -3,35 +3,27 @@ package br.zup.com.nimbus.compose.internal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.zup.nimbus.core.network.ViewRequest
 
 @Composable
 internal fun NimbusModalView(
-    nimbusViewModel: NimbusViewModel,
+    viewRequest: ViewRequest,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
         .fillMaxSize()
-        .background(Color.White),
+        .background(Color.White)
 ) {
-    val nimbusViewModelModalState: NimbusViewModelModalState by
-        nimbusViewModel.nimbusViewModelModalState.collectAsState()
 
-    if (nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
-        val showModalState =
-            (nimbusViewModelModalState as? NimbusViewModelModalState.OnShowModalModalState)
         ModalTransitionDialog(
-            onDismissRequest = {
-                nimbusViewModel.setModalHiddenState()
-            },
+            onDismissRequest = onDismiss,
         ) {
             NimbusNavHost(
                 modalParentHelper = it,
-                viewRequest = showModalState?.viewRequest,
+                viewRequest = viewRequest,
                 modifier = modifier
             )
         }
-    }
 
 }
