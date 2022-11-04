@@ -3,8 +3,11 @@ package br.zup.com.nimbus.compose.internal
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import br.zup.com.nimbus.compose.ErrorHandler
+import br.zup.com.nimbus.compose.LoadingHandler
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION_PARAM
 import br.zup.com.nimbus.compose.VIEW_URL
+import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
 
 internal fun NavBackStackEntry.getPageUrl() : String? {
@@ -46,6 +49,25 @@ internal fun NimbusViewModelModalState.HandleModalState(
         )
     } else if (this is NimbusViewModelModalState.OnHideModalState) {
         onHideModal()
+    }
+}
+
+@Composable
+internal fun NimbusPageState.HandleNimbusPageState(
+    loadingView: LoadingHandler,
+    errorView: ErrorHandler,
+) {
+    when (this) {
+        is NimbusPageState.PageStateOnLoading -> {
+            loadingView()
+        }
+        is NimbusPageState.PageStateOnError -> {
+            errorView(this.throwable,
+                this.retry)
+        }
+        is NimbusPageState.PageStateOnShowPage -> {
+            RenderedNode(flow = NodeFlow(this.node))
+        }
     }
 }
 
