@@ -39,10 +39,10 @@ private const val DIALOG_BUILD_TIME = 300L
 @Composable
 internal fun ModalTransitionDialog(
     onDismissRequest: () -> Unit,
-    dismissOnBackPress: Boolean = true,
     modifier: Modifier = Modifier
         .fillMaxSize()
         .background(Color.White),
+    dismissOnBackPress: Boolean = true,
     modalTransitionDialogHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     content: @Composable (ModalTransitionDialogHelper) -> Unit
 ) {
@@ -74,15 +74,13 @@ internal fun ModalTransitionDialog(
             dismissOnBackPress = dismissOnBackPress,
             dismissOnClickOutside = false)
     ) {
-//        Box(modifier = modifier) {
-            AnimatedModalBottomSheetTransition(
-                modifier = modifier,
-                visible = animateContentBackTrigger.value) {
-                modalTransitionDialogHelper.onCloseFlow = onCloseFlow
-                modalTransitionDialogHelper.coroutineScope = coroutineScope
-                content(modalTransitionDialogHelper)
-            }
-//        }
+        AnimatedModalBottomSheetTransition(
+            modifier = modifier,
+            visible = animateContentBackTrigger.value) {
+            modalTransitionDialogHelper.onCloseFlow = onCloseFlow
+            modalTransitionDialogHelper.coroutineScope = coroutineScope
+            content(modalTransitionDialogHelper)
+        }
     }
 }
 
