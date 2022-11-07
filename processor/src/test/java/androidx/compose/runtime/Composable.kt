@@ -6,4 +6,4 @@ package androidx.compose.runtime
     AnnotationTarget.TYPE_PARAMETER,
     AnnotationTarget.PROPERTY_GETTER,
 )
-annotation class Composable()
+annotation class Composable

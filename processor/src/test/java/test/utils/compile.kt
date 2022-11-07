@@ -1,5 +1,7 @@
 package test.utils
 
+import androidx.compose.runtime.Composable
+import br.zup.com.nimbus.compose.ComponentData
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.symbolProcessorProviders
@@ -72,25 +74,55 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
         event.run()
     }
 
+    private fun expectToThrow(expectedErrors: List<String>, block: () -> Unit) {
+        try {
+            block()
+            fail("Expected to throw")
+        } catch (e: InvocationTargetException) {
+            assertTrue(e.targetException is IllegalArgumentException)
+            val message = e.targetException?.message ?: ""
+            assertErrors(expectedErrors, message)
+        }
+    }
+
     fun runEventForActionHandlerCatching(
         functionName: String,
         properties: Map<String, Any?>,
         expectedErrors: List<String>,
     ) {
-        try {
+        expectToThrow(expectedErrors) {
             runEventForActionHandler(functionName, properties)
-            fail("Expected to throw")
-        } catch (e: InvocationTargetException) {
-            assertTrue(e.targetException is IllegalArgumentException)
-            val message = e.targetException?.message ?: ""
-            // asserts the number of "Expected" found in the string.
-            assertEquals(
-                expectedErrors.size + 1,
-                message.split("Expected").size,
-                message
-            )
-            expectedErrors.forEach { assertContains(message, it) }
         }
+    }
+
+    fun runOperation(
+        functionName: String,
+        arguments: List<Any?>,
+    ): Any {
+        val method = loadGeneratedClass()
+            .getDeclaredMethod(functionName, List::class.java)
+        return method.invoke(null, arguments)
+    }
+
+    fun runOperationCatching(
+        functionName: String,
+        arguments: List<Any?>,
+        expectedErrors: List<String>,
+    ) {
+        expectToThrow(expectedErrors) {
+            runOperation(functionName, arguments)
+        }
+    }
+
+    fun renderComponent(
+        functionName: String,
+        properties: Map<String, Any?>? = null,
+        children: @Composable () -> Unit = @Composable {},
+    ) {
+        val method = loadGeneratedClass()
+            .getDeclaredMethod(functionName, ComponentData::class.java)
+        val componentData = ComponentData(MockNode(properties), children)
+        method.invoke(null, componentData)
     }
 
     fun assertOk() = assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
@@ -134,6 +166,7 @@ private fun compileWithProcessor(code: String, tempDir: File) {
             import br.com.zup.nimbus.annotation.Deserializer
             import com.zup.nimbus.core.deserialization.AnyServerDrivenData
             import br.zup.com.nimbus.compose.deserialization.DeserializationContext
+            import androidx.compose.runtime.Composable
 
             $code
             """
