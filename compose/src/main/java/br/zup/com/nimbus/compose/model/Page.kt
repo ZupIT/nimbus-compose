@@ -41,7 +41,6 @@ data class Page(
 
     fun setContent(tree: RootNode) {
         change(NimbusPageState.PageStateOnShowPage(tree))
-
     }
 
     fun setLoading() {
@@ -73,6 +72,7 @@ data class Page(
 
 internal fun Page.removePagesAfter(pages: MutableList<Page>) {
     val index = pages.indexOf(this)
-    if (index < pages.lastIndex)
+    if (index < pages.lastIndex) {
         pages.subList(index + 1, pages.size).clear()
+    }
 }

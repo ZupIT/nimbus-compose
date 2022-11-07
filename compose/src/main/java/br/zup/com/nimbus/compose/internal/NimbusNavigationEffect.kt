@@ -19,11 +19,7 @@ internal fun NimbusNavigationEffect(
                 navController.nimbusPopTo(navigationState.url)
             }
             is NimbusViewModelNavigationState.Push -> {
-                navController.navigate(
-                    "$SHOW_VIEW?$VIEW_URL=${
-                        navigationState.url
-                    }"
-                )
+                navController.navigate("$SHOW_VIEW?$VIEW_URL=${navigationState.url}")
             }
             else -> {
             }

@@ -16,7 +16,6 @@ internal class PagesManager {
             return false
         }
         this.removeLastPage()
-
         return true
     }
 
@@ -24,14 +23,11 @@ internal class PagesManager {
         pages.clear()
     }
 
-    private fun removeLastPage() =
-        CoroutineScope(CoroutineDispatcherLib.backgroundPool).launch {
-            pages.removeLast()
-        }
+    private fun removeLastPage() = CoroutineScope(CoroutineDispatcherLib.backgroundPool).launch {
+        pages.removeLast()
+    }
 
     fun getPageCount() = pages.size
     fun getPageBy(url: String): Page? = pages.firstOrNull { it.id == url }
-
     fun removePagesAfter(page: Page) = page.removePagesAfter(pages)
-
 }

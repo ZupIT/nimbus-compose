@@ -23,7 +23,7 @@ import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -72,8 +72,8 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             val stateHistory = observer.awaitStateChanges(2)
-            assertEquals(NimbusPageState.PageStateOnLoading, stateHistory[0])
-            assertEquals(expectedState, stateHistory[1])
+            Assertions.assertEquals(NimbusPageState.PageStateOnLoading, stateHistory[0])
+            Assertions.assertEquals(expectedState, stateHistory[1])
             verify(exactly = 1) { pagesManager.add(any()) }
         }
 
@@ -100,6 +100,34 @@ class NimbusViewModelTest : BaseTest() {
                 observer, errorState, expectedLoading, expectedOnShowPage,
             )
             verify(exactly = 1) { pagesManager.add(any()) }
+        }
+    }
+
+    @DisplayName("When initFirstViewWithRequest with navigation params")
+    @Nested
+    inner class ViewWithRequestWithNavigationParams {
+        @DisplayName("Then should init the view with states")
+        @Test
+        fun testGivenAViewRequestWhenInitFirstViewShouldInitWithStates() = runTest {
+            val paramsViewModel = NimbusViewModel(nimbusConfig = nimbusConfig, pagesManager = PagesManager())
+
+            // Given
+            val viewRequest = ViewRequest(
+                url = RandomData.httpUrl(),
+                params = mapOf(
+                    "testParamState" to "test state param value"
+                )
+            )
+
+            //When
+            paramsViewModel.initFirstViewWithRequest(viewRequest)
+
+            val page = paramsViewModel.getPageBy("root")
+            Assertions.assertNotNull(page)
+            Assertions.assertNotNull(page!!.view.states)
+            Assertions.assertEquals(1, page.view.states!!.size)
+            Assertions.assertEquals(page.view.states!![0].id, "testParamState")
+            Assertions.assertEquals(page.view.states!![0].get(), "test state param value")
         }
     }
 
@@ -135,8 +163,8 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             val stateHistory = observer.awaitStateChanges(2)
-            assertEquals(expectedFirstEmission, stateHistory[0])
-            assertEquals(expectedSecondEmission, stateHistory[1])
+            Assertions.assertEquals(expectedFirstEmission, stateHistory[0])
+            Assertions.assertEquals(expectedSecondEmission, stateHistory[1])
             verify(exactly = 1) { pagesManager.add(any()) }
         }
 
@@ -178,8 +206,7 @@ class NimbusViewModelTest : BaseTest() {
             //Given
             val expectedFirstEmission = NimbusPageState.PageStateOnLoading
             val expectedSecondEmission = NimbusPageState.PageStateOnShowPage(serverDrivenNode)
-            val expectedNavigationFirstEmission = NimbusViewModelNavigationState.Push(
-                url)
+            val expectedNavigationFirstEmission = NimbusViewModelNavigationState.Push(url)
             val expectedNavigationSecondEmission = NimbusViewModelNavigationState.Pop
 
             //When
@@ -187,8 +214,8 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             val stateHistory = observer.awaitStateChanges(2)
-            assertEquals(expectedFirstEmission, stateHistory[0])
-            assertEquals(expectedSecondEmission, stateHistory[1])
+            Assertions.assertEquals(expectedFirstEmission, stateHistory[0])
+            Assertions.assertEquals(expectedSecondEmission, stateHistory[1])
 
             verify(exactly = 1) { pagesManager.add(any()) }
 
@@ -197,8 +224,8 @@ class NimbusViewModelTest : BaseTest() {
             serverDrivenNavigatorSlot.pop()
 
             viewModel.nimbusViewNavigationState.test {
-                assertEquals(expectedNavigationFirstEmission, awaitItem())
-                assertEquals(expectedNavigationSecondEmission, awaitItem())
+                Assertions.assertEquals(expectedNavigationFirstEmission, awaitItem())
+                Assertions.assertEquals(expectedNavigationSecondEmission, awaitItem())
             }
 
             verify(exactly = 2) { pagesManager.add(any()) }
@@ -221,10 +248,9 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             viewModel.nimbusViewModelModalState.test {
-                assertEquals(expectedModalState, awaitItem())
-                assertEquals(expectedSecondModalState, awaitItem())
+                Assertions.assertEquals(expectedModalState, awaitItem())
+                Assertions.assertEquals(expectedSecondModalState, awaitItem())
             }
-
         }
 
         @DisplayName("Then should post NimbusViewModelNavigationState.PopTo(url)")
@@ -243,9 +269,8 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             viewModel.nimbusViewNavigationState.test {
-                assertEquals(expectedState, awaitItem())
+                Assertions.assertEquals(expectedState, awaitItem())
             }
-
         }
     }
 
@@ -260,8 +285,8 @@ class NimbusViewModelTest : BaseTest() {
         //Simulates user clicking retry button on error screen
         secondItem.retry.invoke()
         val stateHistory = observer.awaitStateChanges(2)
-        assertEquals(expectedLoading, stateHistory[0])
-        assertEquals(expectedOnShowPage, stateHistory[1])
+        Assertions.assertEquals(expectedLoading, stateHistory[0])
+        Assertions.assertEquals(expectedOnShowPage, stateHistory[1])
     }
 
     @DisplayName("When receive a view model method call")
@@ -280,7 +305,7 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             verify(exactly = 1) { pagesManager.popLastPage() }
-            assertEquals(expectedPop , pop)
+            Assertions.assertEquals(expectedPop , pop)
         }
 
         @DisplayName("Then should return the page when getPageBy")
@@ -297,7 +322,7 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             verify(exactly = 1) { pagesManager.getPageBy(url) }
-            assertEquals(expectedPage , page)
+            Assertions.assertEquals(expectedPage , page)
         }
 
         @DisplayName("Then should return the page count when getPageCount")
@@ -313,13 +338,12 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             verify(exactly = 1) { pagesManager.getPageCount() }
-            assertEquals(expectedPageCount , result)
+            Assertions.assertEquals(expectedPageCount , result)
         }
 
         @DisplayName("Then should dispose the pages")
         @Test
         fun testGivenDisposeCallShouldDisposePages() = runTest {
-
             //Given
             every { pagesManager.removeAllPages() } just Runs
 
@@ -357,7 +381,7 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             viewModel.nimbusViewModelModalState.test {
-                assertEquals(expectedModalState, awaitItem())
+                Assertions.assertEquals(expectedModalState, awaitItem())
             }
         }
     }
@@ -367,9 +391,9 @@ class NimbusViewModelTest : BaseTest() {
         expectedPageError: NimbusPageState.PageStateOnError,
     ): NimbusPageState.PageStateOnError {
         val stateHistory = observer.awaitStateChanges(2)
-        assertEquals(NimbusPageState.PageStateOnLoading, stateHistory[0])
+        Assertions.assertEquals(NimbusPageState.PageStateOnLoading, stateHistory[0])
         val errorState = stateHistory[1] as NimbusPageState.PageStateOnError
-        assertEquals(expectedPageError.throwable, errorState.throwable)
+        Assertions.assertEquals(expectedPageError.throwable, errorState.throwable)
         return errorState
     }
 }
