@@ -43,6 +43,9 @@ internal fun NimbusNavHost(
         navigationState.handleNavigation(navController)
     }
 
+    val nimbusViewModelModalState: NimbusViewModelModalState by
+    nimbusViewModel.nimbusViewModelModalState.collectAsState()
+
     NimbusDisposableEffect(
         onCreate = {
             initNavHost(nimbusViewModel, viewRequest, json)
@@ -71,8 +74,6 @@ internal fun NimbusNavHost(
                     })
                     page.Compose()
 
-                    val nimbusViewModelModalState: NimbusViewModelModalState by
-                    nimbusViewModel.nimbusViewModelModalState.collectAsState()
                     nimbusViewModelModalState.HandleModalState(
                         onDismiss = {
                             nimbusViewModel.setModalHiddenState()
