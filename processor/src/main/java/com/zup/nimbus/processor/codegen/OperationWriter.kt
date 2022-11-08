@@ -78,6 +78,7 @@ internal object OperationWriter {
         properties: List<IndexedProperty>,
         builder: FunSpec.Builder,
         resolver: Resolver,
+        operationName: String,
     ): List<IndexedProperty> {
         val varArgIndex = properties.indexOfFirst { it.isVararg }
         val paramsAfterVararg = properties.size - varArgIndex - 1
@@ -88,9 +89,14 @@ internal object OperationWriter {
         else {
             builder.addCode(
                 """
-                |val $TREATED_ARGUMENTS_REF = $ARGUMENTS_REF.subList(0, $varArgIndex) +
+                |val $TREATED_ARGUMENTS_REF = try {
+                |  $ARGUMENTS_REF.subList(0, $varArgIndex) +
                 |        listOf($ARGUMENTS_REF.subList($varArgIndex, $ARGUMENTS_REF.size - $paramsAfterVararg)) +
                 |        $ARGUMENTS_REF.subList($ARGUMENTS_REF.size - $paramsAfterVararg, $ARGUMENTS_REF.size)
+                |} catch (e: IndexOutOfBoundsException) {
+                |  throw IllegalArgumentException("Could not deserialize arguments into Operation " +
+                |      "$operationName because it received an insufficient number of arguments")
+                |}
                 |""".trimMargin()
             )
             val treated = properties.toMutableList()
@@ -119,6 +125,7 @@ internal object OperationWriter {
             ParameterUtils.convertParametersIntoIndexedProperties(operation.parameters),
             fnBuilder,
             resolver,
+            operationName,
         )
         fnBuilder.addStatement(
             "val %L = AnyServerDrivenData(%L)",

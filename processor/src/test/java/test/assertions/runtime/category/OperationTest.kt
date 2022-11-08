@@ -10,7 +10,10 @@ import test.utils.CompilationResult
 import test.utils.Snippets
 import test.utils.compile
 import java.io.File
+import java.lang.reflect.InvocationTargetException
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 /**
  * We won't retest every scenario that has already been tested for actions
@@ -34,7 +37,10 @@ class OperationTest {
                 
                 enum class DateUnit { Minute, Hour, Day }
                 
-                class ContextDependent(val context: DeserializationContext)
+                class UnsupportedOperationData(
+                    val context: DeserializationContext,
+                    val content: @Composable () -> Unit,
+                )
                 
                 @Deserializer
                 fun deserializeCurrency(data: AnyServerDrivenData) =
@@ -75,9 +81,10 @@ class OperationTest {
                 fun joinStrings(vararg strings: String, separator: String) = strings.joinToString(separator)
                 
                 @AutoDeserialize
-                fun contextTest(wrapper: ContextDependent) = listOf(
-                    wrapper.context.component?.node?.id,
-                    wrapper.context.event?.scope?.name,
+                fun unsupported(data: UnsupportedOperationData) = listOf(
+                    data.context.component?.node?.id,
+                    data.context.event?.scope?.name,
+                    data.content(),
                 )
             """,
             tempDir,
@@ -144,7 +151,7 @@ class OperationTest {
             "it should fail")
     fun `should fail to format currency, invalid arguments`() {
         val arguments = listOf("BRL", true)
-        val errors = listOf("Expected a number for property \"[1]\", but found boolean")
+        val errors = listOf("Expected a number for property \"[1]\", but found Boolean")
         compilation.runOperationCatching("formatCurrency", arguments, errors)
     }
 
@@ -180,8 +187,8 @@ class OperationTest {
         therefore creating these bad error messages. I'm not sure yet how to fix this issue without
         over complicating the implementation. */
         val errors = listOf(
-            "Expected a number for property \"[0][2]\", but found boolean",
-            "Expected a number for property \"[0][4]\", but found string",
+            "Expected a number for property \"[0][2]\", but found Boolean",
+            "Expected a number for property \"[0][4]\", but found String",
             "Expected a number for property \"[0][6]\", but found null",
         )
         compilation.runOperationCatching("sum", arguments, errors)
@@ -189,43 +196,68 @@ class OperationTest {
 
     @Test
     @DisplayName("When we use the operation to sum numbers and no arguments are passed, it " +
-            "should fail")
-    fun `should fail to sum, no arguments`() {
-
+            "should sum zero")
+    fun `should sum zero`() {
+        assertEquals(0.0, compilation.runOperation("sum", emptyList()))
     }
 
     @Test
     @DisplayName("When we use the operation to add something to a date, it should work despite " +
             "the number of values")
     fun `should add to date`() {
-
+        fun addToDate(values: List<Any>, unit: String) =
+            compilation.runOperation("addToDate", listOf(10L) + values + unit)
+        assertEquals(360010.0, addToDate(listOf(1, 2, 3), "Minute"))
+        assertEquals(72000010.0, addToDate(listOf(20), "Hour"))
+        assertEquals(10.0, addToDate(listOf(), "Hour"))
+        assertEquals(777600010.0, addToDate(listOf(3, 6), "Day"))
     }
 
     @Test
-    @DisplayName("When we use the operation to add something to a date with the wrong number of " +
+    @DisplayName("When we use the operation to add something to a date with insufficient " +
             "arguments, it should fail")
     fun `should fail to add to date`() {
-
+        try {
+            compilation.runOperation("addToDate", emptyList())
+            fail("expected to throw")
+        } catch (e: InvocationTargetException) {
+            assertContains(e.targetException.message ?: "", "insufficient number of arguments")
+        }
     }
 
     @Test
     @DisplayName("When we use the operation to join strings, it should work despite the number " +
             "of strings to join")
     fun `should join strings`() {
-
+        fun joinStrings(values: List<Any>) =
+            compilation.runOperation("joinStrings", values + ", ")
+        assertEquals(
+            "35, hello world, 25.78, true, false, test",
+            joinStrings(listOf(35, "hello world", 25.78, true, false, "test")),
+        )
+        assertEquals("", joinStrings(emptyList()))
+        assertEquals("abc", joinStrings(listOf("abc")))
     }
 
     @Test
-    @DisplayName("When we use the operation to join strings with the wrong number of arguments, " +
+    @DisplayName("When we use the operation to join strings with insufficient arguments, " +
             "it should fail")
     fun `should fail to join strings`() {
-
+        try {
+            compilation.runOperation("joinStrings", emptyList())
+            fail("expected to throw")
+        } catch (e: InvocationTargetException) {
+            assertContains(e.targetException.message ?: "", "insufficient number of arguments")
+        }
     }
 
     @Test
-    @DisplayName("When an operation indirectly requests the deserialization context, it should " +
-            "receive an empty context")
-    fun `should inject empty context to operation`() {
-
+    @DisplayName("When an operation indirectly requests the deserialization context or the " +
+            "component's children, it should receive nulls")
+    fun `should inject empty context and empty component to operation`() {
+        assertEquals(
+            listOf(null, null, Unit),
+            compilation.runOperation("unsupported", emptyList()),
+        )
     }
 }
