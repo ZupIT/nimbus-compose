@@ -72,6 +72,7 @@ internal fun NimbusNavHost(
                     {
                         modalParentHelper.triggerAnimatedClose()
                     })
+
                     page.Compose()
 
                     nimbusViewModelModalState.HandleModalState(
