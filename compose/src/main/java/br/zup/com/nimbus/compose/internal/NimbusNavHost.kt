@@ -15,7 +15,7 @@ import br.zup.com.nimbus.compose.Nimbus
 import br.zup.com.nimbus.compose.NimbusTheme.nimbus
 import br.zup.com.nimbus.compose.ProvideNavigatorState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
-import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
+import br.zup.com.nimbus.compose.JSON
 import br.zup.com.nimbus.compose.VIEW_URL
 import com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
@@ -62,7 +62,7 @@ internal fun NimbusNavHost(
                 route = SHOW_VIEW_DESTINATION,
                 arguments = listOf(navArgument(VIEW_URL) {
                     type = NavType.StringType
-                    defaultValue = viewRequest?.url ?: VIEW_JSON_DESCRIPTION
+                    defaultValue = viewRequest?.url ?: JSON
                 })
             ) { backStackEntry ->
                 nimbusViewModel.getPageBy(
