@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
 import test.utils.CompilationResult
+import test.utils.DEFAULT_COMPONENT_ID
 import test.utils.MockAction
 import test.utils.MockEvent
 import test.utils.Snippets
@@ -171,7 +172,7 @@ class ComponentTest {
     @Test
     fun `should inject context into ContextAwareComponent`() {
         compilation.renderComponent("ContextAwareComponent")
-        compilation.assertResults("test")
+        compilation.assertResults(DEFAULT_COMPONENT_ID)
         assertTrue(printedByTextComponent.isEmpty())
         assertTrue(MockLogger.errors.isEmpty())
     }
@@ -185,7 +186,7 @@ class ComponentTest {
             isContentRendered = true
         }
         assertTrue(isContentRendered)
-        compilation.assertResults("test", null)
+        compilation.assertResults(DEFAULT_COMPONENT_ID, null)
         assertTrue(printedByTextComponent.isEmpty())
         assertTrue(MockLogger.errors.isEmpty())
     }
