@@ -8,11 +8,20 @@ import test.utils.compile
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayName("When we use @AutoDeserializable for functions inside other structures")
+@DisplayName("When we use @AutoDeserializable for functions inside classes or objects")
 class InnerFunctionTest {
-    private fun sourceCode(isObject: Boolean): String {
+    private fun sourceCode(isObject: Boolean, addCompanion: Boolean = false): String {
         val declaration = if(isObject) "object MyTest" else "class MyTest"
-        val instance = if(isObject) "MyTest" else "MyTest()"
+        val instance = if(isObject || addCompanion) "MyTest" else "MyTest()"
+
+        fun createContent(content: String) =
+            if (addCompanion) """
+                companion object {
+                    $content
+                }
+            """
+            else content
+
         return """
             import br.zup.com.nimbus.compose.ComponentData
             import test.utils.MockNode
@@ -21,15 +30,17 @@ class InnerFunctionTest {
             import com.zup.nimbus.core.ActionTriggeredEvent
             
             $declaration {
-                @AutoDeserialize
-                @Composable
-                fun Component(value: String) {}
-                
-                @AutoDeserialize
-                fun action(value: String) {}
-                
-                @AutoDeserialize
-                fun operation(value: String) = 0
+                ${createContent("""
+                    @AutoDeserialize
+                    @Composable
+                    fun Component(value: String) {}
+                    
+                    @AutoDeserialize
+                    fun action(value: String) {}
+                    
+                    @AutoDeserialize
+                    fun operation(value: String) = 0
+                """)}
             }
             
             /* the code below will make the compilation fail in case the functions above annotated
@@ -58,5 +69,12 @@ class InnerFunctionTest {
     @Test
     fun `should declare components as extensions of class MyTest`(@TempDir tempDir: File) {
         compile(sourceCode(false), tempDir).assertOk()
+    }
+
+    @Test
+    fun `should declare components as extensions of the companion object of the class MyTest`(
+        @TempDir tempDir: File,
+    ) {
+        compile(sourceCode(isObject = false, addCompanion = true), tempDir).assertOk()
     }
 }
