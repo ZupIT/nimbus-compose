@@ -32,7 +32,7 @@ class OperationTest {
                 import java.text.NumberFormat
                 import java.util.Currency
                 
-                ${Snippets.document}
+                ${Snippets.documentAndDocumentType}
                 ${Snippets.myDate}
                 
                 enum class DateUnit { Minute, Hour, Day }

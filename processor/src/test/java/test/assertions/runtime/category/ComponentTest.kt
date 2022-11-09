@@ -41,7 +41,7 @@ class ComponentTest {
         compilation = compile(
             """
                 ${Snippets.myDate}
-                ${Snippets.document}
+                ${Snippets.documentAndDocumentType}
                 
                 class MyComponentData(
                   val context: DeserializationContext,

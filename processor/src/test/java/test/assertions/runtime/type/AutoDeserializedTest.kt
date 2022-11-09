@@ -98,9 +98,11 @@ class AutoDeserializedTest {
     fun setup(@TempDir tempDir: File) {
         compilation = compile(
             """
+                import com.zup.nimbus.core.ServerDrivenState
+                
                 // Testing nested and recursive auto-deserialized structures
                 
-                ${Snippets.document}
+                ${Snippets.documentAndDocumentType}
                 ${Snippets.myDate}
                 
                 enum class Gender { Male, Female, Other }
@@ -147,6 +149,11 @@ class AutoDeserializedTest {
                 @AutoDeserialize
                 fun cyclic(a: A) {
                   TestResult.add(a)
+                }
+                
+                @AutoDeserialize
+                fun externalDependency(state: ServerDrivenState) {
+                  TestResult.add(state.id, state.get())
                 }
             """,
             tempDir,
@@ -319,5 +326,14 @@ class AutoDeserializedTest {
         val b1 = compilation.instanceOf("B", listOf(c1))
         val a1 = compilation.instanceOf("A", listOf(b1))
         compilation.assertResults(a1)
+    }
+
+    @Test
+    @DisplayName("When we use the auto-deserialization on an external class (outside the current " +
+            "module), it should deserialize")
+    fun `should deserialize external class`() {
+        val properties = mapOf("state" to mapOf("id" to "myState", "value" to 10))
+        compilation.runEventForActionHandler("externalDependency", properties)
+        compilation.assertResults("myState", 10)
     }
 }

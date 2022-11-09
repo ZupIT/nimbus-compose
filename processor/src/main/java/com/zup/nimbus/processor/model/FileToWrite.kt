@@ -5,5 +5,5 @@ import com.squareup.kotlinpoet.FileSpec
 
 internal class FileToWrite(
     val spec: FileSpec,
-    val source: KSFile,
+    val source: KSFile?,
 )

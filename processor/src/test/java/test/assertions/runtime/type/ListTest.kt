@@ -23,7 +23,7 @@ class ListTest {
     fun setup(@TempDir tempDir: File) {
         compilation = compile(
             """
-                ${Snippets.document}
+                ${Snippets.documentAndDocumentType}
                 ${Snippets.myDate}
                 
                 @AutoDeserialize

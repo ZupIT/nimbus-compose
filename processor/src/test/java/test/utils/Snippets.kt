@@ -1,17 +1,24 @@
 package test.utils
 
 object Snippets {
-    const val document = """
+    const val document = """        
+        data class Document(
+          val type: DocumentType,
+          val value: String,
+        )
+    """
+
+    const val documentType = """
         enum class DocumentType {
           CPF,
           RG,
           CNH,
         }
-        
-        data class Document(
-          val type: DocumentType,
-          val value: String,
-        )
+    """
+
+    const val documentAndDocumentType = """
+        $documentType
+        $document
     """
 
     const val myDate = """

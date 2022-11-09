@@ -23,7 +23,7 @@ class MapTest {
     fun setup(@TempDir tempDir: File) {
         compilation = compile(
             """
-                ${Snippets.document}
+                ${Snippets.documentAndDocumentType}
                 ${Snippets.myDate}
                 
                 @AutoDeserialize
@@ -191,6 +191,8 @@ class MapTest {
                 "Expected a number for property \"doubleMap.key\", but found null",
                 "Expected a boolean for property \"booleanMap.key\", but found null",
                 "Expected CPF, RG, CNH for property \"enumMap.key\", but found null",
+                "Expected CPF, RG, CNH for property \"classMap.key.type\", but found null",
+                "Expected a string for property \"classMap.key.value\", but found null",
                 "Expected an array for property \"listMap.key2\", but found null",
                 "Expected an object for property \"stringMapMapMap.key\", but found null",
                 "Expected a string for property \"stringMapMapMap2.key.key.key\", but found null"

@@ -55,9 +55,14 @@ internal object EntityWriter {
         }
 
         fun writeClassDeserializer(declaration: KSClassDeclaration): FunctionWriterResult {
-            val constructor = declaration.primaryConstructor ?: throw UnsupportedDeserialization(
-                type, "this class doesn't have a public constructor"
-            )
+            val constructor = if (declaration.primaryConstructor?.parameters?.isEmpty() == false) {
+                declaration.primaryConstructor!!
+            } else {
+                throw UnsupportedDeserialization(
+                    type,
+                    "this class doesn't have a primary constructor that accepts parameters",
+                )
+            }
             val properties = ParameterUtils.convertParametersIntoNamedProperties(constructor.parameters)
             val className = ClassName(
                 declaration.packageName.asString(),

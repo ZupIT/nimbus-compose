@@ -20,6 +20,7 @@ internal object FileWriter {
     ): List<FileToWrite> {
         val allTypesToDeserialize = mutableSetOf<KSType>()
         val files = mutableMapOf<KSFile, FileSpec.Builder>()
+        val sourceLessFiles = mutableListOf<FileSpec.Builder>()
 
         fun writeDeserializableFunction(fn: DeserializableFunction): FunctionWriterResult {
             return when (fn.category) {
@@ -32,14 +33,17 @@ internal object FileWriter {
             }
         }
 
+        fun createFile(declaration: KSDeclaration) = FileSpec.builder(
+            declaration.packageName.asString(),
+            declaration.simpleName.asString(),
+        )
+
         fun getFileBuilder(declaration: KSDeclaration): FileSpec.Builder {
-            val declaredAt = declaration.containingFile ?: throw NoSourceFile(declaration)
+            val declaredAt = declaration.containingFile
             return files[declaredAt] ?: run {
-                val newFile = FileSpec.builder(
-                    declaration.packageName.asString(),
-                    declaration.simpleName.asString(),
-                )
-                files[declaredAt] = newFile
+                val newFile = createFile(declaration)
+                if (declaredAt == null) sourceLessFiles.add(newFile)
+                else files[declaredAt] = newFile
                 newFile
             }
         }
@@ -70,7 +74,8 @@ internal object FileWriter {
         fun main(): List<FileToWrite> {
             writeDeserializableFunctions()
             writeEntities()
-            return files.map { FileToWrite(spec = it.value.build(), source = it.key) }
+            return files.map { FileToWrite(spec = it.value.build(), source = it.key) } +
+                    sourceLessFiles.map { FileToWrite(spec = it.build(), source = null) }
         }
 
         return main()

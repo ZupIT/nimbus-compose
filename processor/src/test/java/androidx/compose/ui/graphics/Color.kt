@@ -1,3 +1,3 @@
 package androidx.compose.ui.graphics
 
-enum class Color { Red }
+enum class Color { Red, Black }

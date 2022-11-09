@@ -17,11 +17,14 @@ class Processor(private val environment: SymbolProcessorEnvironment): SymbolProc
     }
 
     private fun writeFile(file: FileToWrite, dependencies:  Array<KSFile>) {
+        val allDependencies = if (file.source == null) dependencies else dependencies + file.source
+        val packageName = file.source?.packageName?.asString() ?: file.spec.packageName
+        val fileName = file.source?.fileName?.replace(extensionRegex, ".generated") ?:
+            "${file.spec.name}.generated"
         environment.codeGenerator.createNewFile(
-            @Suppress("SpreadOperator")
-            Dependencies(false, *(dependencies + file.source)),
-            file.source.packageName.asString(),
-            file.source.fileName.replace(extensionRegex, ".generated"),
+            Dependencies(false, *allDependencies),
+            packageName,
+            fileName,
         ).write(file.spec.toString().toByteArray())
     }
 
