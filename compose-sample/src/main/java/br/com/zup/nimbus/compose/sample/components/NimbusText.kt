@@ -14,7 +14,7 @@ import br.com.zup.nimbus.annotation.Root
 import br.zup.com.nimbus.compose.deserialization.DeserializationContext
 
 @Composable
-@AutoDeserialize
+//@AutoDeserialize
 fun NimbusText(text: String) {
     Text(text = text)
 }
@@ -30,7 +30,7 @@ interface TestInterface {
 typealias TextInputEvent = ((value: String) -> Unit)?
 
 @Composable
-@AutoDeserialize
+//@AutoDeserialize
 @Suppress("FunctionNaming", "LongParameterList")
 fun ComprehensiveTest(
     // primitive, required

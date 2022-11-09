@@ -6,7 +6,7 @@ import br.com.zup.nimbus.annotation.AutoDeserialize
 import com.zup.nimbus.core.ServerDrivenState
 import java.util.Date
 
-@AutoDeserialize
+//@AutoDeserialize
 fun sum(a: Double, b: String, vararg other: List<AdaptiveSize?>, c: Double): Double {
     return 0.0
 }

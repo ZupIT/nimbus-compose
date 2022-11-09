@@ -36,8 +36,6 @@ class Processor(private val environment: SymbolProcessorEnvironment): SymbolProc
         val dependencies = customDeserializers.mapNotNull { it.containingFile }.toTypedArray()
         val filesToWrite = FileWriter.write(functionsToDeserialize, customDeserializers, resolver)
         filesToWrite.forEach { writeFile(it, dependencies) }
-        return (functionsToDeserialize.map { it.declaration } + customDeserializers)
-            .filterNot { it.validate() }
-            .toList()
+        return emptyList()
     }
 }

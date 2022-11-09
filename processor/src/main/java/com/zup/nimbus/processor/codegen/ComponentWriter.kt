@@ -1,7 +1,11 @@
 package com.zup.nimbus.processor.codegen
 
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
@@ -24,6 +28,7 @@ internal object ComponentWriter {
         component: KSFunctionDeclaration,
         deserializers: List<KSFunctionDeclaration>,
     ): FunctionWriterResult {
+        val parent = component.parent
         val componentName = component.simpleName.asString()
         val fnBuilder = FunSpec.builder(componentName)
             .addAnnotation(ClassNames.Composable)
@@ -34,6 +39,11 @@ internal object ComponentWriter {
                 PROPERTIES_REF,
                 COMPONENT_REF,
             )
+        // makes this function an extension of the parent element if the parent is a class or an
+        // object
+        if (parent is KSClassDeclaration) {
+            fnBuilder.receiver(parent.asStarProjectedType().toTypeName())
+        }
         val properties = ParameterUtils.convertParametersIntoNamedProperties(component.parameters)
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(

@@ -14,6 +14,7 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
 import br.com.zup.nimbus.annotation.Root
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
@@ -111,6 +112,7 @@ internal object OperationWriter {
         resolver: Resolver,
     ): FunctionWriterResult {
         validate(operation)
+        val parent = operation.parent
         val operationName = operation.simpleName.asString()
         val fnBuilder = FunSpec.builder(operationName)
             .addParameter(
@@ -121,6 +123,11 @@ internal object OperationWriter {
             )
             .returns(operation.returnType!!.toTypeName())
             .addStatement("val %L = DeserializationContext()", CONTEXT_REF)
+        // makes this function an extension of the parent element if the parent is a class or an
+        // object
+        if (parent is KSClassDeclaration) {
+            fnBuilder.receiver(parent.asStarProjectedType().toTypeName())
+        }
         val properties = treatVarArgs(
             ParameterUtils.convertParametersIntoIndexedProperties(operation.parameters),
             fnBuilder,

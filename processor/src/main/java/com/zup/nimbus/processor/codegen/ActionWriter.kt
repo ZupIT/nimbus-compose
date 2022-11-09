@@ -1,7 +1,9 @@
 package com.zup.nimbus.processor.codegen
 
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
@@ -29,6 +31,7 @@ internal object ActionWriter {
         deserializers: List<KSFunctionDeclaration>,
     ): FunctionWriterResult {
         validate(action)
+        val parent = action.parent
         val actionName = action.simpleName.asString()
         val fnBuilder = FunSpec.builder(actionName)
             .addParameter(EVENT_REF, ClassNames.ActionTriggeredEvent)
@@ -41,6 +44,11 @@ internal object ActionWriter {
                 PROPERTIES_REF,
                 EVENT_REF,
             )
+        // makes this function an extension of the parent element if the parent is a class or an
+        // object
+        if (parent is KSClassDeclaration) {
+            fnBuilder.receiver(parent.asStarProjectedType().toTypeName())
+        }
         val properties = ParameterUtils.convertParametersIntoNamedProperties(action.parameters)
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
         fnBuilder.addCode(

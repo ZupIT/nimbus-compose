@@ -8,7 +8,7 @@ import br.com.zup.nimbus.annotation.AutoDeserialize
 import br.com.zup.nimbus.annotation.Root
 
 @Composable
-@AutoDeserialize
+//@AutoDeserialize
 fun NimbusButton(text: String, @Root style: Box?, onPress: () -> Unit) {
     Button(content = { Text(text) }, onClick = { onPress() })
 }
