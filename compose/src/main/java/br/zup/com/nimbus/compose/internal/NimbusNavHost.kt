@@ -3,6 +3,8 @@ package br.zup.com.nimbus.compose.internal
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -16,7 +18,10 @@ import br.zup.com.nimbus.compose.NimbusTheme.nimbus
 import br.zup.com.nimbus.compose.ProvideNavigatorState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.JSON
+import br.zup.com.nimbus.compose.NimbusTheme
 import br.zup.com.nimbus.compose.VIEW_URL
+import br.zup.com.nimbus.compose.model.NimbusPageState
+import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 
@@ -65,43 +70,28 @@ internal fun NimbusNavHost(
                     defaultValue = viewRequest?.url ?: JSON
                 })
             ) { backStackEntry ->
-                nimbusViewModel.getPageBy(
-                    backStackEntry.getPageUrl()
-                )?.let { page ->
-                    NimbusBackHandler(onDismiss =
-                    {
+                NimbusBackHandler(onDismiss =
+                {
+                    modalParentHelper.triggerAnimatedClose()
+                })
+
+                nimbusViewModelModalState.HandleModalState(
+                    onDismiss = {
+                        nimbusViewModel.setModalHiddenState()
+                    },
+                    onHideModal = {
                         modalParentHelper.triggerAnimatedClose()
-                    })
+                    }
+                )
 
-                    page.Compose()
+                val page = nimbusViewModel.getPageBy(
+                    backStackEntry.getPageUrl()
+                )
 
-                    nimbusViewModelModalState.HandleModalState(
-                        onDismiss = {
-                            nimbusViewModel.setModalHiddenState()
-                        },
-                        onHideModal = {
-                            modalParentHelper.triggerAnimatedClose()
-                        }
-                    )
-                }
+                val pageRemember by remember(page?.id) { mutableStateOf(page) }
+                pageRemember?.Compose()
             }
         }
-    }
-}
-
-@Composable
-private fun HandleModalState(
-    nimbusViewModelModalState: NimbusViewModelModalState,
-    onDismiss: () -> Unit,
-    onHideModal: () -> Unit,
-) {
-    if (nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
-        NimbusModalView(
-            viewRequest = nimbusViewModelModalState.viewRequest,
-            onDismiss = onDismiss
-        )
-    } else if (nimbusViewModelModalState is NimbusViewModelModalState.OnHideModalState) {
-        onHideModal()
     }
 }
 
