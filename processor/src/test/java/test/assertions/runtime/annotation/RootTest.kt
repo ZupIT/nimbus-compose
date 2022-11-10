@@ -7,18 +7,17 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
-import test.utils.compile
+import test.BaseTest
+import test.compiler.CompilationResult
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @Root on a parameter")
-class RootTest {
-    lateinit var compilation: CompilationResult
-
+class RootTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 import br.com.zup.nimbus.annotation.Root
                 import br.com.zup.nimbus.annotation.Ignore
@@ -104,14 +103,8 @@ class RootTest {
                     TestResult.add(person?.name, person?.age, person?.birthDate)
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     private fun createMargin(top: Double?, bottom: Double?) =

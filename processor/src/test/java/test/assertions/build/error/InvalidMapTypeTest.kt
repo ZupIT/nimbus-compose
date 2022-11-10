@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidMapTypeTest {
+import test.BaseTest
+
+class InvalidMapTypeTest: BaseTest() {
 }

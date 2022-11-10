@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidUseOfRootTest {
+import test.BaseTest
+
+class InvalidUseOfRootTest: BaseTest() {
 }

@@ -6,15 +6,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.Snippets
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with auto deserialized types are deserialized")
-class AutoDeserializedTest {
-    private lateinit var compilation: CompilationResult
+class AutoDeserializedTest: BaseTest() {
     private val jessica = mapOf(
         "name" to mapOf(
             "title" to "Ms",
@@ -95,8 +95,8 @@ class AutoDeserializedTest {
     )
 
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 import com.zup.nimbus.core.ServerDrivenState
                 
@@ -156,14 +156,8 @@ class AutoDeserializedTest {
                   TestResult.add(state.id, state.get())
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     private fun myDate(value: Long) = compilation.instanceOf("MyDate", value)

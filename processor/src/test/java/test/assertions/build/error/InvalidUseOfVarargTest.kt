@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidUseOfVarargTest {
+import test.BaseTest
+
+class InvalidUseOfVarargTest: BaseTest() {
 }

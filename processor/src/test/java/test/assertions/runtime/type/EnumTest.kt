@@ -6,18 +6,17 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
-import test.utils.compile
+import test.BaseTest
+import test.compiler.CompilationResult
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with enum types are deserialized")
-class EnumTest {
-    lateinit var compilation: CompilationResult
-
+class EnumTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 enum class ProductType {
                   Tv,
@@ -43,14 +42,8 @@ class EnumTest {
                     TestResult.add(product, client)
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     @DisplayName("When both properties are given with the same case as the original enums, it " +

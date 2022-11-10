@@ -6,23 +6,23 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.DEFAULT_ACTION_NAME
 import test.utils.Snippets
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with custom deserialized types are deserialized")
-class CustomDeserializedTest {
-    private lateinit var compilation: CompilationResult
+class CustomDeserializedTest: BaseTest() {
     private val myDateValue = 30L
     private val custom1Value = "custom1"
     private val custom2Value = "custom2"
 
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 ${Snippets.myDate}
                 
@@ -85,14 +85,8 @@ class CustomDeserializedTest {
                   TestResult.add(myDate, custom1, custom2, custom3)
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     private fun myDate(value: Long = myDateValue) = compilation.instanceOf("MyDate", value)

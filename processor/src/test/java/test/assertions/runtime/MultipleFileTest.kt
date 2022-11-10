@@ -9,18 +9,17 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.Snippets
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 import java.util.Date
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we create multiple files with deserialization capability")
-class MultipleFileTest {
-    private lateinit var compilation: CompilationResult
-
+class MultipleFileTest: BaseTest() {
     private val component = "br/com/myApp/components/component.kt" to """
         package br.com.myApp.components
         
@@ -102,18 +101,11 @@ class MultipleFileTest {
     """
 
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
+    fun setup(compiler: TestCompiler) {
         val sourceMap = mapOf(component, action, operation, person, document, documentType,
             gender, dateDeserializer)
-        compilation = compile(sourceMap, tempDir)
+        compilation = compiler.compile(sourceMap)
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
-        printedByTextComponent.clear()
-        MockLogger.clear()
     }
 
     private fun className(sourceCode: Pair<String, String>) = sourceCode.first

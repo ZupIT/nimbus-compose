@@ -1,12 +1,16 @@
-package test.utils
+package test.compiler
 
 import androidx.compose.runtime.Composable
 import br.zup.com.nimbus.compose.ComponentData
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.zup.nimbus.core.ActionTriggeredEvent
 import test.TestResult
+import test.utils.MockAction
+import test.utils.MockEvent
+import test.utils.MockNode
+import test.utils.assertErrors
 import java.lang.reflect.InvocationTargetException
-import java.util.Locale
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -129,6 +133,13 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
     ) = renderComponent(functionName, properties, DEFAULT_SOURCE_FILE, children)
 
     fun assertOk() = assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+
+    fun assertProcessorError(vararg expectedMessages: String) {
+        assertEquals(KotlinCompilation.ExitCode.INTERNAL_ERROR, result.exitCode)
+        expectedMessages.forEach {
+            assertContains(result.messages, it)
+        }
+    }
 
     fun clearResults() {
         val results = TestResult.fromCompilation(this)

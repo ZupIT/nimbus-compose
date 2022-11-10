@@ -6,22 +6,22 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.MockAction
 import test.utils.MockEvent
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with event functions are deserialized")
-class EventTest {
-    lateinit var compilation: CompilationResult
+class EventTest: BaseTest() {
     var calls = mutableMapOf<String, Any?>()
 
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 class MoreEvents(
                   val onSuccess: (data: Map<String, Any>) -> Unit,
@@ -50,13 +50,13 @@ class EventTest {
                     onChange(value)
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
     }
 
     @BeforeEach
-    fun clear() {
+    override fun clear() {
+        super.clear()
         calls = mutableMapOf()
     }
 

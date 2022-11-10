@@ -6,11 +6,11 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.DEFAULT_EVENT_NAME
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
-import kotlin.test.assertEquals
 
 /**
  * Most scenarios for action deserialization have already been tested by
@@ -19,12 +19,10 @@ import kotlin.test.assertEquals
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When an action is deserialized")
-class ActionTest {
-    lateinit var compilation: CompilationResult
-
+class ActionTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 class ActionData(
                     val context: DeserializationContext,
@@ -40,14 +38,8 @@ class ActionTest {
                     )
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     @Test

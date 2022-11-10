@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidUseOfContextTest {
+import test.BaseTest
+
+class InvalidUseOfContextTest: BaseTest() {
 }

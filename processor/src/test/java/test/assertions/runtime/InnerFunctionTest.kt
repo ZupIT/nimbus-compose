@@ -4,12 +4,13 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.compile
+import test.BaseTest
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @AutoDeserializable for functions inside classes or objects")
-class InnerFunctionTest {
+class InnerFunctionTest: BaseTest() {
     private fun sourceCode(isObject: Boolean, addCompanion: Boolean = false): String {
         val declaration = if(isObject) "object MyTest" else "class MyTest"
         val instance = if(isObject || addCompanion) "MyTest" else "MyTest()"
@@ -62,19 +63,19 @@ class InnerFunctionTest {
     }
 
     @Test
-    fun `should declare components as extensions of object MyTest`(@TempDir tempDir: File) {
-        compile(sourceCode(true), tempDir).assertOk()
+    fun `should declare components as extensions of object MyTest`(compiler: TestCompiler) {
+        compiler.compile(sourceCode(true)).assertOk()
     }
 
     @Test
-    fun `should declare components as extensions of class MyTest`(@TempDir tempDir: File) {
-        compile(sourceCode(false), tempDir).assertOk()
+    fun `should declare components as extensions of class MyTest`(compiler: TestCompiler) {
+        compiler.compile(sourceCode(false)).assertOk()
     }
 
     @Test
     fun `should declare components as extensions of the companion object of the class MyTest`(
-        @TempDir tempDir: File,
+        compiler: TestCompiler,
     ) {
-        compile(sourceCode(isObject = false, addCompanion = true), tempDir).assertOk()
+        compiler.compile(sourceCode(isObject = false, addCompanion = true)).assertOk()
     }
 }

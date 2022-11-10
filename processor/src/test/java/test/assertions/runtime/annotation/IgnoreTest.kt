@@ -6,18 +6,17 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
-import test.utils.compile
+import test.BaseTest
+import test.compiler.CompilationResult
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @Ignore on a parameter")
-class IgnoreTest {
-    lateinit var compilation: CompilationResult
-
+class IgnoreTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 import br.com.zup.nimbus.annotation.Ignore
                 import br.com.zup.nimbus.annotation.Alias
@@ -48,14 +47,8 @@ class IgnoreTest {
                     )
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     @Test

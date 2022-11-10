@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidUseOfComposableTest {
+import test.BaseTest
+
+class InvalidUseOfComposableTest: BaseTest() {
 }

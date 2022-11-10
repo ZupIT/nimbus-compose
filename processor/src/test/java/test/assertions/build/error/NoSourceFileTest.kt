@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class NoSourceFileTest {
+import test.BaseTest
+
+class NoSourceFileTest: BaseTest() {
 }

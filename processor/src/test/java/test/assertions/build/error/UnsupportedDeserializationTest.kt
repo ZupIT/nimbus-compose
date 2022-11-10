@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class UnsupportedDeserializationTest {
+import test.BaseTest
+
+class UnsupportedDeserializationTest: BaseTest() {
 }

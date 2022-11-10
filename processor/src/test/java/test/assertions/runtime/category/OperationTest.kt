@@ -6,9 +6,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.Snippets
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 import kotlin.test.assertContains
@@ -22,12 +23,10 @@ import kotlin.test.fail
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When an operation is deserialized")
-class OperationTest {
-    lateinit var compilation: CompilationResult
-
+class OperationTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 import java.text.NumberFormat
                 import java.util.Currency
@@ -87,14 +86,8 @@ class OperationTest {
                     data.content(),
                 )
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     @Test

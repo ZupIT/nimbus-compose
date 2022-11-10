@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidDeserializerParametersTest {
+import test.BaseTest
+
+class InvalidDeserializerParametersTest: BaseTest() {
 }

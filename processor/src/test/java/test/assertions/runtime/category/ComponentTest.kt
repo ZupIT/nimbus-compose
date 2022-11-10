@@ -10,13 +10,14 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.DEFAULT_COMPONENT_ID
 import test.utils.MockAction
 import test.utils.MockEvent
 import test.utils.Snippets
 import test.utils.assertErrors
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -31,14 +32,13 @@ private val errorColor = Color.Red
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When a component is deserialized")
-class ComponentTest {
-    lateinit var compilation: CompilationResult
+class ComponentTest: BaseTest() {
     private val cpfValue = "01444752174"
     private val myDateValue = 15L
 
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 ${Snippets.myDate}
                 ${Snippets.documentAndDocumentType}
@@ -82,16 +82,8 @@ class ComponentTest {
                     TestResult.add(data.context.component?.node?.id, data.context.event?.scope?.name)
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
-        MockLogger.clear()
-        printedByTextComponent.clear()
     }
 
     private fun myDate(value: Long = myDateValue) = compilation.instanceOf("MyDate", value)

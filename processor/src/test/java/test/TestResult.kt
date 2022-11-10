@@ -1,6 +1,6 @@
 package test
 
-import test.utils.CompilationResult
+import test.compiler.CompilationResult
 
 interface GenericTestResult {
     fun get(): Any?

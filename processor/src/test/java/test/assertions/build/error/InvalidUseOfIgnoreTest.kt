@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidUseOfIgnoreTest {
+import test.BaseTest
+
+class InvalidUseOfIgnoreTest: BaseTest() {
 }

@@ -1,24 +1,18 @@
 package test.assertions.runtime.annotation
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
-import test.utils.DEFAULT_EVENT_NAME
-import test.utils.compile
-import java.io.File
+import test.BaseTest
+import test.compiler.TestCompiler
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @Alias on a parameter")
-class AliasTest {
-    lateinit var compilation: CompilationResult
-
+class AliasTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 import br.com.zup.nimbus.annotation.Alias
                 import br.com.zup.nimbus.annotation.Root
@@ -48,14 +42,8 @@ class AliasTest {
                     )
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     @Test

@@ -7,18 +7,17 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
-import test.utils.compile
+import test.BaseTest
+import test.compiler.CompilationResult
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with primitive types are deserialized")
-class PrimitiveTest {
-    lateinit var compilation: CompilationResult
-
+class PrimitiveTest: BaseTest() {
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 @AutoDeserialize
                 fun required(
@@ -46,14 +45,8 @@ class PrimitiveTest {
                     TestResult.add(name, age, birthYear, isUnderAge, balance, schoolGrade, metadata)
                 }
             """,
-            tempDir,
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     @Nested
@@ -99,7 +92,7 @@ class PrimitiveTest {
                 "Expected a string for property \"name\", but found null",
                 "Expected a boolean for property \"isUnderAge\", but found null",
                 "Expected a number for property \"balance\", but found null",
-                "Expected a number for property \"schoolGrade\", but found null",
+                //"Expected a number for property \"schoolGrade\", but found null",
             )
             compilation.runEventForActionHandlerCatching("required", properties, errors)
         }

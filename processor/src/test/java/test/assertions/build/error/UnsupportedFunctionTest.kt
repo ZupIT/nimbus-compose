@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class UnsupportedFunctionTest {
+import test.BaseTest
+
+class UnsupportedFunctionTest: BaseTest() {
 }

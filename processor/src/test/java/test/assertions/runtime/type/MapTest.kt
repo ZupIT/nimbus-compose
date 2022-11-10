@@ -7,21 +7,21 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.utils.CompilationResult
+import test.BaseTest
+import test.compiler.CompilationResult
 import test.utils.Snippets
-import test.utils.compile
+import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with map types are deserialized")
-class MapTest {
-    private lateinit var compilation: CompilationResult
+class MapTest: BaseTest() {
     private val cpfValue = "01444752174"
     private val myDateValue = 15L
 
     @BeforeAll
-    fun setup(@TempDir tempDir: File) {
-        compilation = compile(
+    fun setup(compiler: TestCompiler) {
+        compilation = compiler.compile(
             """
                 ${Snippets.documentAndDocumentType}
                 ${Snippets.myDate}
@@ -89,14 +89,9 @@ class MapTest {
                         stringMapMapMap, stringMapMapMap2)
                 }
             """,
-            tempDir,
+            
         )
         compilation.assertOk()
-    }
-
-    @BeforeEach
-    fun clear() {
-        compilation.clearResults()
     }
 
     private fun myDate(value: Long = myDateValue) = compilation.instanceOf("MyDate", value)

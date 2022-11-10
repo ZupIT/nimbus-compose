@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class InvalidListTypeTest {
+import test.BaseTest
+
+class InvalidListTypeTest: BaseTest() {
 }

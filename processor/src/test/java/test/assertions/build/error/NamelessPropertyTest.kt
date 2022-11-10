@@ -1,4 +1,6 @@
 package test.assertions.build.error
 
-class NamelessPropertyTest {
+import test.BaseTest
+
+class NamelessPropertyTest: BaseTest() {
 }
