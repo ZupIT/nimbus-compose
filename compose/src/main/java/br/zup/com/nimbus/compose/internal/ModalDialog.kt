@@ -23,8 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +47,7 @@ internal fun ModalTransitionDialog(
     content: @Composable (ModalTransitionDialogHelper) -> Unit,
 ) {
 
-    val onCloseSharedFlow: MutableSharedFlow<Unit> = remember { MutableSharedFlow() }
+    val onCloseFlow: MutableStateFlow<Boolean> = remember { MutableStateFlow(false) }
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val animateContentBackTrigger = remember { mutableStateOf(false) }
 
@@ -59,8 +58,9 @@ internal fun ModalTransitionDialog(
                 animateContentBackTrigger.value = true
             }
             launch {
-                onCloseSharedFlow.asSharedFlow().collectLatest {
-                    startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
+                onCloseFlow.collectLatest { shouldClose ->
+                    if(shouldClose)
+                        startDismissWithExitAnimation(animateContentBackTrigger, onDismissRequest)
                 }
             }
         }
@@ -82,7 +82,7 @@ internal fun ModalTransitionDialog(
             AnimatedModalBottomSheetTransition(
                 visible = animateContentBackTrigger.value) {
                 modalTransitionDialogHelper.coroutineScope = coroutineScope
-                modalTransitionDialogHelper.onCloseFlow = onCloseSharedFlow
+                modalTransitionDialogHelper.onCloseFlow = onCloseFlow
                 content(modalTransitionDialogHelper)
             }
         }
@@ -108,10 +108,10 @@ private suspend fun startDismissWithExitAnimation(
  */
 internal class ModalTransitionDialogHelper {
     var coroutineScope: CoroutineScope? = null
-    var onCloseFlow: MutableSharedFlow<Unit>? = null
+    var onCloseFlow: MutableStateFlow<Boolean>? = null
     fun triggerAnimatedClose() {
         coroutineScope?.launch(CoroutineDispatcherLib.backgroundPool) {
-            onCloseFlow?.emit(Unit)
+            onCloseFlow?.tryEmit(true)
         }
     }
 }

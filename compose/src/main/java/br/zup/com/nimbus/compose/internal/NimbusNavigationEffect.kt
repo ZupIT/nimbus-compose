@@ -10,7 +10,7 @@ internal fun NimbusNavigationEffect(
     nimbusViewModel: NimbusViewModel,
     navController: NavHostController,
 ) {
-    CollectSharedFlow(nimbusViewModel.nimbusViewNavigationState) { navigationState ->
+    CollectFlow(nimbusViewModel.nimbusViewNavigationState) { navigationState ->
         when (navigationState) {
             is NimbusViewModelNavigationState.Pop -> {
                 navController.navigateUp()
