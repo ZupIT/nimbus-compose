@@ -28,7 +28,7 @@ typealias ErrorHandler = @Composable (throwable: Throwable, retry: () -> Unit) -
 const val PLATFORM_NAME = "android"
 
 @Stable
-internal class NimbusNavigatorState(
+class NimbusNavigatorState(
     val navHostHelper: NimbusNavHostHelper,
 )
 
@@ -125,7 +125,7 @@ object NimbusTheme {
         @Composable
         get() = LocalNimbus.current
 
-    internal val nimbusNavigatorState: NimbusNavigatorState
+    val nimbusNavigatorState: NimbusNavigatorState
         @Composable
         get() = LocalNavigator.current
 }

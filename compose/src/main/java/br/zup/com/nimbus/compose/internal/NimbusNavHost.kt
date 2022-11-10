@@ -122,7 +122,7 @@ private fun initNavHost(
 /**
  * This helper can be used to control some behaviour from outside the NimbusNavHost composable
  */
-internal class NimbusNavHostHelper {
+class NimbusNavHostHelper {
 
     var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
     fun isFirstScreen(): Boolean = nimbusNavHostExecutor?.isFirstScreen() ?: false
