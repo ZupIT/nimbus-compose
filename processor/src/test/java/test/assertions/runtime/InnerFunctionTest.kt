@@ -4,13 +4,13 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
+import test.BaseRuntimeTest
 import test.compiler.TestCompiler
 import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @AutoDeserializable for functions inside classes or objects")
-class InnerFunctionTest: BaseTest() {
+class InnerFunctionTest: BaseRuntimeTest() {
     private fun sourceCode(isObject: Boolean, addCompanion: Boolean = false): String {
         val declaration = if(isObject) "object MyTest" else "class MyTest"
         val instance = if(isObject || addCompanion) "MyTest" else "MyTest()"

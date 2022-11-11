@@ -21,6 +21,7 @@ import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidUseOfComposable
 import com.zup.nimbus.processor.error.InvalidUseOfContext
 import com.zup.nimbus.processor.error.InvalidUseOfRoot
+import com.zup.nimbus.processor.error.UnsupportedFunction
 import com.zup.nimbus.processor.model.FunctionWriterResult
 import com.zup.nimbus.processor.model.IndexedProperty
 import com.zup.nimbus.processor.utils.getQualifiedName
@@ -43,7 +44,9 @@ internal object OperationWriter {
                 "@Root can't be used for operations since an operation accepts a list " +
                         "of arguments and not a map."
             )
-            if (it.type.resolve().getQualifiedName() ==
+            val resolvedType = it.type.resolve()
+            if (resolvedType.isFunctionType) throw UnsupportedFunction("operation", it)
+            if (resolvedType.getQualifiedName() ==
                 ClassNames.DeserializationContext.canonicalName) throw InvalidUseOfContext(it)
         }
     }

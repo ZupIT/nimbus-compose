@@ -1,20 +1,14 @@
 package test.assertions.runtime.type
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.compiler.TestCompiler
-import java.io.File
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with primitive types are deserialized")
-class PrimitiveTest: BaseTest() {
+class PrimitiveTest: BaseRuntimeTest() {
     @BeforeAll
     fun setup() {
         compilation = TestCompiler.compile(
@@ -87,7 +81,6 @@ class PrimitiveTest: BaseTest() {
 
         @Test
         fun `Then it should fail to deserialize the required properties`() {
-            compilation.assertOk()
             val errors = listOf(
                 "Expected a string for property \"name\", but found null",
                 "Expected a boolean for property \"isUnderAge\", but found null",
@@ -99,7 +92,6 @@ class PrimitiveTest: BaseTest() {
 
         @Test
         fun `Then it should deserialize the nullable properties`() {
-            compilation.assertOk()
             compilation.runEventForActionHandler("nullable", properties)
             compilation.assertResults(null, 21, 2001L, null, null, null, null)
         }
@@ -118,7 +110,6 @@ class PrimitiveTest: BaseTest() {
         )
 
         private fun testFailureOf(functionName: String) {
-            compilation.assertOk()
             val errors = listOf(
                 "Expected a number for property \"age\", but found String",
                 "Expected a number for property \"birthYear\", but found String",
@@ -151,7 +142,6 @@ class PrimitiveTest: BaseTest() {
         )
 
         private fun testDeserializationOf(functionName: String) {
-            compilation.assertOk()
             compilation.runEventForActionHandler(functionName, properties)
             compilation.assertResults("790.13", 19, 2003L, false, 32.0, 20.62F, "")
         }

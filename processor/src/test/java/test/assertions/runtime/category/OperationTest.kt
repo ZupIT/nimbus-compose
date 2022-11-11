@@ -1,16 +1,11 @@
 package test.assertions.runtime.category
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.Snippets
 import test.compiler.TestCompiler
-import java.io.File
 import java.lang.reflect.InvocationTargetException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -21,9 +16,8 @@ import kotlin.test.fail
  * (test.assertions.runtime.type). Here we test some general cases and particularities of an
  * operation deserialization.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When an operation is deserialized")
-class OperationTest: BaseTest() {
+class OperationTest: BaseRuntimeTest() {
     @BeforeAll
     fun setup() {
         compilation = TestCompiler.compile(
@@ -87,7 +81,6 @@ class OperationTest: BaseTest() {
                 )
             """,
         )
-        compilation.assertOk()
     }
 
     @Test

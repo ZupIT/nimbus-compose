@@ -5,20 +5,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import br.zup.com.nimbus.compose.MockLogger
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.DEFAULT_COMPONENT_ID
 import test.utils.MockAction
 import test.utils.MockEvent
 import test.utils.Snippets
 import test.utils.assertErrors
 import test.compiler.TestCompiler
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -30,9 +25,8 @@ private val errorColor = Color.Red
  * (test.assertions.runtime.type). Here we test some general cases and particularities of a
  * component deserialization.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When a component is deserialized")
-class ComponentTest: BaseTest() {
+class ComponentTest: BaseRuntimeTest() {
     private val cpfValue = "01444752174"
     private val myDateValue = 15L
 
@@ -83,7 +77,6 @@ class ComponentTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     private fun myDate(value: Long = myDateValue) = compilation.instanceOf("MyDate", value)

@@ -2,8 +2,6 @@ package com.zup.nimbus.processor.utils
 
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Modifier
-import com.zup.nimbus.processor.error.InvalidListType
-import com.zup.nimbus.processor.error.InvalidMapType
 
 fun KSType.getQualifiedName(): String? = this.declaration.qualifiedName?.asString()
 fun KSType.getSimpleName(): String = this.declaration.simpleName.asString()

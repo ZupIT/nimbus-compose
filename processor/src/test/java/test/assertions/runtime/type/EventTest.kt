@@ -4,19 +4,14 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.MockAction
 import test.utils.MockEvent
 import test.compiler.TestCompiler
-import java.io.File
 import kotlin.test.assertEquals
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with event functions are deserialized")
-class EventTest: BaseTest() {
+class EventTest: BaseRuntimeTest() {
     var calls = mutableMapOf<String, Any?>()
 
     @BeforeAll

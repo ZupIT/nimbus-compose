@@ -1,19 +1,13 @@
 package test.assertions.runtime.annotation
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.compiler.TestCompiler
-import java.io.File
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @Ignore on a parameter")
-class IgnoreTest: BaseTest() {
+class IgnoreTest: BaseRuntimeTest() {
     @BeforeAll
     fun setup() {
         compilation = TestCompiler.compile(
@@ -48,7 +42,6 @@ class IgnoreTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     @Test

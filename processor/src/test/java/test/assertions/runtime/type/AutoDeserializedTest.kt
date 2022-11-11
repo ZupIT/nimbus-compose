@@ -1,20 +1,14 @@
 package test.assertions.runtime.type
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.Snippets
 import test.compiler.TestCompiler
-import java.io.File
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with auto deserialized types are deserialized")
-class AutoDeserializedTest: BaseTest() {
+class AutoDeserializedTest: BaseRuntimeTest() {
     private val jessica = mapOf(
         "name" to mapOf(
             "title" to "Ms",
@@ -157,7 +151,6 @@ class AutoDeserializedTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     private fun myDate(value: Long) = compilation.instanceOf("MyDate", value)

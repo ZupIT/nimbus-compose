@@ -6,7 +6,6 @@ import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.FileSpec
-import com.zup.nimbus.processor.error.NoSourceFile
 import com.zup.nimbus.processor.model.DeserializableFunction
 import com.zup.nimbus.processor.model.FileToWrite
 import com.zup.nimbus.processor.model.FunctionCategory

@@ -1,25 +1,19 @@
 package test.assertions.runtime.category
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.DEFAULT_EVENT_NAME
 import test.compiler.TestCompiler
-import java.io.File
 
 /**
  * Most scenarios for action deserialization have already been tested by
  * "test.assertions.runtime.type". Here we test just some particularities of an action
  * deserialization that have not been tested yet.
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When an action is deserialized")
-class ActionTest: BaseTest() {
+class ActionTest: BaseRuntimeTest() {
     @BeforeAll
     fun setup() {
         compilation = TestCompiler.compile(
@@ -39,7 +33,6 @@ class ActionTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     @Test

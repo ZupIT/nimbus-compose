@@ -1,21 +1,15 @@
 package test.assertions.runtime.type
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.Snippets
 import test.compiler.TestCompiler
-import java.io.File
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with map types are deserialized")
-class MapTest: BaseTest() {
+class MapTest: BaseRuntimeTest() {
     private val cpfValue = "01444752174"
     private val myDateValue = 15L
 

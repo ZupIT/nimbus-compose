@@ -8,7 +8,6 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Location
 import com.zup.nimbus.processor.ClassNames
 import com.zup.nimbus.processor.error.InvalidUseOfRoot
-import com.zup.nimbus.processor.error.NamelessProperty
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 import com.zup.nimbus.processor.utils.isKnown
@@ -35,7 +34,9 @@ internal abstract class Property(
         }
 
         fun nameFromParameter(param: KSValueParameter): String {
-            return param.name?.asString() ?: throw NamelessProperty(param)
+            return param.name?.asString()
+                // the following error should never be reached
+                ?: throw IllegalStateException("Every parameter must be named in Kotlin")
         }
 
         fun typeFromParameter(param: KSValueParameter): KSType {

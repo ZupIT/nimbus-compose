@@ -3,13 +3,11 @@ package test.assertions.runtime.annotation
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import test.BaseTest
+import test.BaseRuntimeTest
 import test.compiler.TestCompiler
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we use @Alias on a parameter")
-class AliasTest: BaseTest() {
+class AliasTest: BaseRuntimeTest() {
     @BeforeAll
     fun setup() {
         compilation = TestCompiler.compile(
@@ -43,7 +41,6 @@ class AliasTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     @Test

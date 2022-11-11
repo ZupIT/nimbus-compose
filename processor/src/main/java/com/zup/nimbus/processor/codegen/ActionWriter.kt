@@ -22,7 +22,7 @@ internal object ActionWriter {
 
     private fun validate(action: KSFunctionDeclaration) {
         action.parameters.forEach {
-            if (it.hasAnnotation(ClassNames.Composable)) throw InvalidUseOfComposable(it)
+            if (it.type.hasAnnotation(ClassNames.Composable)) throw InvalidUseOfComposable(it)
         }
     }
 

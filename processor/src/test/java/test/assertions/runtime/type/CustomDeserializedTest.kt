@@ -1,21 +1,15 @@
 package test.assertions.runtime.type
 
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
-import test.compiler.CompilationResult
+import test.BaseRuntimeTest
 import test.utils.DEFAULT_ACTION_NAME
 import test.utils.Snippets
 import test.compiler.TestCompiler
-import java.io.File
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When action handlers with custom deserialized types are deserialized")
-class CustomDeserializedTest: BaseTest() {
+class CustomDeserializedTest: BaseRuntimeTest() {
     private val myDateValue = 30L
     private val custom1Value = "custom1"
     private val custom2Value = "custom2"
@@ -86,7 +80,6 @@ class CustomDeserializedTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     private fun myDate(value: Long = myDateValue) = compilation.instanceOf("MyDate", value)

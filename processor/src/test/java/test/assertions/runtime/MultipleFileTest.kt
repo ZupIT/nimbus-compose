@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
-import test.BaseTest
+import test.BaseRuntimeTest
 import test.compiler.CompilationResult
 import test.utils.Snippets
 import test.compiler.TestCompiler
@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("When we create multiple files with deserialization capability")
-class MultipleFileTest: BaseTest() {
+class MultipleFileTest: BaseRuntimeTest() {
     private val component = "br/com/myApp/components/component.kt" to """
         package br.com.myApp.components
         
