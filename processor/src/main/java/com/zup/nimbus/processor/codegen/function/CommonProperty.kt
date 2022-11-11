@@ -12,7 +12,6 @@ internal object CommonProperty {
         val type = ctx.property.type
         when {
             deserializer != null -> CustomDeserialized.write(ctx, deserializer)
-            type.isAny() -> AnyType.write(ctx)
             type.isPrimitive() -> PrimitiveType.write(ctx)
             type.isEnum() -> EnumType.write(ctx)
             type.isFunctionType -> EventType.write(ctx)

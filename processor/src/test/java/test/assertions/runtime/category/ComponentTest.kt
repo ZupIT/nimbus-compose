@@ -112,6 +112,7 @@ class ComponentTest: BaseRuntimeTest() {
             "age" to 23,
             "onPress" to "event",
             "documents" to 20,
+            "metadata" to "",
         )
         val errors = listOf(
             "Expected a string for property \"name\", but found null",

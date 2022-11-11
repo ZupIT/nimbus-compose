@@ -43,7 +43,6 @@ internal object ListMapType {
         val deserializer = CustomDeserialized.findDeserializer(type, ctx.deserializers)
         return when {
             deserializer != null -> CustomDeserialized.getCallString(ctx, deserializer, type, itemRef)
-            type.isAny() -> AnyType.getCallString(type, itemRef)
             type.isPrimitive() -> PrimitiveType.getCallString(type, itemRef)
             type.isEnum() -> EnumType.getCallString(ctx, type, itemRef)
             type.isList() -> getListCall(ctx, type, itemRef)

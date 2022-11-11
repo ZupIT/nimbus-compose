@@ -180,6 +180,7 @@ class ListTest: BaseRuntimeTest() {
                 "Expected a number for property \"floatList[0]\", but found null",
                 "Expected a number for property \"doubleList[0]\", but found null",
                 "Expected a boolean for property \"booleanList[0]\", but found null",
+                "Expected anything for property \"anyList[1]\", but found null",
                 "Expected CPF, RG, CNH for property \"enumList[0]\", but found null",
                 "Expected CPF, RG, CNH for property \"classList[0].type\", but found null",
                 "Expected a string for property \"classList[0].value\", but found null",

@@ -18,8 +18,8 @@ fun KSType.isFloat(): Boolean = this.getQualifiedName() == Float::class.qualifie
 fun KSType.isMap(): Boolean = this.getQualifiedName() == Map::class.qualifiedName
 fun KSType.isList(): Boolean = this.getQualifiedName() == List::class.qualifiedName
 fun KSType.isEnum(): Boolean = this.declaration.modifiers.contains(Modifier.ENUM)
-fun KSType.isPrimitive(): Boolean = this.isString() || this.isBoolean() || this.isInt()
-        || this.isLong() || this.isDouble() || this.isFloat()
+fun KSType.isPrimitive(): Boolean = this.isAny() || this.isString() || this.isBoolean()
+        || this.isInt() || this.isLong() || this.isDouble() || this.isFloat()
 fun KSType.isKnown(): Boolean = this.isPrimitive() || this.isList() || this.isMap()
         || this.isEnum() || this.isFunctionType
 

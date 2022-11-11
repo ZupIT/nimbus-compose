@@ -86,6 +86,7 @@ class PrimitiveTest: BaseRuntimeTest() {
                 "Expected a boolean for property \"isUnderAge\", but found null",
                 "Expected a number for property \"balance\", but found null",
                 "Expected a number for property \"schoolGrade\", but found null",
+                "Expected anything for property \"metadata\", but found null",
             )
             compilation.runEventForActionHandlerCatching("required", properties, errors)
         }
@@ -107,6 +108,7 @@ class PrimitiveTest: BaseRuntimeTest() {
             "isUnderAge" to 34,
             "balance" to false,
             "schoolGrade" to true,
+            "metadata" to "",
         )
 
         private fun testFailureOf(functionName: String) {

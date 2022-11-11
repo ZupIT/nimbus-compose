@@ -179,6 +179,7 @@ class MapTest: BaseRuntimeTest() {
                 "Expected a number for property \"floatMap.key\", but found null",
                 "Expected a number for property \"doubleMap.key\", but found null",
                 "Expected a boolean for property \"booleanMap.key\", but found null",
+                "Expected anything for property \"anyMap.key2\", but found null",
                 "Expected CPF, RG, CNH for property \"enumMap.key\", but found null",
                 "Expected CPF, RG, CNH for property \"classMap.key.type\", but found null",
                 "Expected a string for property \"classMap.key.value\", but found null",
