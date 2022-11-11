@@ -4,7 +4,7 @@ plugins {
     id("kotlin-android")
     id("de.mannodermaus.android-junit5")
     id("org.jetbrains.dokka")
-    id("com.google.devtools.ksp") version "1.6.10-1.0.4"
+    id("com.google.devtools.ksp") version "1.7.10-1.0.6"
     //idea
 }
 
@@ -20,25 +20,25 @@ dependencies {
     implementation(project(":compose"))
 
     implementation("io.ktor:ktor-client-android:$ktorVersion")
-    implementation("com.google.android.material:material:1.6.1")
-    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("com.google.android.material:material:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation ("androidx.navigation:navigation-compose:2.5.1")
+    implementation ("androidx.navigation:navigation-compose:2.5.3")
     implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
-    implementation("androidx.activity:activity-compose:1.5.1")
+    implementation("androidx.activity:activity-compose:1.6.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
     debugImplementation("androidx.compose.ui:ui-tooling:${rootProject.extra["compose_version"]}")
 }
 
 android {
-    compileSdk = 31
+    compileSdk = 33
     defaultConfig {
         applicationId = "br.com.zup.nimbus.android"
         minSdk = 21
-        targetSdk = 31
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
         vectorDrawables {

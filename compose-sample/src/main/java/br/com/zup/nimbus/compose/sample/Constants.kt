@@ -1,8 +1,8 @@
 package br.com.zup.nimbus.compose.sample
 
 
-const val BASE_URL = "https://gist.githubusercontent.com/Tiagoperes/" +
-        "74808ebd7ad7f0645491fc60436223a6/raw/85702801aa8b5c6d62d8d500ef9a262b767ec94c"
+const val BASE_URL = "https://gist.githubusercontent.com/hernandazevedozup/" +
+        "c525a75a7706afc7816cf12d9213eda3/raw/4744d06218851df10621cdae674a04682861d078"
 
 
 const val SCREEN1_JSON = """{

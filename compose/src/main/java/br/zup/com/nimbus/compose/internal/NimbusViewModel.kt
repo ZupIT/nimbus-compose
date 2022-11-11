@@ -4,18 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
-import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
+import br.zup.com.nimbus.compose.JSON
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
 import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.network.ViewRequest
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 internal sealed class NimbusViewModelModalState {
-    object HiddenModalState : NimbusViewModelModalState()
+    object RootState : NimbusViewModelModalState()
     object OnHideModalState : NimbusViewModelModalState()
     data class OnShowModalModalState(val viewRequest: ViewRequest) : NimbusViewModelModalState()
 }
@@ -24,7 +23,7 @@ internal sealed class NimbusViewModelModalState {
 internal sealed class NimbusViewModelNavigationState {
     object RootState : NimbusViewModelNavigationState()
     data class Push(val url: String) : NimbusViewModelNavigationState()
-    object Pop : NimbusViewModelNavigationState()
+    class Pop : NimbusViewModelNavigationState()
     data class PopTo(val url: String) : NimbusViewModelNavigationState()
 }
 
@@ -33,19 +32,17 @@ internal class NimbusViewModel(
     private val pagesManager: PagesManager = PagesManager(),
 ) : ViewModel() {
 
-    private var _nimbusViewModelModalState: MutableSharedFlow<NimbusViewModelModalState> =
-        MutableSharedFlow(replay = CoroutineDispatcherLib.REPLAY_COUNT,
-            onBufferOverflow = CoroutineDispatcherLib.ON_BUFFER_OVERFLOW)
+    private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
+        MutableStateFlow(NimbusViewModelModalState.RootState)
 
-    val nimbusViewModelModalState: SharedFlow<NimbusViewModelModalState>
+    val nimbusViewModelModalState: StateFlow<NimbusViewModelModalState>
         get() = _nimbusViewModelModalState
 
 
-    private var _nimbusViewNavigationState: MutableSharedFlow<NimbusViewModelNavigationState> =
-        MutableSharedFlow(replay = CoroutineDispatcherLib.REPLAY_COUNT,
-            onBufferOverflow = CoroutineDispatcherLib.ON_BUFFER_OVERFLOW)
+    private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> =
+        MutableStateFlow(NimbusViewModelNavigationState.RootState)
 
-    val nimbusViewNavigationState: SharedFlow<NimbusViewModelNavigationState>
+    val nimbusViewNavigationState: StateFlow<NimbusViewModelNavigationState>
         get() = _nimbusViewNavigationState
 
     companion object {
@@ -84,12 +81,12 @@ internal class NimbusViewModel(
     }
 
     fun setModalHiddenState() {
-        setNimbusViewModelModalState(NimbusViewModelModalState.HiddenModalState)
+        setNimbusViewModelModalState(NimbusViewModelModalState.RootState)
     }
 
     fun pop(): Boolean {
         return if (pagesManager.popLastPage()) {
-            setNavigationState(NimbusViewModelNavigationState.Pop)
+            setNavigationState(NimbusViewModelNavigationState.Pop())
             true
         } else {
             false
@@ -104,8 +101,8 @@ internal class NimbusViewModel(
         doPushWithJson(json)
     }
 
-    fun getPageBy(url: String): Page? {
-        return pagesManager.getPageBy(url)
+    fun getPageBy(url: String?): Page? {
+        return  url?.let { pagesManager.getPageBy(url) }
     }
 
     fun getPageCount() = pagesManager.getPageCount()
@@ -122,13 +119,13 @@ internal class NimbusViewModel(
 
     private fun setNavigationState(nimbusViewModelNavigationState: NimbusViewModelNavigationState) {
         viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-            _nimbusViewNavigationState.emit(nimbusViewModelNavigationState)
+            _nimbusViewNavigationState.tryEmit(nimbusViewModelNavigationState)
         }
     }
 
     private fun setNimbusViewModelModalState(state: NimbusViewModelModalState) {
         viewModelScope.launch(CoroutineDispatcherLib.backgroundPool) {
-            _nimbusViewModelModalState.emit(state)
+            _nimbusViewModelModalState.tryEmit(state)
         }
     }
 
@@ -160,9 +157,8 @@ internal class NimbusViewModel(
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
             )
-            val url = if (initialRequest) VIEW_INITIAL_URL else request.url
+            val url = request.url
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view)
             pushNavigation(page = page, initialRequest = initialRequest)
@@ -201,11 +197,10 @@ internal class NimbusViewModel(
             val view = ServerDrivenView(
                 nimbus = nimbusConfig,
                 getNavigator = { serverDrivenNavigator },
-                description = VIEW_JSON_DESCRIPTION
+                description = JSON
             )
-            val url = VIEW_INITIAL_URL
+            val url = JSON
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view
             )

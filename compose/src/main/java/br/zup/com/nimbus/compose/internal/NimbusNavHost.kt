@@ -1,6 +1,10 @@
 package br.zup.com.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -13,8 +17,11 @@ import br.zup.com.nimbus.compose.Nimbus
 import br.zup.com.nimbus.compose.NimbusTheme.nimbus
 import br.zup.com.nimbus.compose.ProvideNavigatorState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
-import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
+import br.zup.com.nimbus.compose.JSON
+import br.zup.com.nimbus.compose.NimbusTheme
 import br.zup.com.nimbus.compose.VIEW_URL
+import br.zup.com.nimbus.compose.model.NimbusPageState
+import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 
@@ -33,18 +40,22 @@ internal fun NimbusNavHost(
         )
     ),
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
-    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelperImpl(),
+    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
     json: String = "",
 ) {
 
-    NimbusNavigationEffect(nimbusViewModel, navController)
+    CollectFlow(nimbusViewModel.nimbusViewNavigationState) { navigationState ->
+        navigationState.handleNavigation(navController)
+    }
+
+    val nimbusViewModelModalState: NimbusViewModelModalState by
+    nimbusViewModel.nimbusViewModelModalState.collectAsState()
 
     NimbusDisposableEffect(
         onCreate = {
             initNavHost(nimbusViewModel, viewRequest, json)
+            configureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
         })
-
-    ConfigureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
 
     ProvideNavigatorState(navHostHelper = nimbusNavHostHelper) {
         NavHost(
@@ -56,31 +67,35 @@ internal fun NimbusNavHost(
                 route = SHOW_VIEW_DESTINATION,
                 arguments = listOf(navArgument(VIEW_URL) {
                     type = NavType.StringType
-                    defaultValue = VIEW_INITIAL_URL
+                    defaultValue = viewRequest?.url ?: JSON
                 })
             ) { backStackEntry ->
-                val arguments = requireNotNull(backStackEntry.arguments)
-                val currentPageUrl = arguments.getString(VIEW_URL)
-                val currentPage = currentPageUrl?.let {
-                    nimbusViewModel.getPageBy(
-                        it
-                    )
-                }
-                currentPage?.let { page ->
-                    NimbusBackHandler()
-                    page.Compose()
-                    NimbusModalView(
-                        nimbusViewModel = nimbusViewModel,
-                        modalParentHelper = modalParentHelper
-                    )
-                }
+                NimbusBackHandler(onDismiss =
+                {
+                    modalParentHelper.triggerAnimatedClose()
+                })
+
+                nimbusViewModelModalState.HandleModalState(
+                    onDismiss = {
+                        nimbusViewModel.setModalHiddenState()
+                    },
+                    onHideModal = {
+                        modalParentHelper.triggerAnimatedClose()
+                    }
+                )
+
+                val page = nimbusViewModel.getPageBy(
+                    backStackEntry.getPageUrl()
+                )
+
+                val pageRemember by remember(page?.id) { mutableStateOf(page) }
+                pageRemember?.Compose()
             }
         }
     }
 }
 
-@Composable
-private fun ConfigureNavHostHelper(
+private fun configureNavHostHelper(
     nimbusNavHostHelper: NimbusNavHostHelper,
     nimbusViewModel: NimbusViewModel,
 ) {
@@ -94,7 +109,7 @@ private fun ConfigureNavHostHelper(
 private fun initNavHost(
     nimbusViewModel: NimbusViewModel,
     viewRequest: ViewRequest?,
-    json: String
+    json: String,
 ) {
 
     if (viewRequest != null)
@@ -104,26 +119,18 @@ private fun initNavHost(
 
 }
 
-interface NimbusNavHostHelper {
+/**
+ * This helper can be used to control some behaviour from outside the NimbusNavHost composable
+ */
+class NimbusNavHostHelper {
 
-    var nimbusNavHostExecutor: NimbusNavHostExecutor?
+    var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
+    fun isFirstScreen(): Boolean = nimbusNavHostExecutor?.isFirstScreen() ?: false
+
+    fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
 
     interface NimbusNavHostExecutor {
         fun isFirstScreen(): Boolean
         fun pop(): Boolean
     }
-
-    fun isFirstScreen(): Boolean
-    fun pop(): Boolean
-}
-
-/**
- * This helper can be used to control some behaviour from outside the NimbusNavHost composable
- */
-internal class NimbusNavHostHelperImpl : NimbusNavHostHelper {
-
-    override var nimbusNavHostExecutor: NimbusNavHostHelper.NimbusNavHostExecutor? = null
-    override fun isFirstScreen(): Boolean  = nimbusNavHostExecutor?.isFirstScreen() ?: false
-
-    override fun pop(): Boolean = nimbusNavHostExecutor?.pop() ?: false
 }

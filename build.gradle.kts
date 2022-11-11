@@ -3,21 +3,21 @@ plugins{
     id("org.jetbrains.dokka") version "1.5.0"
     id("org.sonarqube") version "3.2.0"
     id("jacoco")
-    id("com.android.library") version "7.2.1" apply false
-    id("org.jetbrains.kotlin.android") version "1.6.10" apply false
-    kotlin("jvm") version "1.6.10" apply false
+    id("com.android.library") version "7.3.1" apply false
+    id("org.jetbrains.kotlin.android") version "1.7.10" apply false
+    kotlin("jvm") version "1.7.10" apply false
 }
 
 buildscript {
-    val compose_version by extra("1.1.1")
+    val compose_version by extra("1.3.0")
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
-        classpath("com.android.tools.build:gradle:7.2.1")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
+        classpath("com.android.tools.build:gradle:7.3.1")
         classpath("com.vanniktech:gradle-maven-publish-plugin:0.15.1")
         classpath ("de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1")
     }
