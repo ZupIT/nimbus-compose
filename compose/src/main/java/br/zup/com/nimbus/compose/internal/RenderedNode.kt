@@ -24,7 +24,7 @@ fun RenderedNode(flow: NodeFlow) {
     val state = flow.collectAsState()
     val (node, children) = state.value
     val ui = NimbusTheme.nimbus.uiLibraryManager
-    val handler = remember { ui.getComponent(node.component) }
+    val handler = remember(node.component) { ui.getComponent(node.component) }
 
     DisposableEffect(Unit) {
         onDispose {

@@ -1,12 +1,10 @@
 package br.zup.com.nimbus.compose.model
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import br.zup.com.nimbus.compose.NimbusTheme
-import br.zup.com.nimbus.compose.internal.CollectFlow
-import br.zup.com.nimbus.compose.internal.NodeFlow
-import br.zup.com.nimbus.compose.internal.RenderedNode
+import br.zup.com.nimbus.compose.internal.HandleNimbusPageState
 import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import com.zup.nimbus.core.tree.dynamic.node.RootNode
@@ -55,25 +53,8 @@ data class Page(
 
     @Composable
     fun Compose() {
-        val (localState, setMutableLocalState) = remember {
-            mutableStateOf<NimbusPageState>(NimbusPageState.PageStateOnLoading)
-        }
-
-        CollectFlow(state) { value ->
-            setMutableLocalState(value)
-        }
-
-        when (localState) {
-            is NimbusPageState.PageStateOnLoading -> {
-                NimbusTheme.nimbus.loadingView()
-            }
-            is NimbusPageState.PageStateOnError -> {
-                NimbusTheme.nimbus.errorView(localState.throwable, localState.retry)
-            }
-            is NimbusPageState.PageStateOnShowPage -> {
-                RenderedNode(flow = NodeFlow(localState.node))
-            }
-        }
+        val localState: NimbusPageState by state.collectAsState()
+        localState.HandleNimbusPageState(NimbusTheme.nimbus.loadingView, NimbusTheme.nimbus.errorView)
     }
 }
 
