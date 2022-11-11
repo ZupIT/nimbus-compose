@@ -58,4 +58,5 @@ private fun componentsAreEquals(node: ServerDrivenNode, comparable: ServerDriven
 class ComponentData(
     val node: ServerDrivenNode,
     val children: @Composable () -> Unit,
+    val childrenAsList: List<@Composable () -> Unit>,
 )
