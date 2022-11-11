@@ -42,7 +42,20 @@ fun RenderedNode(flow: NodeFlow) {
                     children?.forEach {
                         key(it.id) { RenderedNode(it) }
                     }
-                }
+                },
+                childrenAsList = childrenList(children)
             )
         )
+}
+
+fun childrenList(children: List<NodeFlow>?): List<@Composable () -> Unit> {
+    val mutableList = mutableListOf<@Composable () -> Unit>()
+
+    children?.forEach {
+        mutableList.add {
+            key(it.id) { RenderedNode(it) }
+        }
+    }
+
+    return mutableList
 }
