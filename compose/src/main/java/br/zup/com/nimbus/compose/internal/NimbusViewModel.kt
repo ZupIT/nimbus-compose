@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import br.zup.com.nimbus.compose.VIEW_INITIAL_URL
 import br.zup.com.nimbus.compose.VIEW_JSON_DESCRIPTION
 import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.ServerDrivenNavigator
@@ -102,8 +101,8 @@ internal class NimbusViewModel(
         doPushWithJson(json)
     }
 
-    fun getPageBy(url: String): Page? {
-        return pagesManager.getPageBy(url)
+    fun getPageBy(url: String?): Page? {
+        return  url?.let { pagesManager.getPageBy(url) }
     }
 
     fun getPageCount() = pagesManager.getPageCount()
@@ -158,9 +157,8 @@ internal class NimbusViewModel(
                 getNavigator = { serverDrivenNavigator },
                 description = request.url
             )
-            val url = if (initialRequest) VIEW_INITIAL_URL else request.url
+            val url = request.url
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view)
             pushNavigation(page = page, initialRequest = initialRequest)
@@ -201,9 +199,8 @@ internal class NimbusViewModel(
                 getNavigator = { serverDrivenNavigator },
                 description = VIEW_JSON_DESCRIPTION
             )
-            val url = VIEW_INITIAL_URL
+            val url = VIEW_JSON_DESCRIPTION
             val page = Page(
-                coroutineScope = viewModelScope,
                 id = url,
                 view = view
             )

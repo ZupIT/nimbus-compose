@@ -21,7 +21,7 @@ internal fun NimbusModalView(
         mutableStateOf(NimbusViewModelModalState.HiddenModalState)
     }
     val modalTransitionDialogHelper = ModalTransitionDialogHelper()
-    val navHostHelper = NimbusNavHostHelperImpl()
+    val navHostHelper = NimbusNavHostHelper()
 
     if (nimbusViewModelModalState is NimbusViewModelModalState.OnShowModalModalState) {
         val showModalState =

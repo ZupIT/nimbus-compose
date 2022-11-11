@@ -3,14 +3,14 @@ package br.zup.com.nimbus.compose.model
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.NimbusTheme
+import br.zup.com.nimbus.compose.internal.CollectFlow
 import br.zup.com.nimbus.compose.internal.NodeFlow
 import br.zup.com.nimbus.compose.internal.RenderedNode
 import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
 import com.zup.nimbus.core.tree.dynamic.node.RootNode
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 
 sealed class NimbusPageState {
     object PageStateOnLoading : NimbusPageState()
@@ -19,29 +19,30 @@ sealed class NimbusPageState {
 }
 
 data class Page(
-    val coroutineScope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool),
     val id: String,
     val view: ServerDrivenView,
 ) {
-    private var state: NimbusPageState = NimbusPageState.PageStateOnLoading
-    private var listener: (() -> Unit)? = null
+    private var state: MutableStateFlow<NimbusPageState> =
+        MutableStateFlow(NimbusPageState.PageStateOnLoading)
     private var testListener: ((NimbusPageState) -> Unit)? = null
 
-    // fixme: this is currently used only for testing. Instead, we should rewrite the test in order
-    //  to not need this.
+//    // fixme: this is currently used only for testing. Instead, we should rewrite the test in order
+//    //  to not need this.
     internal fun testOnChange(testListener: (NimbusPageState) -> Unit) {
         this.testListener = testListener
     }
 
+    private fun setStateFlow(state: NimbusPageState) {
+        this.state.value = state
+    }
+
     private fun change(state: NimbusPageState) {
-        this.state = state
-        listener?.let { it() }
+        setStateFlow(state)
         testListener?.let { it(state) }
     }
 
     fun setContent(tree: RootNode) {
         change(NimbusPageState.PageStateOnShowPage(tree))
-
     }
 
     fun setLoading() {
@@ -54,8 +55,13 @@ data class Page(
 
     @Composable
     fun Compose() {
-        val (localState, setState) = remember { mutableStateOf(state) }
-        listener = { setState(state) }
+        val (localState, setMutableLocalState) = remember {
+            mutableStateOf<NimbusPageState>(NimbusPageState.PageStateOnLoading)
+        }
+
+        CollectFlow(state) { value ->
+            setMutableLocalState(value)
+        }
 
         when (localState) {
             is NimbusPageState.PageStateOnLoading -> {
@@ -71,8 +77,3 @@ data class Page(
     }
 }
 
-internal fun Page.removePagesAfter(pages: MutableList<Page>) {
-    val index = pages.indexOf(this)
-    if (index < pages.lastIndex)
-        pages.subList(index + 1, pages.size).clear()
-}
