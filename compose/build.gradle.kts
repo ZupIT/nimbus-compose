@@ -11,21 +11,21 @@ val serializationVersion = "1.3.2"
 val ktorVersion = "1.6.8"
 
 dependencies {
-    api("br.com.zup.nimbus:nimbus-core-android:1.0.0-alpha")
+    api("br.com.zup.nimbus:nimbus-core-android:1.0.0-alpha8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-serialization:$ktorVersion")
-    implementation ("androidx.navigation:navigation-compose:2.4.2")
-    implementation("com.google.android.material:material:1.6.1")
-    implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation ("androidx.navigation:navigation-compose:2.5.3")
+    implementation("com.google.android.material:material:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.compose.runtime:runtime:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.material:material:${rootProject.extra["compose_version"]}")
     implementation("androidx.compose.ui:ui-tooling-preview:${rootProject.extra["compose_version"]}")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.1")
-    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    implementation("androidx.activity:activity-compose:1.6.1")
 
     //Instrumentation testing
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:${rootProject.extra["compose_version"]}")
@@ -41,15 +41,15 @@ dependencies {
     testImplementation("androidx.test:core:1.4.0")
     testImplementation("androidx.test:rules:1.4.0")
     testImplementation("io.mockk:mockk:1.12.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     testImplementation ("app.cash.turbine:turbine:0.8.0")
 }
 
 android {
-    compileSdk = 31
+    compileSdk = 33
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
+        targetSdk = 33
         vectorDrawables {
             useSupportLibrary = true
         }

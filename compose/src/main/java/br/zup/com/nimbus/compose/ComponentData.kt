@@ -2,8 +2,6 @@ package br.zup.com.nimbus.compose
 
 import androidx.compose.runtime.Composable
 import com.zup.nimbus.core.tree.ServerDrivenNode
-import java.util.Arrays
-import kotlin.system.measureTimeMillis
 
 private fun componentListsAreEqual(list: List<*>, comparable: List<*>): Boolean {
     return list.size == comparable.size && list.toSet() == comparable.toSet()
