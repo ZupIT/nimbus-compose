@@ -101,10 +101,10 @@ class MultipleFileTest: BaseTest() {
     """
 
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
+    fun setup() {
         val sourceMap = mapOf(component, action, operation, person, document, documentType,
             gender, dateDeserializer)
-        compilation = compiler.compile(sourceMap)
+        compilation = TestCompiler.compile(sourceMap)
         compilation.assertOk()
     }
 

@@ -11,8 +11,8 @@ import test.compiler.TestCompiler
 @DisplayName("When we use @Alias on a parameter")
 class AliasTest: BaseTest() {
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 import br.com.zup.nimbus.annotation.Alias
                 import br.com.zup.nimbus.annotation.Root

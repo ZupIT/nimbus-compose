@@ -5,11 +5,9 @@ import br.zup.com.nimbus.compose.MockLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import test.compiler.CompilationResult
-import test.compiler.CompilerResolver
 import test.extensions.ErrorWatcher
 import test.extensions.PrepareAndClose
 
-@ExtendWith(CompilerResolver::class)
 @ExtendWith(ErrorWatcher::class)
 @ExtendWith(PrepareAndClose::class)
 open class BaseTest {

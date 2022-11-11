@@ -21,8 +21,8 @@ class CustomDeserializedTest: BaseTest() {
     private val custom2Value = "custom2"
 
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 ${Snippets.myDate}
                 

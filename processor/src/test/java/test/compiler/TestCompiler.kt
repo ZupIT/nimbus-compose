@@ -13,42 +13,32 @@ import java.lang.reflect.Method
 import java.util.Optional
 import java.util.UUID
 
-class TestCompiler(private val context: ExtensionContext?) {
-    private fun newOutputStream(): OutputStream {
-        val output = ByteArrayOutputStream()
-        context?.let {
-            val key = getStoreKey(
-                it.testClass.get(),
-                if (it.testMethod.isEmpty) null else it.testMethod.get(),
-            )
-            it.getStore(ExtensionContext.Namespace.GLOBAL).put(key, output)
-        }
-        return output
+object TestCompiler {
+    var lastCompilationResult: CompilationResult? = null
+
+    fun clearCompilationDirectory() {
+        File("${System.getProperty("user.dir")}/$TEST_DIR").deleteRecursively()
     }
 
-    companion object {
-        fun getStoreKey(clazz: Class<*>, method: Method? = null) =
-            "${clazz.name}#${method?.name ?: ""}#$COMPILATION_OUTPUT_KEY"
+    private fun newCompilationDirectory() = File(
+        "${System.getProperty("user.dir")}/$TEST_DIR/${UUID.randomUUID()}",
+    )
 
-        fun clearCompilationDirectory() {
-            File("${System.getProperty("user.dir")}/$TEST_DIR").deleteRecursively()
-        }
-
-        private fun newCompilationDirectory() = File(
-            "${System.getProperty("user.dir")}/$TEST_DIR/${UUID.randomUUID()}",
-        )
-    }
-
-    private fun processCompilationResult(sources: List<SourceFile>, workingDir: File) =
-        CompilationResult(KotlinCompilation().apply {
+    private fun processCompilationResult(
+        sources: List<SourceFile>,
+        workingDir: File,
+    ): CompilationResult {
+        lastCompilationResult = CompilationResult(KotlinCompilation().apply {
             this.workingDir = workingDir
             this.sources = sources
             symbolProcessorProviders = listOf(Main())
             inheritClassPath = true
             // prevents any logging to the console
-            messageOutputStream = newOutputStream()
+            messageOutputStream = OutputStream.nullOutputStream()
             kspWithCompilation = true
         }.compile())
+        return lastCompilationResult!!
+    }
 
     fun compile(code: String): CompilationResult {
         val src = SourceFile.kotlin(

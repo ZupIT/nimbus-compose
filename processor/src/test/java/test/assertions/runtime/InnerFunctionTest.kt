@@ -63,19 +63,17 @@ class InnerFunctionTest: BaseTest() {
     }
 
     @Test
-    fun `should declare components as extensions of object MyTest`(compiler: TestCompiler) {
-        compiler.compile(sourceCode(true)).assertOk()
+    fun `should declare components as extensions of object MyTest`() {
+        TestCompiler.compile(sourceCode(true)).assertOk()
     }
 
     @Test
-    fun `should declare components as extensions of class MyTest`(compiler: TestCompiler) {
-        compiler.compile(sourceCode(false)).assertOk()
+    fun `should declare components as extensions of class MyTest`() {
+        TestCompiler.compile(sourceCode(false)).assertOk()
     }
 
     @Test
-    fun `should declare components as extensions of the companion object of the class MyTest`(
-        compiler: TestCompiler,
-    ) {
-        compiler.compile(sourceCode(isObject = false, addCompanion = true)).assertOk()
+    fun `should declare components as extensions of the companion object of the class MyTest`() {
+        TestCompiler.compile(sourceCode(isObject = false, addCompanion = true)).assertOk()
     }
 }

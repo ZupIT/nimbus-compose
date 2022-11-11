@@ -20,8 +20,8 @@ class EventTest: BaseTest() {
     var calls = mutableMapOf<String, Any?>()
 
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 class MoreEvents(
                   val onSuccess: (data: Map<String, Any>) -> Unit,

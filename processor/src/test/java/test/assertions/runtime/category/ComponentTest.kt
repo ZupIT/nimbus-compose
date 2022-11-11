@@ -37,8 +37,8 @@ class ComponentTest: BaseTest() {
     private val myDateValue = 15L
 
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 ${Snippets.myDate}
                 ${Snippets.documentAndDocumentType}

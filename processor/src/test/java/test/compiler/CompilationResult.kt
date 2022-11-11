@@ -16,6 +16,9 @@ import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class CompilationResult(private val result: KotlinCompilation.Result) {
+    val output = result.messages
+    val directory = result.outputDirectory.absolutePath.replace(Regex("/[^/]+$"), "")
+
     fun loadClass(name: String?): Class<*> = result.classLoader.loadClass(name)
         ?: throw ClassNotFoundException()
 
@@ -157,4 +160,6 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
         val results = TestResult.fromCompilation(this).getAll()
         assertTrue(results.isEmpty())
     }
+
+    fun hasError() = result.exitCode != KotlinCompilation.ExitCode.OK
 }

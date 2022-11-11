@@ -21,8 +21,8 @@ import java.io.File
 @DisplayName("When an action is deserialized")
 class ActionTest: BaseTest() {
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 class ActionData(
                     val context: DeserializationContext,

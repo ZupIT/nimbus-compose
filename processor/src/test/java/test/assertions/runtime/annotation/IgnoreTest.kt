@@ -15,8 +15,8 @@ import java.io.File
 @DisplayName("When we use @Ignore on a parameter")
 class IgnoreTest: BaseTest() {
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 import br.com.zup.nimbus.annotation.Ignore
                 import br.com.zup.nimbus.annotation.Alias

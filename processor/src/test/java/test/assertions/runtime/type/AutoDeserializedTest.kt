@@ -95,8 +95,8 @@ class AutoDeserializedTest: BaseTest() {
     )
 
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 import com.zup.nimbus.core.ServerDrivenState
                 

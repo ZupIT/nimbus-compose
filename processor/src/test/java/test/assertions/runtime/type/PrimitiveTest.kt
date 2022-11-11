@@ -16,8 +16,8 @@ import java.io.File
 @DisplayName("When action handlers with primitive types are deserialized")
 class PrimitiveTest: BaseTest() {
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 @AutoDeserialize
                 fun required(
@@ -46,7 +46,6 @@ class PrimitiveTest: BaseTest() {
                 }
             """,
         )
-        compilation.assertOk()
     }
 
     @Nested
@@ -88,17 +87,19 @@ class PrimitiveTest: BaseTest() {
 
         @Test
         fun `Then it should fail to deserialize the required properties`() {
+            compilation.assertOk()
             val errors = listOf(
                 "Expected a string for property \"name\", but found null",
                 "Expected a boolean for property \"isUnderAge\", but found null",
                 "Expected a number for property \"balance\", but found null",
-                //"Expected a number for property \"schoolGrade\", but found null",
+                "Expected a number for property \"schoolGrade\", but found null",
             )
             compilation.runEventForActionHandlerCatching("required", properties, errors)
         }
 
         @Test
         fun `Then it should deserialize the nullable properties`() {
+            compilation.assertOk()
             compilation.runEventForActionHandler("nullable", properties)
             compilation.assertResults(null, 21, 2001L, null, null, null, null)
         }
@@ -117,6 +118,7 @@ class PrimitiveTest: BaseTest() {
         )
 
         private fun testFailureOf(functionName: String) {
+            compilation.assertOk()
             val errors = listOf(
                 "Expected a number for property \"age\", but found String",
                 "Expected a number for property \"birthYear\", but found String",
@@ -149,6 +151,7 @@ class PrimitiveTest: BaseTest() {
         )
 
         private fun testDeserializationOf(functionName: String) {
+            compilation.assertOk()
             compilation.runEventForActionHandler(functionName, properties)
             compilation.assertResults("790.13", 19, 2003L, false, 32.0, 20.62F, "")
         }

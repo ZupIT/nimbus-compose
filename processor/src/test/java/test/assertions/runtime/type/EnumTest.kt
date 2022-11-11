@@ -15,8 +15,8 @@ import java.io.File
 @DisplayName("When action handlers with enum types are deserialized")
 class EnumTest: BaseTest() {
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 enum class ProductType {
                   Tv,

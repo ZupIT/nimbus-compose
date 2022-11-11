@@ -25,8 +25,8 @@ import kotlin.test.fail
 @DisplayName("When an operation is deserialized")
 class OperationTest: BaseTest() {
     @BeforeAll
-    fun setup(compiler: TestCompiler) {
-        compilation = compiler.compile(
+    fun setup() {
+        compilation = TestCompiler.compile(
             """
                 import java.text.NumberFormat
                 import java.util.Currency
