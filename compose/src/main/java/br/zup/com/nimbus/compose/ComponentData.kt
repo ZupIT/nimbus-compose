@@ -11,6 +11,7 @@ private fun componentMapsAreEqual(map: Map<String, *>, comparable: Map<String, *
     val requiresDeepComparison = map.size == comparable.size && map.keys == comparable.keys
     if (requiresDeepComparison) {
         var areEqual = true
+        @Suppress("LoopWithTooManyJumpStatements")
         for (entry in map.iterator()) {
             areEqual = when (entry.value) {
                 is Function<*> -> continue
@@ -29,6 +30,7 @@ private fun componentMapsAreEqual(map: Map<String, *>, comparable: Map<String, *
     return false
 }
 
+@Suppress("UnusedPrivateMember")
 private fun componentsAreEquals(node: ServerDrivenNode, comparable: ServerDrivenNode): Boolean {
     return !(
         node.id != comparable.id ||
