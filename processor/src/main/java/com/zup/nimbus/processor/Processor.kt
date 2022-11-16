@@ -11,11 +11,21 @@ import com.google.devtools.ksp.validate
 import com.zup.nimbus.processor.codegen.FileWriter
 import com.zup.nimbus.processor.model.FileToWrite
 
+/**
+ * Process the annotations for Nimbus Compose.
+ */
 class Processor(private val environment: SymbolProcessorEnvironment): SymbolProcessor {
     companion object {
         private val extensionRegex = Regex("""\.[^.]+${'$'}""")
     }
 
+    /**
+     * Gets a file spec, writes it to the file system and set its source file (if any) as a
+     * dependency, so, only if it gets altered, the file is reprocessed.
+     *
+     * The file is also reprocessed if any file with a function annotated with "@Deserializer"
+     * is changed.
+     */
     private fun writeFile(file: FileToWrite, dependencies:  Array<KSFile>) {
         val allDependencies = if (file.source == null) dependencies else dependencies + file.source
         val packageName = file.source?.packageName?.asString() ?: file.spec.packageName
@@ -36,6 +46,7 @@ class Processor(private val environment: SymbolProcessorEnvironment): SymbolProc
         val dependencies = customDeserializers.mapNotNull { it.containingFile }.toTypedArray()
         val filesToWrite = FileWriter.write(functionsToDeserialize, customDeserializers, resolver)
         filesToWrite.forEach { writeFile(it, dependencies) }
+        // we don't need more cycles of annotation processing. Everything is done at this point.
         return emptyList()
     }
 }

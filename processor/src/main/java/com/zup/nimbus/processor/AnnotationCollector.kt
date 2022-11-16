@@ -12,12 +12,22 @@ import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 import com.zup.nimbus.processor.utils.isUnit
 
+/**
+ * Collects annotations in the source code. Also performs some validations.
+ */
 object AnnotationCollector {
     private val validDeserializerTypes = listOf(
         ClassNames.AnyServerDrivenData.canonicalName,
         ClassNames.DeserializationContext.canonicalName,
     )
 
+    /**
+     * Validates if the deserialization function has a correct set of parameters:
+     * `(AnyServerDrivenData)` or;
+     * `(AnyServerDrivenData, DeserializationContext)` or;
+     * `(DeserializationContext, AnyServerDrivenData)` or;
+     * `(DeserializationContext)`.
+     */
     private fun validateDeserializers(
         functions: Sequence<KSFunctionDeclaration>,
     ): Sequence<KSFunctionDeclaration> {
@@ -53,10 +63,17 @@ object AnnotationCollector {
         return result
     }
 
+    /**
+     * Collects all functions annotated with `@AutoDeserialize` and classifies them in component,
+     * action or operation.
+     */
     internal fun collectDeserializableFunctions(resolver: Resolver): List<DeserializableFunction> {
         return createDeserializableFunctions(resolver.findAnnotations(AutoDeserialize::class))
     }
 
+    /***
+     * Collects all functions annotated with `@Deserializer`, i.e. the custom deserializers.
+     */
     internal fun collectCustomDeserializers(resolver: Resolver): List<KSFunctionDeclaration> {
         return validateDeserializers(resolver.findAnnotations(Deserializer::class)).toList()
     }

@@ -12,6 +12,11 @@ import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasSameArguments
 
+/**
+ * Writes the code for deserializing a property into an instance of a class that is custom
+ * deserialized, i.e. a class that has a deserialization function associated to it (@Deserializer).
+ * The opposite of an auto-deserialized class.
+ */
 internal object CustomDeserialized {
     private fun validate(
         property: Property,

@@ -14,6 +14,11 @@ import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getPackageName
 import com.zup.nimbus.processor.utils.getQualifiedName
 
+/**
+ * Writes the code for deserializing a property into an instance of an auto-deserialized class, i.e.
+ * a class that is used by a Component, Action or Operation annotated with @AutoDeserialized that
+ * doesn't have an associated custom deserializer (@Deserializer).
+ */
 internal object AutoDeserialized {
     private fun validate(property: Property) {
         val modifiers = property.type.declaration.modifiers

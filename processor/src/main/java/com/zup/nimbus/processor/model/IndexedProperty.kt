@@ -6,6 +6,9 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Location
 
+/**
+ * A type of property that can be accessed through its index.
+ */
 internal class IndexedProperty(
     name: String,
     type: KSType,

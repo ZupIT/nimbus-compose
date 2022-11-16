@@ -1,19 +1,20 @@
 package com.zup.nimbus.processor.codegen.function
 
 import com.google.devtools.ksp.symbol.KSType
-import com.zup.nimbus.processor.codegen.ParameterUtils
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidFunction
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.utils.getQualifiedName
-import com.zup.nimbus.processor.utils.getSimpleName
 import com.zup.nimbus.processor.utils.isAny
-import com.zup.nimbus.processor.utils.isEnum
-import com.zup.nimbus.processor.utils.isKnown
 import com.zup.nimbus.processor.utils.isList
 import com.zup.nimbus.processor.utils.isMap
 import com.zup.nimbus.processor.utils.isPrimitive
 
+/**
+ * Writes the code for deserializing a property that represents a Server Driven Event. Events are
+ * represented by the types `() -> Unit` or `(T) -> Unit`, where T is any primitive type and
+ * represents the value of the state associated to the event.
+ */
 internal object EventType {
     private const val PARAM_NAME = "stateValue"
 

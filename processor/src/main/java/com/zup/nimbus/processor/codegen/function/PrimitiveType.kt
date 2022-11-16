@@ -5,6 +5,10 @@ import com.zup.nimbus.processor.codegen.ParameterUtils
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.utils.getSimpleName
 
+/**
+ * Writes the code for deserializing a primitive type, i.e. String, Boolean, Long, Int, Float,
+ * Double or Any.
+ */
 internal object PrimitiveType {
     fun getCallString(type: KSType, propertiesRef: String): String {
         val nullable = if (type.isMarkedNullable) "OrNull" else ""

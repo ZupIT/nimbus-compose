@@ -1,39 +1,42 @@
 package com.zup.nimbus.processor.codegen
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
-import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.error.InvalidUseOfComposable
-import com.zup.nimbus.processor.model.FunctionWriterResult
+import com.zup.nimbus.processor.model.NamedProperty
 import com.zup.nimbus.processor.utils.hasAnnotation
 
-internal object ActionWriter {
+/**
+ * Writes the code for any action handler annotated with @AutoDeserialize.
+ *
+ * Action handlers are identified by the rule: functions not annotated with @Composable that returns
+ * Unit.
+ */
+internal object ActionWriter: ComponentActionWriter() {
+    /**
+     * Name of the variable that holds a reference to the `ActionTriggeredEvent`. It's prefixed with
+     * "__" to avoid name clashes with user defined parameters (deserialized properties).
+     */
     private const val EVENT_REF = "__event"
 
-    private val imports = setOf(
+    override val imports = setOf(
         ClassNames.DeserializationContext,
         ClassNames.AnyServerDrivenData,
     )
 
-    private fun validate(action: KSFunctionDeclaration) {
-        action.parameters.forEach {
+    /**
+     * Checks if any of the parameters is a composable function (invalid).
+     */
+    override fun validate(declaration: KSFunctionDeclaration) {
+        declaration.parameters.forEach {
             if (it.type.hasAnnotation(ClassNames.Composable)) throw InvalidUseOfComposable(it)
         }
     }
 
-    fun write(
-        action: KSFunctionDeclaration,
-        deserializers: List<KSFunctionDeclaration>,
-    ): FunctionWriterResult {
-        validate(action)
-        val parent = action.parent
-        val actionName = action.simpleName.asString()
-        val fnBuilder = FunSpec.builder(actionName)
+    override fun writeHeader(name: String) = FunSpec.builder(name)
             .addParameter(EVENT_REF, ClassNames.ActionTriggeredEvent)
             .addStatement("val %L = DeserializationContext(null, %L)",
                 CONTEXT_REF,
@@ -44,29 +47,26 @@ internal object ActionWriter {
                 PROPERTIES_REF,
                 EVENT_REF,
             )
-        // makes this function an extension of the parent element if the parent is a class or an
-        // object
-        if (parent is KSClassDeclaration) {
-            fnBuilder.receiver(parent.asStarProjectedType().toTypeName())
-        }
-        val properties = ParameterUtils.convertParametersIntoNamedProperties(action.parameters)
-        val result = FunctionWriter.write(properties, deserializers, fnBuilder)
+
+    override fun writeFooter(
+        name: String,
+        properties: List<NamedProperty>,
+        fnBuilder: FunSpec.Builder,
+    ) {
         fnBuilder.addCode(
             """
             |if ($PROPERTIES_REF.hasError()) {
             |  throw IllegalArgumentException(
             |     "Can't deserialize properties of the action ${'$'}{$EVENT_REF.action.name} in the event " +
             |            "${'$'}{$EVENT_REF.scope.name} of the component with id ${'$'}{$EVENT_REF.scope.node.id} " +
-            |            "into the Action Handler $actionName. See the errors below:" +
+            |            "into the Action Handler $name. See the errors below:" +
             |            $PROPERTIES_REF.errorsAsString()
             |  )
             |}
-            |${action.simpleName.asString()}(
+            |$name(
             |  ${ParameterUtils.buildParameterAssignments(properties).joinToString(",\n  ")}
             |)
             |""".trimMargin(),
         )
-
-        return result.combine(imports)
     }
 }

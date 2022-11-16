@@ -2,6 +2,9 @@ package com.zup.nimbus.processor
 
 import com.squareup.kotlinpoet.ClassName
 
+/**
+ * The ClassNames (qualified names) of types often used by the generated code.
+ */
 object ClassNames {
     val Composable = ClassName(PackageNames.composeRuntime, "Composable")
     val Text = ClassName(PackageNames.composeMaterial, "Text")
@@ -14,17 +17,9 @@ object ClassNames {
         "${PackageNames.nimbusCore}.deserialization",
         "AnyServerDrivenData",
     )
-    val EntityDeserializer = ClassName(
-        "${PackageNames.nimbusCompose}.deserialization",
-        "EntityDeserializer",
-    )
     val ActionTriggeredEvent = ClassName(PackageNames.nimbusCore, "ActionTriggeredEvent")
     val DeserializationContext = ClassName(
         "${PackageNames.nimbusCompose}.deserialization",
         "DeserializationContext",
-    )
-    val DeserializationError = ClassName(
-        "${PackageNames.nimbusCompose}.deserialization",
-        "DeserializationError",
     )
 }

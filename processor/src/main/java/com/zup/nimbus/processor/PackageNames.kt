@@ -1,5 +1,8 @@
 package com.zup.nimbus.processor
 
+/**
+ * Package names often used by the generated code.
+ */
 object PackageNames {
     const val nimbusCore = "com.zup.nimbus.core"
     const val nimbusCompose = "br.zup.com.nimbus.compose"

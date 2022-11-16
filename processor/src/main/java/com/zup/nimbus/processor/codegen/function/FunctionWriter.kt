@@ -8,6 +8,19 @@ import com.zup.nimbus.processor.model.IdentifiableKSType
 import com.zup.nimbus.processor.model.Property
 import com.zup.nimbus.processor.model.PropertyCategory
 
+/**
+ * Writes the main part of a deserialization function. A deserialization function can be a
+ * Component, an Action, an Operation or a class deserializer.
+ *
+ * This object writes the part of the function that performs the actual deserialization. For
+ * instance, if the source function or constructor accepted the parameters `(a: String, b: Int?)`,
+ * this will write the code:
+ *
+ * ```
+ * val a = properties.get("a").asString()
+ * val b = properties.get("b").asIntOrNull()
+ * ```
+ */
 internal object FunctionWriter {
     const val CONTEXT_REF = "__context"
     const val PROPERTIES_REF = "__properties"

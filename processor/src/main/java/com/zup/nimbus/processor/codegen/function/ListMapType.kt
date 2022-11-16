@@ -13,13 +13,17 @@ import com.zup.nimbus.processor.utils.isString
 import com.zup.nimbus.processor.utils.resolveListType
 import com.zup.nimbus.processor.utils.resolveMapType
 
+/**
+ * Writes the code for deserializing a property of type List<*> or Map<String, *>.
+ */
 internal object ListMapType {
     private fun getListCall(ctx: FunctionWriterContext, type: KSType, propertiesRef: String): String {
         val nullable = if (type.isMarkedNullable) "OrNull" else ""
         val optional = if (type.isMarkedNullable) "?" else ""
-        val typeOfValues = type.resolveListType()
+        val typeOfValues = checkNotNull(type.resolveListType()) {
             // this error should be impossible to reach
-            ?: throw IllegalStateException("Lists must always have type arguments")
+            "Lists must always have type arguments"
+        }
         val mapped = createItemOfType(ctx, typeOfValues, "it")
         return "$propertiesRef.asList${nullable}()${optional}.map { $mapped }"
     }
@@ -35,6 +39,10 @@ internal object ListMapType {
         return "$propertiesRef.asMap${nullable}()${optional}.mapValues { $mapped }"
     }
 
+    /**
+     * A recursive function to deserialize a List or Map type. This must be recursive because the
+     * types of the items in a List or Map may be another List or Map.
+     */
     private fun createItemOfType(
         ctx: FunctionWriterContext,
         type: KSType,

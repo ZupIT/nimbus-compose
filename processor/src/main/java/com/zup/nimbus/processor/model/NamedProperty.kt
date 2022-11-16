@@ -9,6 +9,9 @@ import br.com.zup.nimbus.annotation.Alias
 import com.zup.nimbus.processor.error.InvalidUseOfVararg
 import com.zup.nimbus.processor.utils.getAnnotation
 
+/**
+ * A type of property that can be accessed through its name.
+ */
 internal class NamedProperty(
     name: String,
     type: KSType,

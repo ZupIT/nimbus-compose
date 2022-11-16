@@ -6,6 +6,9 @@ import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 import com.zup.nimbus.processor.utils.getPackageName
 import com.zup.nimbus.processor.utils.getSimpleName
 
+/**
+ * Writes the code for deserializing a property of Enum type.
+ */
 internal object EnumType {
     fun getCallString(
         ctx: FunctionWriterContext,

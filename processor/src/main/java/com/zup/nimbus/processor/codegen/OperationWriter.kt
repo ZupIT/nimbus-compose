@@ -8,13 +8,14 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.zup.nimbus.processor.ClassNames
 import br.com.zup.nimbus.annotation.Root
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSNode
+import com.squareup.kotlinpoet.TypeName
 import com.zup.nimbus.processor.codegen.function.FunctionWriter
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.CONTEXT_REF
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
@@ -27,15 +28,37 @@ import com.zup.nimbus.processor.model.IndexedProperty
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 
+/**
+ * Writes the code for any operation annotated with @AutoDeserialize.
+ *
+ * Operations are identified by the rule: functions that returns something other than Unit.
+ */
 internal object OperationWriter {
+    /**
+     * Name of the variable that holds a reference to the list of arguments. It's prefixed with
+     * "__" to avoid name clashes with user defined parameters (deserialized properties).
+     */
     private const val ARGUMENTS_REF = "__arguments"
+    /**
+     * Name of the variable that holds a reference to the list of arguments after it has been
+     * treated for varargs.
+     */
     private const val TREATED_ARGUMENTS_REF = "__treatedArguments"
 
+    /**
+     * Set of imports common to every file with a generated operation.
+     */
     private val imports = setOf(
         ClassNames.DeserializationContext,
         ClassNames.AnyServerDrivenData,
     )
 
+    /**
+     * Checks the operation for invalid parameters. A parameter is invalid if it:
+     * - is a function;
+     * - is a `DeserializationContext`;
+     * - is annotated with `@Root`.
+     */
     private fun validate(operation: KSFunctionDeclaration) {
         operation.parameters.forEach {
             if (it.type.hasAnnotation(ClassNames.Composable)) throw InvalidUseOfComposable(it)
@@ -51,6 +74,19 @@ internal object OperationWriter {
         }
     }
 
+    /**
+     * Makes the function an extension of the parent element if the parent is a class or an object.
+     */
+    private fun makeAnExtensionIfNeeded(fnBuilder: FunSpec.Builder, parent: KSNode?) {
+        if (parent is KSClassDeclaration) {
+            fnBuilder.receiver(parent.asStarProjectedType().toTypeName())
+        }
+    }
+
+    /**
+     * Transforms a parameter `vararg name: T` into a property of type `List<T>` so it can be
+     * correctly managed by the `FunctionWriter`.
+     */
     private fun transformVarArgTypeToList(
         property: IndexedProperty,
         resolver: Resolver,
@@ -78,6 +114,13 @@ internal object OperationWriter {
         )
     }
 
+    /**
+     * If the operation has a vararg parameter, we must treat the incoming argument list so we can
+     * correctly assign each argument. Here, we write the code to extract a sublist from the
+     * original list of arguments corresponding to the vararg parameter, we then create a new
+     * argument list where the position equivalent to the vararg parameter corresponds to the
+     * previously extracted sublist.
+     */
     private fun treatVarArgs(
         properties: List<IndexedProperty>,
         builder: FunSpec.Builder,
@@ -109,28 +152,38 @@ internal object OperationWriter {
         }
     }
 
-    fun write(
-        operation: KSFunctionDeclaration,
-        deserializers: List<KSFunctionDeclaration>,
-        resolver: Resolver,
-    ): FunctionWriterResult {
-        validate(operation)
-        val parent = operation.parent
-        val operationName = operation.simpleName.asString()
-        val fnBuilder = FunSpec.builder(operationName)
+    /**
+     * Writes the header of a generated component, i.e. the function declaration and some
+     * useful variables.
+     */
+    private fun writeHeader(operationName: String, returnType: TypeName) =
+        FunSpec.builder(operationName)
             .addParameter(
                 ARGUMENTS_REF,
                 List::class.asTypeName().parameterizedBy(
                     Any::class.asTypeName().copy(nullable = true),
                 ),
             )
-            .returns(operation.returnType!!.toTypeName())
+            .returns(returnType)
             .addStatement("val %L = DeserializationContext()", CONTEXT_REF)
-        // makes this function an extension of the parent element if the parent is a class or an
-        // object
-        if (parent is KSClassDeclaration) {
-            fnBuilder.receiver(parent.asStarProjectedType().toTypeName())
-        }
+
+    /**
+     * Writes the body of a generated operation, i.e. the deserialization itself, it will have
+     * the form:
+     *
+     * ```
+     * val propertyA = properties.at(0).asString()
+     * val propertyB = properties.at(1).asIntOrNull()
+     * // ...
+     * ```
+     */
+    private fun writeBody(
+        operation: KSFunctionDeclaration,
+        deserializers: List<KSFunctionDeclaration>,
+        fnBuilder: FunSpec.Builder,
+        operationName: String,
+        resolver: Resolver,
+    ): Pair<List<IndexedProperty>, FunctionWriterResult> {
         val properties = treatVarArgs(
             ParameterUtils.convertParametersIntoIndexedProperties(operation.parameters),
             fnBuilder,
@@ -143,6 +196,19 @@ internal object OperationWriter {
             TREATED_ARGUMENTS_REF,
         )
         val result = FunctionWriter.write(properties, deserializers, fnBuilder)
+        return properties to result
+    }
+
+    /**
+     * Writes the last part of a generated operation, which calls the original operation
+     * with the deserialized parameters or throws an IllegalArgumentException if the operation
+     * is unsuccessful.
+     */
+    private fun writeFooter(
+        operationName: String,
+        properties: List<IndexedProperty>,
+        fnBuilder: FunSpec.Builder,
+    ) {
         fnBuilder.addCode(
             """
             |if ($PROPERTIES_REF.hasError()) {
@@ -151,12 +217,27 @@ internal object OperationWriter {
             |            $PROPERTIES_REF.errorsAsString()
             |  )
             |}
-            |return ${operation.simpleName.asString()}(
+            |return $operationName(
             |  ${ParameterUtils.buildParameterAssignments(properties).joinToString(",\n  ")}
             |)
             |""".trimMargin(),
         )
+    }
 
+    /**
+     * Writes a function that deserializes the properties of an operation.
+     */
+    fun write(
+        operation: KSFunctionDeclaration,
+        deserializers: List<KSFunctionDeclaration>,
+        resolver: Resolver,
+    ): FunctionWriterResult {
+        validate(operation)
+        val operationName = operation.simpleName.asString()
+        val fnBuilder = writeHeader(operationName, operation.returnType!!.toTypeName())
+        makeAnExtensionIfNeeded(fnBuilder, operation.parent)
+        val (properties, result) = writeBody(operation, deserializers, fnBuilder, operationName, resolver)
+        writeFooter(operationName, properties, fnBuilder)
         return result.combine(imports)
     }
 }

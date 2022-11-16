@@ -5,6 +5,14 @@ import com.google.devtools.ksp.symbol.KSType
 import com.zup.nimbus.processor.codegen.RootPropertyCalculator
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
 
+/**
+ * Writes the code for deserializing a property annotated with @Root. The main differences from this
+ * to a `CommonProperty` is that:
+ * 1. The annotated parameter must be a class of non-primitive type.
+ * 2. We don't enter the parameter name in `AnyServerDrivenData` before passing it to the deserializer.
+ * 3. If the annotated parameter is optional, we first check the `AnyServerDrivenData` for any of its
+ * property keys, if none is found, we don't attempt to deserialize it.
+ */
 internal object RootAnnotated {
     private fun createListOfKeysForDeserializer(
         deserializer: KSFunctionDeclaration?,

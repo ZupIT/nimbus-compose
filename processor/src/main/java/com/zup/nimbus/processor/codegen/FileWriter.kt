@@ -12,13 +12,32 @@ import com.zup.nimbus.processor.model.FunctionCategory
 import com.zup.nimbus.processor.model.FunctionWriterResult
 
 internal object FileWriter {
+    /**
+     * Writes every auto-deserialized component, action handler, operation and class into file
+     * builders (encapsulated in FileToWrite). There will be one file builder for each source file.
+     */
     fun write(
         functionsToDeserialize: List<DeserializableFunction>,
         deserializers: List<KSFunctionDeclaration>,
         resolver: Resolver,
     ): List<FileToWrite> {
+        /**
+         * Holds references to all types that must be deserialized in order for the generated code
+         * to work properly. After deserializing all components, action handlers and operations,
+         * we'll use this set to write the deserializers for the auto-deserialized classes.
+         */
         val allTypesToDeserialize = mutableSetOf<KSType>()
+        /**
+         * This map holds a reference to each file builder corresponding to an existing source
+         * file. This is useful because if multiple functions annotated with `@AutoDeserialize`
+         * are in the same file, the file builder must be reused.
+         */
         val files = mutableMapOf<KSFile, FileSpec.Builder>()
+        /**
+         * It is possible that an entity doesn't have a corresponding source file. This happens
+         * if a class of an external module is used and no custom deserializer is provided for
+         * it. In this case, we'll create a new file without any correspondence with a source file.
+         */
         val sourceLessFiles = mutableListOf<FileSpec.Builder>()
 
         fun writeDeserializableFunction(fn: DeserializableFunction): FunctionWriterResult {
@@ -57,6 +76,10 @@ internal object FileWriter {
             }
         }
 
+        /**
+         * Writes the auto-deserialized classes. Notice that this process may yield more classes
+         * that need to be auto-deserialized, hence the `while` loop.
+         */
         fun writeEntities() {
             var index = 0
             while (index < allTypesToDeserialize.size) {

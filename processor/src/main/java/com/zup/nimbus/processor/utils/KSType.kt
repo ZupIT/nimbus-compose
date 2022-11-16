@@ -20,18 +20,35 @@ fun KSType.isList(): Boolean = this.getQualifiedName() == List::class.qualifiedN
 fun KSType.isEnum(): Boolean = this.declaration.modifiers.contains(Modifier.ENUM)
 fun KSType.isPrimitive(): Boolean = this.isAny() || this.isString() || this.isBoolean()
         || this.isInt() || this.isLong() || this.isDouble() || this.isFloat()
+
+/**
+ * True if Boolean, String, Long, Int, Float, Double, Any, List, Map, Enum or Function.
+ */
 fun KSType.isKnown(): Boolean = this.isPrimitive() || this.isList() || this.isMap()
         || this.isEnum() || this.isFunctionType
 
+/**
+ * Resolves `T` in `List<T>`
+ */
 fun KSType.resolveListType(): KSType? =
     this.arguments.firstOrNull()?.type?.resolve()
 
+/**
+ * Resolves `K` and `V` in `Map<K, V>`
+ */
 fun KSType.resolveMapType(): Pair<KSType?, KSType?> {
     val keyType = this.arguments.firstOrNull()?.type?.resolve()
     val valueType = this.arguments.getOrNull(1)?.type?.resolve()
     return Pair(keyType, valueType)
 }
 
+/**
+ * True if the generic types of this and `other` are equal.
+ *
+ * Examples:
+ * `List<String>`, `List<String>` => true;
+ * `Map<String, Int>`, `Map<Int, String>` => false.
+ */
 fun KSType.hasSameArguments(other: KSType): Boolean {
     if (this.arguments.size != other.arguments.size) return false
     this.arguments.forEachIndexed { index, current ->

@@ -12,6 +12,9 @@ import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
 import com.zup.nimbus.processor.utils.isKnown
 
+/**
+ * A more practical version of KSParameter given this project's needs.
+ */
 internal abstract class Property(
     val name: String,
     val type: KSType,
@@ -22,6 +25,7 @@ internal abstract class Property(
 ) {
     companion object {
         private fun validateRoot(param: KSValueParameter, type: KSType) {
+            // @Root can only be used for non-primitive classes
             if(type.isKnown()) throw InvalidUseOfRoot(param)
         }
 
@@ -34,9 +38,9 @@ internal abstract class Property(
         }
 
         fun nameFromParameter(param: KSValueParameter): String {
-            return param.name?.asString()
-                // the following error should never be reached
-                ?: throw IllegalStateException("Every parameter must be named in Kotlin")
+            return checkNotNull(param.name?.asString()) {
+                "Every parameter must be named in Kotlin"
+            }
         }
 
         fun typeFromParameter(param: KSValueParameter): KSType {
