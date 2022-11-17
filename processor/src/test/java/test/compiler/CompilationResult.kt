@@ -161,5 +161,7 @@ class CompilationResult(private val result: KotlinCompilation.Result) {
         assertTrue(results.isEmpty())
     }
 
-    fun hasError() = result.exitCode != KotlinCompilation.ExitCode.OK
+    fun hasSomeError() = result.exitCode != KotlinCompilation.ExitCode.OK
+    fun hasCompilationError() = result.exitCode == KotlinCompilation.ExitCode.COMPILATION_ERROR
+    fun hasProcessorError() = result.exitCode == KotlinCompilation.ExitCode.INTERNAL_ERROR
 }

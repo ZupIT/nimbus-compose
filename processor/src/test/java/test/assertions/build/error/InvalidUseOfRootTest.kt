@@ -54,4 +54,22 @@ class InvalidUseOfRootTest: BaseTest() {
         """)
         compilation.assertProcessorError("InvalidUseOfRoot")
     }
+
+    @Test
+    fun `When @Root is used on a custom deserialized type, it should raise a compilation error`() {
+        compilation = TestCompiler.compile("""
+            import br.com.zup.nimbus.annotation.Root
+            
+            class Animal {
+                var name: String
+            }
+            
+            @Deserializer
+            fun deserializeAnimal(data: AnyServerDrivenData): Animal {}
+            
+            @AutoDeserialize
+            fun rootWithCustomDeserialized(@Root val props: Animal?)
+        """)
+        compilation.assertProcessorError("InvalidUseOfRoot")
+    }
 }

@@ -8,6 +8,8 @@ import br.com.zup.nimbus.annotation.Alias
 import br.com.zup.nimbus.annotation.Ignore
 import br.com.zup.nimbus.annotation.Root
 import com.zup.nimbus.processor.codegen.function.CustomDeserialized
+import com.zup.nimbus.processor.error.InvalidUseOfRoot
+import com.zup.nimbus.processor.error.RootCycleError
 import com.zup.nimbus.processor.utils.getAnnotation
 import com.zup.nimbus.processor.utils.getQualifiedName
 import com.zup.nimbus.processor.utils.hasAnnotation
@@ -48,6 +50,10 @@ object RootPropertyCalculator {
      * Root properties for classes that have been already calculated.
      */
     private val results = mutableMapOf<String, List<String>>()
+    /**
+     * Watches for cycles in the usage of @Root. Cycles are invalid and must throw an exception.
+     */
+    private val cycleWatcher = mutableSetOf<String>()
 
     private fun getName(param: KSValueParameter) =
         param.getAnnotation<Alias>()?.name ?: param.name?.asString() ?: ""
@@ -62,7 +68,7 @@ object RootPropertyCalculator {
                 val paramType = param.type.resolve()
                 val deserializer = CustomDeserialized.findDeserializer(paramType, deserializers)
                 if (deserializer == null) {
-                    result.addAll(getAllParamsInTypeConstructor(paramType, deserializers))
+                    result.addAll(getRootPropertiesOfParameter(param, deserializers))
                 }
             } else if (!param.hasAnnotation<Ignore>()) result.add(getName(param))
         }
@@ -74,17 +80,33 @@ object RootPropertyCalculator {
         deserializers: List<KSFunctionDeclaration>,
     ) {
         val name = type.getQualifiedName() ?: ""
-        // setting this as an empty list immediately prevents an infinite loop when @Root is used
-        // in a cyclic manner. `getAllParamsInTypeConstructor` will be called and instead of
-        // recursively entering this function, it will use the result `emptyList`.
-        results[name] = emptyList()
+        // starts processing this type, any reference to it while it hasn't finished indicates a
+        // cyclic reference
+        cycleWatcher.add(name)
         val declaration = type.declaration
-        if (declaration is KSClassDeclaration) {
+        results[name] = if (declaration is KSClassDeclaration) {
             val constructor = declaration.primaryConstructor
-            constructor?.let {
-                results[name] = calculateAllParamsInFunction(it, deserializers)
-            }
-        }
+            constructor?.let { calculateAllParamsInFunction(it, deserializers) } ?: emptyList()
+        } else emptyList()
+        cycleWatcher.remove(name) // finishes processing this type
+    }
+
+    /**
+     * Similar to `getAllParamsInTypeConstructor` but checks for cyclic references and throws if
+     * one is found.
+     *
+     * Cyclic references must throw in order to avoid generating code that will cause infinite
+     * loops. Moreover, it makes no sense to make cyclic references using the @Root annotation,
+     * this signifies a modeling error.
+     */
+    private fun getRootPropertiesOfParameter(
+        param: KSValueParameter,
+        deserializers: List<KSFunctionDeclaration>,
+    ): List<String> {
+        val type = param.type.resolve()
+        val name = type.getQualifiedName()
+        if (cycleWatcher.contains(name)) throw RootCycleError(param)
+        return getAllParamsInTypeConstructor(type, deserializers)
     }
 
     /**

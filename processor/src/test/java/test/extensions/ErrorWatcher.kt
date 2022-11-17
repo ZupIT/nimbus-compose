@@ -20,9 +20,11 @@ class ErrorWatcher: TestWatcher {
         val methodName = extensionContext?.testMethod?.get()?.name ?: ""
         val testName = "$className: $methodName"
         compilation?.let {
-            if (compilation !== lastCompilation && compilation.hasError()) {
+            if (compilation !== lastCompilation && compilation.hasSomeError()) {
+                val errorType = if (compilation.hasCompilationError()) "COMPILATION"
+                else "ANNOTATION PROCESSOR"
                 println("$RED=========================================================")
-                println("${RED}COMPILATION OR ANNOTATION PROCESSOR ERROR")
+                println("$RED$errorType ERROR")
                 println("$RED=========================================================")
                 println("${RED}Attention: kotlin-compile-testing allows compilation errors to " +
                         "go through the annotation processor. This doesn't happen in real " +
@@ -48,7 +50,7 @@ class ErrorWatcher: TestWatcher {
             println("$RED=========================================================\n")
         }
 
-        if (compilation?.hasError() == true) println("${RED}There was a compilation error " +
+        if (compilation?.hasSomeError() == true) println("${RED}There was a compilation error " +
                 "while running the test `$testName`. The compilation logs are printed above.")
         if (MockLogger.errors.isNotEmpty()) println("${RED}Nimbus log errors have been generated " +
                 "while running the test `$testName`. The Nimbus error logs are printed above.")

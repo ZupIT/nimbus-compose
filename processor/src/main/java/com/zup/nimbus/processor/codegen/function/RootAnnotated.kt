@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.zup.nimbus.processor.codegen.RootPropertyCalculator
 import com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
+import com.zup.nimbus.processor.error.InvalidUseOfRoot
 
 /**
  * Writes the code for deserializing a property annotated with @Root. The main differences from this
@@ -32,7 +33,10 @@ internal object RootAnnotated {
         return if (deserializer == null) {
             AutoDeserialized.getCallString(ctx)
         } else {
-            CustomDeserialized.getCallString(ctx, deserializer)
+            throw InvalidUseOfRoot(
+                ctx.property,
+                "@Root can't be used on a parameter that is custom deserialized.",
+            )
         }
     }
 
