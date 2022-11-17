@@ -32,10 +32,10 @@ class CustomDeserializedTest: BaseRuntimeTest() {
                   override fun toString() = value
                 }
                 
-                class Custom3 {
-                  var value: String = ""
-                  override fun equals(other: Any?) = other is Custom3 && value == other.value
-                  override fun toString() = value
+                class Custom3<T> {
+                  var value: T? = null
+                  override fun equals(other: Any?) = other is Custom3<*> && value == other.value
+                  override fun toString() = "${'$'}value"
                 }
                 
                 @Deserializer
@@ -63,8 +63,8 @@ class CustomDeserializedTest: BaseRuntimeTest() {
                 }
                 
                 @Deserializer
-                fun deserializeCustom3(context: DeserializationContext): Custom3 {
-                    val result = Custom3()
+                fun deserializeCustom3(context: DeserializationContext): Custom3<String> {
+                    val result = Custom3<String>()
                     result.value = context.event?.action?.name ?: ""
                     return result
                 }
@@ -74,7 +74,7 @@ class CustomDeserializedTest: BaseRuntimeTest() {
                   myDate: MyDate,
                   custom1: Custom1?,
                   custom2: Custom2,
-                  custom3: Custom3?,
+                  custom3: Custom3<String>?,
                 ) {
                   TestResult.add(myDate, custom1, custom2, custom3)
                 }
