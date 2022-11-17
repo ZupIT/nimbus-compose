@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import br.com.zup.nimbus.annotation.AutoDeserialize
 import br.zup.com.nimbus.compose.ComponentData
 import br.zup.com.nimbus.compose.NimbusTheme
 import com.zup.nimbus.core.deserialization.AnyServerDrivenData
@@ -17,19 +18,13 @@ private fun getColor(colorString: String): Color {
 }
 
 @Composable
-fun NimbusContainer(it: ComponentData) {
-    val logger = NimbusTheme.nimbus.logger
-    val props = AnyServerDrivenData(it.node.properties)
-    val background = props.get("backgroundColor").asStringOrNull()
-    val padding = props.get("padding").asDoubleOrNull()
+@AutoDeserialize
+fun NimbusContainer(
+    backgroundColor: String?,
+    padding: Double?,
+    content: @Composable () -> Unit,
+) {
     var modifier = Modifier.padding((padding ?: 0.0).dp)
-    if (background != null) modifier = modifier.background(color = getColor(background))
-    if (props.hasError()) {
-        logger.error(props.errorsAsString())
-        Text("Error!")
-    } else {
-        Column(modifier = modifier) {
-            it.children()
-        }
-    }
+    backgroundColor?.let { modifier = modifier.background(color = getColor(it)) }
+    Column(modifier = modifier) { content() }
 }
