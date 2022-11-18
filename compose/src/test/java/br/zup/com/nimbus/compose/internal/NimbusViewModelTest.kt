@@ -25,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -101,6 +102,33 @@ class NimbusViewModelTest : BaseTest() {
                 observer, errorState, expectedLoading, expectedOnShowPage,
             )
             verify(exactly = 1) { pagesManager.add(any()) }
+        }
+    }
+
+    @DisplayName("When initFirstViewWithRequest with navigation params")
+    @Nested
+    inner class ViewWithRequestWithNavigationParams {
+        @DisplayName("Then should init the view with states")
+        @Test
+        fun testGivenAViewRequestWhenInitFirstViewShouldInitWithStates() = runTest {
+            val paramsViewModel = NimbusViewModel(nimbusConfig = nimbusConfig, pagesManager = PagesManager())
+
+            // Given
+            val pageUrl = RandomData.httpUrl()
+            val viewRequest = ViewRequest(
+                url = pageUrl,
+                params = mapOf("testParamState" to "test state param value")
+            )
+
+            //When
+            paramsViewModel.initFirstViewWithRequest(viewRequest)
+
+            val page = paramsViewModel.getPageBy(pageUrl)
+            assertNotNull(page)
+            assertNotNull(page!!.view.states)
+            assertEquals(1, page.view.states!!.size)
+            assertEquals(page.view.states!![0].id, "testParamState")
+            assertEquals(page.view.states!![0].get(), "test state param value")
         }
     }
 
@@ -230,7 +258,6 @@ class NimbusViewModelTest : BaseTest() {
             viewModel.nimbusViewModelModalState.test {
                 assertEquals(expectedHideModal, awaitItem())
             }
-
         }
 
         @DisplayName("Then should post NimbusViewModelNavigationState.PopTo(url)")
@@ -249,9 +276,8 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             viewModel.nimbusViewNavigationState.test {
-                assertEquals(expectedState, awaitItem())
+              assertEquals(expectedState, awaitItem())
             }
-
         }
     }
 
@@ -325,7 +351,6 @@ class NimbusViewModelTest : BaseTest() {
         @DisplayName("Then should dispose the pages")
         @Test
         fun testGivenDisposeCallShouldDisposePages() = runTest {
-
             //Given
             every { pagesManager.removeAllPages() } just Runs
 
@@ -363,7 +388,7 @@ class NimbusViewModelTest : BaseTest() {
 
             //Then
             viewModel.nimbusViewModelModalState.test {
-                assertEquals(expectedModalState, awaitItem())
+              assertEquals(expectedModalState, awaitItem())
             }
         }
     }

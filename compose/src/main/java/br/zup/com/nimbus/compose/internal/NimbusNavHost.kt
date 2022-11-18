@@ -35,9 +35,7 @@ internal fun NimbusNavHost(
     nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
-        factory = NimbusViewModel.provideFactory(
-            nimbusConfig = nimbusConfig
-        )
+        factory = NimbusViewModel.provideFactory(nimbusConfig = nimbusConfig)
     ),
     modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
@@ -101,7 +99,6 @@ private fun configureNavHostHelper(
 ) {
     nimbusNavHostHelper.nimbusNavHostExecutor = object : NimbusNavHostHelper.NimbusNavHostExecutor {
         override fun isFirstScreen(): Boolean = nimbusViewModel.getPageCount() == 1
-
         override fun pop(): Boolean = nimbusViewModel.pop()
     }
 }
@@ -111,12 +108,12 @@ private fun initNavHost(
     viewRequest: ViewRequest?,
     json: String,
 ) {
-
-    if (viewRequest != null)
+    if (viewRequest != null) {
         nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
-    else
+    }
+    else {
         nimbusViewModel.initFirstViewWithJson(json = json)
-
+    }
 }
 
 /**
