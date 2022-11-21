@@ -12,7 +12,7 @@ internal class FunctionWriterResult(
      */
     val typesToImport: Set<ClassName>,
     /**
-     * All classes that didn't have a custom deserializer and needs to be automatically deserialized
+     * All classes that didn't have a custom deserializer and need to be automatically deserialized
      * in order for the functions to work.
      */
     val typesToAutoDeserialize: Set<IdentifiableKSType>,

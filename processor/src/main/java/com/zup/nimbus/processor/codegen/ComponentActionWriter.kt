@@ -49,7 +49,7 @@ internal abstract class ComponentActionWriter {
      * // ...
      * ```
      */
-    protected open fun writeBody(
+    private fun writeBody(
         action: KSFunctionDeclaration,
         deserializers: List<KSFunctionDeclaration>,
         fnBuilder: FunSpec.Builder,

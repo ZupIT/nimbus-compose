@@ -69,7 +69,7 @@ internal abstract class Property(
     abstract fun getAccessString(ref: String): String
 
     /**
-     * Creates the code for verifying if this property exists the AnyServerDrivenData referred by
+     * Creates the code for verifying if this property exists in the AnyServerDrivenData referred by
      * ref.
      */
     abstract fun getContainsString(ref: String): String

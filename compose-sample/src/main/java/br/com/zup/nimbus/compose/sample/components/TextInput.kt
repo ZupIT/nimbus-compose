@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import br.com.zup.nimbus.annotation.AutoDeserialize
+import br.com.zup.nimbus.annotation.Root
 
 class TextInputEvents(
     val onChange: ((String) -> Unit)?,
@@ -29,7 +30,7 @@ fun TextInput(
     label: String,
     type: TextInputType? = null,
     enabled: Boolean? = null,
-    events: TextInputEvents? = null,
+    @Root events: TextInputEvents? = null,
 ) {
     val modifier = Modifier.onFocusChanged {
         if (it.isFocused) events?.onFocus?.let { it(value) }
