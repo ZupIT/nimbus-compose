@@ -12,7 +12,7 @@ val ktorVersion = "1.6.8"
 val kotlinVersion = "1.7.10"
 
 dependencies {
-    api("br.com.zup.nimbus:nimbus-core-jvm:1.0.0-alpha")
+    api("br.com.zup.nimbus:nimbus-core-jvm:1.0.0-alpha9")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$serializationVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
