@@ -31,7 +31,7 @@ jobs:
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: detekt lintDebug testDebugUnitTest compose:jacocoDebugTestReport jacocoMerge jacocoRootReport sonarqube --scan
+          arguments: detekt lintDebug test compose:jacocoDebugTestReport jacocoMerge jacocoRootReport sonarqube --scan
 
       - name: "Add build scan URL as PR comment"
         uses: actions/github-script@v5
