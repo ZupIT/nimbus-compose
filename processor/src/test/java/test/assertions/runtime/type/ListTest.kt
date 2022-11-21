@@ -184,8 +184,8 @@ class ListTest: BaseRuntimeTest() {
                 "Expected CPF, RG, CNH for property \"enumList[0]\", but found null",
                 "Expected CPF, RG, CNH for property \"classList[0].type\", but found null",
                 "Expected a string for property \"classList[0].value\", but found null",
-                "Expected an object for property \"mapList[1]\", but found null",
-                "Expected an array for property \"stringListListList[0]\", but found null",
+                "Expected a map for property \"mapList[1]\", but found null",
+                "Expected a list for property \"stringListListList[0]\", but found null",
                 "Expected a string for property \"stringListListList2[0][0][0]\", but found null"
             )
             compilation.runEventForActionHandlerCatching(functionName, properties, errors)
@@ -232,17 +232,17 @@ class ListTest: BaseRuntimeTest() {
 
         private fun testFailureOf(functionName: String) {
             val errors = listOf(
-                "Expected an array for property \"intList\", but found null",
-                "Expected an array for property \"longList\", but found null",
-                "Expected an array for property \"doubleList\", but found null",
-                "Expected an array for property \"booleanList\", but found null",
-                "Expected an array for property \"anyList\", but found null",
-                "Expected an array for property \"enumList\", but found null",
-                "Expected an array for property \"classList\", but found null",
-                "Expected an array for property \"customClassList\", but found null",
-                "Expected an array for property \"mapList\", but found null",
-                "Expected an array for property \"stringListListList\", but found null",
-                "Expected an array for property \"stringListListList2\", but found null",
+                "Expected a list for property \"intList\", but found null",
+                "Expected a list for property \"longList\", but found null",
+                "Expected a list for property \"doubleList\", but found null",
+                "Expected a list for property \"booleanList\", but found null",
+                "Expected a list for property \"anyList\", but found null",
+                "Expected a list for property \"enumList\", but found null",
+                "Expected a list for property \"classList\", but found null",
+                "Expected a list for property \"customClassList\", but found null",
+                "Expected a list for property \"mapList\", but found null",
+                "Expected a list for property \"stringListListList\", but found null",
+                "Expected a list for property \"stringListListList2\", but found null",
             )
             compilation.runEventForActionHandlerCatching(functionName, properties, errors)
         }
@@ -298,21 +298,21 @@ class ListTest: BaseRuntimeTest() {
 
         private fun testFailureOf(functionName: String) {
             val errors = listOf(
-                "Expected an array for property \"stringList\", but found String",
+                "Expected a list for property \"stringList\", but found String",
                 "Expected a number for property \"intList[1]\", but found String",
-                "Expected an array for property \"longList\", but found Long",
+                "Expected a list for property \"longList\", but found Long",
                 "Expected a number for property \"floatList[1]\", but found Boolean",
                 "Expected a number for property \"doubleList[0]\", but found Boolean",
                 "Expected a boolean for property \"booleanList[0]\", but found Int",
                 "Expected a boolean for property \"booleanList[1]\", but found String",
-                "Expected an array for property \"anyList\", but found Int",
+                "Expected a list for property \"anyList\", but found Int",
                 "Expected CPF, RG, CNH for property \"enumList[0]\", but found test",
                 "Expected CPF, RG, CNH for property \"classList[0].type\", but found null",
                 "Expected a string for property \"classList[0].value\", but found null",
                 "Expected a number for property \"customClassList[0]\", but found Boolean",
                 "Expected a number for property \"mapList[0].value\", but found String",
-                "Expected an array for property \"stringListListList[0][0]\", but found Int",
-                "Expected an array for property \"stringListListList2[0]\", but found Boolean"
+                "Expected a list for property \"stringListListList[0][0]\", but found Int",
+                "Expected a list for property \"stringListListList2[0]\", but found Boolean"
             )
             compilation.runEventForActionHandlerCatching(functionName, properties, errors)
         }

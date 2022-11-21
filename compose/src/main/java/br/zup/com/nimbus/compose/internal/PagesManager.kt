@@ -2,7 +2,6 @@ package br.zup.com.nimbus.compose.internal
 
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.model.Page
-import br.zup.com.nimbus.compose.model.removePagesAfter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -16,7 +15,6 @@ internal class PagesManager {
             return false
         }
         this.removeLastPage()
-
         return true
     }
 
@@ -24,14 +22,11 @@ internal class PagesManager {
         pages.clear()
     }
 
-    private fun removeLastPage() =
-        CoroutineScope(CoroutineDispatcherLib.backgroundPool).launch {
-            pages.removeLast()
-        }
+    private fun removeLastPage() = CoroutineScope(CoroutineDispatcherLib.backgroundPool).launch {
+        pages.removeLast()
+    }
 
     fun getPageCount() = pages.size
     fun getPageBy(url: String): Page? = pages.firstOrNull { it.id == url }
-
     fun removePagesAfter(page: Page) = page.removePagesAfter(pages)
-
 }

@@ -7,10 +7,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import br.zup.com.nimbus.compose.ui.components.ErrorDefault
-import br.zup.com.nimbus.compose.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.internal.NimbusNavHostHelper
 import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
+import br.zup.com.nimbus.compose.ui.components.ErrorDefault
+import br.zup.com.nimbus.compose.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.ui.composeUILibrary
 import com.zup.nimbus.core.Nimbus
 import com.zup.nimbus.core.ServerDrivenConfig
@@ -93,7 +93,7 @@ private fun configureStaticState(applicationContext: Context) {
 }
 
 @Composable
-fun ProvideNavigatorState(
+internal fun ProvideNavigatorState(
     navHostHelper: NimbusNavHostHelper,
     content: @Composable () -> Unit,
 ) {

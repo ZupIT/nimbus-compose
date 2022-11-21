@@ -12,7 +12,7 @@ java {
 dependencies {
     implementation("com.squareup:kotlinpoet:1.12.0")
     implementation("com.squareup:kotlinpoet-ksp:1.12.0")
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.6.10-1.0.4")
+    implementation("com.google.devtools.ksp:symbol-processing-api:1.7.10-1.0.6")
     implementation("br.com.zup.nimbus:nimbus-core-jvm:1.0.0-alpha")
     implementation(project(":annotation"))
 

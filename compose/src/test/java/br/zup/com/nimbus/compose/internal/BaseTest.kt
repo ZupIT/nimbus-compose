@@ -16,7 +16,7 @@ const val BASE_URL = "http://localhost"
 abstract class BaseTest {
     internal val nimbusConfig: Nimbus = mockk()
     internal val pagesManager: PagesManager = mockk()
-    internal val viewClient: ViewClient = mockk()
+    private val viewClient: ViewClient = mockk()
 
     @BeforeAll
     open fun setUp() {
@@ -28,7 +28,7 @@ abstract class BaseTest {
         unmockkAll()
     }
 
-    protected fun mockNimbusConfig(){
+    private fun mockNimbusConfig(){
         every { nimbusConfig.baseUrl } returns BASE_URL
         every { nimbusConfig.viewClient } returns viewClient
     }

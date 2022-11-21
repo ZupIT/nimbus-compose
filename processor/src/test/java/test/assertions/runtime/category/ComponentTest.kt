@@ -116,8 +116,8 @@ class ComponentTest: BaseRuntimeTest() {
         )
         val errors = listOf(
             "Expected a string for property \"name\", but found null",
-            "Expected an event, i.e. an array of actions. for property \"onPress\", but found String",
-            "Expected an array for property \"documents\", but found Int",
+            "Expected an event for property \"onPress\", but found String",
+            "Expected a list for property \"documents\", but found Int",
         )
         compilation.renderComponent("LeafComponent", properties)
         compilation.assertEmptyResults()

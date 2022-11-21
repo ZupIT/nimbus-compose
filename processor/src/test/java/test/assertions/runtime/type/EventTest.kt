@@ -104,8 +104,8 @@ class EventTest: BaseRuntimeTest() {
             "onCancel" to createEvent("onCancel"),
         )
         val errors = listOf(
-            "Expected an event, i.e. an array of actions. for property \"onStart\", but found null",
-            "Expected an event, i.e. an array of actions. for property \"more.onSuccess\", but found null",
+            "Expected an event for property \"onStart\", but found null",
+            "Expected an event for property \"more.onSuccess\", but found null",
         )
         compilation.runEventForActionHandlerCatching("nestedEventsAction", properties, errors)
     }
@@ -123,9 +123,9 @@ class EventTest: BaseRuntimeTest() {
             )
         )
         val errors = listOf(
-            "Expected an event, i.e. an array of actions. for property \"onCancel\", but found String",
-            "Expected an event, i.e. an array of actions. for property \"more.onSuccess\", but found Int",
-            "Expected an event, i.e. an array of actions. for property \"more.onError\", but found Boolean",
+            "Expected an event for property \"onCancel\", but found String",
+            "Expected an event for property \"more.onSuccess\", but found Int",
+            "Expected an event for property \"more.onError\", but found Boolean",
         )
         compilation.runEventForActionHandlerCatching("nestedEventsAction", properties, errors)
     }

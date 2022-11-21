@@ -183,8 +183,8 @@ class MapTest: BaseRuntimeTest() {
                 "Expected CPF, RG, CNH for property \"enumMap.key\", but found null",
                 "Expected CPF, RG, CNH for property \"classMap.key.type\", but found null",
                 "Expected a string for property \"classMap.key.value\", but found null",
-                "Expected an array for property \"listMap.key2\", but found null",
-                "Expected an object for property \"stringMapMapMap.key\", but found null",
+                "Expected a list for property \"listMap.key2\", but found null",
+                "Expected a map for property \"stringMapMapMap.key\", but found null",
                 "Expected a string for property \"stringMapMapMap2.key.key.key\", but found null"
             )
             compilation.runEventForActionHandlerCatching(functionName, properties, errors)
@@ -231,17 +231,17 @@ class MapTest: BaseRuntimeTest() {
 
         private fun testFailureOf(functionName: String) {
             val errors = listOf(
-                "Expected an object for property \"intMap\", but found null",
-                "Expected an object for property \"longMap\", but found null",
-                "Expected an object for property \"doubleMap\", but found null",
-                "Expected an object for property \"booleanMap\", but found null",
-                "Expected an object for property \"anyMap\", but found null",
-                "Expected an object for property \"enumMap\", but found null",
-                "Expected an object for property \"classMap\", but found null",
-                "Expected an object for property \"customClassMap\", but found null",
-                "Expected an object for property \"listMap\", but found null",
-                "Expected an object for property \"stringMapMapMap\", but found null",
-                "Expected an object for property \"stringMapMapMap2\", but found null",
+                "Expected a map for property \"intMap\", but found null",
+                "Expected a map for property \"longMap\", but found null",
+                "Expected a map for property \"doubleMap\", but found null",
+                "Expected a map for property \"booleanMap\", but found null",
+                "Expected a map for property \"anyMap\", but found null",
+                "Expected a map for property \"enumMap\", but found null",
+                "Expected a map for property \"classMap\", but found null",
+                "Expected a map for property \"customClassMap\", but found null",
+                "Expected a map for property \"listMap\", but found null",
+                "Expected a map for property \"stringMapMapMap\", but found null",
+                "Expected a map for property \"stringMapMapMap2\", but found null",
             )
             compilation.runEventForActionHandlerCatching(functionName, properties, errors)
         }
@@ -297,21 +297,21 @@ class MapTest: BaseRuntimeTest() {
 
         private fun testFailureOf(functionName: String) {
             val errors = listOf(
-                "Expected an object for property \"stringMap\", but found String",
+                "Expected a map for property \"stringMap\", but found String",
                 "Expected a number for property \"intMap.key2\", but found String",
-                "Expected an object for property \"longMap\", but found Long",
+                "Expected a map for property \"longMap\", but found Long",
                 "Expected a number for property \"floatMap.key2\", but found Boolean",
                 "Expected a number for property \"doubleMap.key\", but found Boolean",
                 "Expected a boolean for property \"booleanMap.key\", but found Int",
                 "Expected a boolean for property \"booleanMap.key2\", but found String",
-                "Expected an object for property \"anyMap\", but found Int",
+                "Expected a map for property \"anyMap\", but found Int",
                 "Expected CPF, RG, CNH for property \"enumMap.key\", but found test",
                 "Expected CPF, RG, CNH for property \"classMap.key.type\", but found null",
                 "Expected a string for property \"classMap.key.value\", but found null",
                 "Expected a number for property \"customClassMap.key\", but found Boolean",
-                "Expected an array for property \"listMap.key2\", but found Int",
-                "Expected an object for property \"stringMapMapMap.key.key\", but found Int",
-                "Expected an object for property \"stringMapMapMap2.key\", but found Boolean",
+                "Expected a list for property \"listMap.key2\", but found Int",
+                "Expected a map for property \"stringMapMapMap.key.key\", but found Int",
+                "Expected a map for property \"stringMapMapMap2.key\", but found Boolean",
             )
             compilation.runEventForActionHandlerCatching(functionName, properties, errors)
         }
