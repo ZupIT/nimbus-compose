@@ -13,7 +13,7 @@ val ktorVersion = "2.0.0"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(project(mapOf("path" to ":processor")))
+    implementation(project(mapOf("path" to ":annotation")))
     ksp(project(":processor", "default"))
 
     //FIXME replace here with the published compose library of nimbus

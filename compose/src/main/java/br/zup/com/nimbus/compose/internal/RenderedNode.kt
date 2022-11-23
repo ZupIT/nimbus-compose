@@ -14,7 +14,7 @@ import br.zup.com.nimbus.compose.ui.getComponent
 @Composable
 internal fun ComponentNotFound(name: String) {
     val nimbus = NimbusTheme.nimbus
-    val message = "Couldn't find component with id \"$name\""
+    val message = "Could not find any component named \"$name\"."
     nimbus.logger.error(message)
     if (nimbus.mode == NimbusMode.Development) Text(message, color = Color.Red)
 }

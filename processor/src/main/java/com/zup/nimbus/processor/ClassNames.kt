@@ -2,16 +2,24 @@ package com.zup.nimbus.processor
 
 import com.squareup.kotlinpoet.ClassName
 
+/**
+ * The ClassNames (qualified names) of types often used by the generated code.
+ */
 object ClassNames {
     val Composable = ClassName(PackageNames.composeRuntime, "Composable")
     val Text = ClassName(PackageNames.composeMaterial, "Text")
+    val Column = ClassName(PackageNames.composeLayout, "Column")
     val Color = ClassName(PackageNames.composeGraphics, "Color")
     val ComponentData = ClassName(PackageNames.nimbusCompose, "ComponentData")
     val NimbusTheme = ClassName(PackageNames.nimbusCompose, "NimbusTheme")
     val NimbusMode = ClassName(PackageNames.nimbusCompose, "NimbusMode")
-    val TypeDeserializer = ClassName(PackageNames.nimbusCompose, "TypeDeserializer")
-    val ComponentDeserializer = ClassName(
+    val AnyServerDrivenData = ClassName(
         "${PackageNames.nimbusCore}.deserialization",
-        "ComponentDeserializer",
+        "AnyServerDrivenData",
+    )
+    val ActionTriggeredEvent = ClassName(PackageNames.nimbusCore, "ActionTriggeredEvent")
+    val DeserializationContext = ClassName(
+        "${PackageNames.nimbusCompose}.deserialization",
+        "DeserializationContext",
     )
 }
