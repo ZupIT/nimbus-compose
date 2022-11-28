@@ -21,7 +21,7 @@ internal object ComponentWriter: ComponentActionWriter() {
     override val imports = setOf(
         ClassNames.DeserializationContext,
         ClassNames.AnyServerDrivenData,
-        ClassNames.NimbusTheme,
+        ClassNames.Nimbus,
         ClassNames.NimbusMode,
         ClassNames.Text,
         ClassNames.Color,
@@ -48,8 +48,8 @@ internal object ComponentWriter: ComponentActionWriter() {
             |  $name(
             |    ${ParameterUtils.buildParameterAssignments(properties).joinToString(",\n    ")}
             |  )
-            |} else if (NimbusTheme.nimbus.mode == NimbusMode.Development) {
-            |  NimbusTheme.nimbus.logger.error(
+            |} else if (Nimbus.instance.mode == NimbusMode.Development) {
+            |  Nimbus.instance.logger.error(
             |    "Can't deserialize properties of the component with id ${'$'}{$COMPONENT_REF.node.id} " +
             |            "into the composable $name. See the errors below:" +
             |            $PROPERTIES_REF.errorsAsString()

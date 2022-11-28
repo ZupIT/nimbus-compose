@@ -11,7 +11,7 @@ object ClassNames {
     val Column = ClassName(PackageNames.composeLayout, "Column")
     val Color = ClassName(PackageNames.composeGraphics, "Color")
     val ComponentData = ClassName(PackageNames.nimbusCompose, "ComponentData")
-    val NimbusTheme = ClassName(PackageNames.nimbusCompose, "NimbusTheme")
+    val Nimbus = ClassName(PackageNames.nimbusCompose, "Nimbus")
     val NimbusMode = ClassName(PackageNames.nimbusCompose, "NimbusMode")
     val AnyServerDrivenData = ClassName(
         "${PackageNames.nimbusCore}.deserialization",

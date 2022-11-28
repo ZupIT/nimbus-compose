@@ -7,6 +7,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
+import br.zup.com.nimbus.compose.Nimbus.Companion.staticState
 import br.zup.com.nimbus.compose.internal.NimbusNavHostHelper
 import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
 import br.zup.com.nimbus.compose.ui.components.ErrorDefault
@@ -59,7 +60,22 @@ class Nimbus(
     httpClient = httpClient,
     viewClient = viewClient,
     idManager = idManager
-))
+)) {
+    companion object {
+        @get:Synchronized
+        @set:Synchronized
+        var staticState: NimbusComposeStaticState? = null
+            internal set
+
+        val instance: NimbusCompose
+            @Composable
+            get() = LocalNimbus.current
+
+        val navigatorInstance: NimbusNavigatorState
+            @Composable
+            get() = LocalNavigator.current
+    }
+}
 
 private val LocalNimbus = staticCompositionLocalOf<NimbusCompose> {
     error("No Nimbus provided")
@@ -86,8 +102,8 @@ fun ProvideNimbus(
 }
 
 private fun configureStaticState(applicationContext: Context) {
-    if (NimbusTheme.nimbusStaticState == null) {
-        NimbusTheme.nimbusStaticState =
+    if (staticState == null) {
+        staticState =
             NimbusComposeStaticState(applicationContext = applicationContext)
     }
 }
@@ -113,19 +129,3 @@ internal fun ProvideNavigatorState(
  * Should only expose singleton properties here
  */
 class NimbusComposeStaticState(val applicationContext: Context)
-
-object NimbusTheme {
-
-    @get:Synchronized
-    @set:Synchronized
-    var nimbusStaticState: NimbusComposeStaticState? = null
-        internal set
-
-    val nimbus: NimbusCompose
-        @Composable
-        get() = LocalNimbus.current
-
-    val nimbusNavigatorState: NimbusNavigatorState
-        @Composable
-        get() = LocalNavigator.current
-}
