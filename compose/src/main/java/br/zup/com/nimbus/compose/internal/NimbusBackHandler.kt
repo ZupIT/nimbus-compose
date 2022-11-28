@@ -4,12 +4,12 @@ import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import br.zup.com.nimbus.compose.NimbusTheme
+import br.zup.com.nimbus.compose.Nimbus
 
 @Composable
 internal fun NimbusBackHandler(onDismiss: ()-> Unit = {}) {
     val activity = LocalContext.current as? Activity
-    val navHostHelper = NimbusTheme.nimbusNavigatorState.navHostHelper
+    val navHostHelper = Nimbus.navigatorInstance.navHostHelper
     BackHandler(enabled = true) {
         if (!navHostHelper.pop()) {
             activity?.finish()

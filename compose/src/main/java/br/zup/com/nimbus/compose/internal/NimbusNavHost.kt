@@ -13,15 +13,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import br.zup.com.nimbus.compose.JSON
 import br.zup.com.nimbus.compose.Nimbus
-import br.zup.com.nimbus.compose.NimbusTheme.nimbus
 import br.zup.com.nimbus.compose.ProvideNavigatorState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
-import br.zup.com.nimbus.compose.JSON
-import br.zup.com.nimbus.compose.NimbusTheme
 import br.zup.com.nimbus.compose.VIEW_URL
-import br.zup.com.nimbus.compose.model.NimbusPageState
-import br.zup.com.nimbus.compose.model.Page
 import com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 
@@ -31,7 +27,7 @@ internal fun NimbusNavHost(
     navController: NavHostController = rememberNavController(),
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
-    nimbusConfig: Nimbus = nimbus,
+    nimbusConfig: Nimbus = Nimbus.instance,
     nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,

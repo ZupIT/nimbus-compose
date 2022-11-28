@@ -3,7 +3,7 @@ package br.zup.com.nimbus.compose.model
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import br.zup.com.nimbus.compose.NimbusTheme
+import br.zup.com.nimbus.compose.Nimbus.Companion.instance
 import br.zup.com.nimbus.compose.internal.HandleNimbusPageState
 import com.zup.nimbus.core.ServerDrivenView
 import com.zup.nimbus.core.tree.ServerDrivenNode
@@ -54,7 +54,7 @@ data class Page(
     @Composable
     fun Compose() {
         val localState: NimbusPageState by state.collectAsState()
-        localState.HandleNimbusPageState(NimbusTheme.nimbus.loadingView, NimbusTheme.nimbus.errorView)
+        localState.HandleNimbusPageState(instance.loadingView, instance.errorView)
     }
 }
 
