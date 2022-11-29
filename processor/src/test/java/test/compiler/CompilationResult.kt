@@ -1,7 +1,7 @@
 package test.compiler
 
 import androidx.compose.runtime.Composable
-import br.zup.com.nimbus.compose.ComponentData
+import br.com.zup.nimbus.processor.ComponentData
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.zup.nimbus.core.ActionTriggeredEvent
 import test.TestResult

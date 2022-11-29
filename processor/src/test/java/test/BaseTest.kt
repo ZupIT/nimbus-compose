@@ -1,7 +1,7 @@
 package test
 
 import androidx.compose.material.printedByTextComponent
-import br.zup.com.nimbus.compose.MockLogger
+import br.com.zup.nimbus.processor.MockLogger
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
