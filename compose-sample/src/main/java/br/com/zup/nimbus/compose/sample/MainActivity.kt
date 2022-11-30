@@ -15,7 +15,7 @@ import br.zup.com.nimbus.compose.Nimbus
 import br.zup.com.nimbus.compose.NimbusMode
 import br.zup.com.nimbus.compose.ProvideNimbus
 import br.zup.com.nimbus.compose.NimbusNavigator
-import com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.network.ViewRequest
 
 class MainActivity : ComponentActivity() {
     private val nimbus = Nimbus(

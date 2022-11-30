@@ -1,17 +1,17 @@
 package test.utils
 
 import br.com.zup.nimbus.processor.NimbusCompose
-import com.zup.nimbus.core.ActionTriggeredEvent
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.ServerDrivenNavigator
-import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.dependency.Dependent
-import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.scope.Scope
-import com.zup.nimbus.core.tree.ServerDrivenAction
-import com.zup.nimbus.core.tree.ServerDrivenEvent
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import br.com.zup.nimbus.core.ActionTriggeredEvent
+import br.com.zup.nimbus.core.Nimbus
+import br.com.zup.nimbus.core.ServerDrivenNavigator
+import br.com.zup.nimbus.core.ServerDrivenState
+import br.com.zup.nimbus.core.ServerDrivenView
+import br.com.zup.nimbus.core.dependency.Dependent
+import br.com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.scope.Scope
+import br.com.zup.nimbus.core.tree.ServerDrivenAction
+import br.com.zup.nimbus.core.tree.ServerDrivenEvent
+import br.com.zup.nimbus.core.tree.ServerDrivenNode
 
 const val DEFAULT_COMPONENT_NAME = "test:component"
 const val DEFAULT_COMPONENT_ID = "test"

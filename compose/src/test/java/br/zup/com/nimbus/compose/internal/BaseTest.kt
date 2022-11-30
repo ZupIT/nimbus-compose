@@ -1,8 +1,8 @@
 package br.zup.com.nimbus.compose.internal
 
 import br.zup.com.nimbus.compose.Nimbus
-import com.zup.nimbus.core.network.ViewClient
-import com.zup.nimbus.core.tree.dynamic.node.RootNode
+import br.com.zup.nimbus.core.network.ViewClient
+import br.com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

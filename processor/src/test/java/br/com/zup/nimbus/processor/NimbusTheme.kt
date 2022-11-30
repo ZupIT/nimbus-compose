@@ -1,12 +1,12 @@
 package br.com.zup.nimbus.processor
 
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.log.LogLevel
-import com.zup.nimbus.core.log.Logger
-import com.zup.nimbus.core.network.HttpClient
-import com.zup.nimbus.core.network.ServerDrivenRequest
-import com.zup.nimbus.core.network.ServerDrivenResponse
+import br.com.zup.nimbus.core.Nimbus
+import br.com.zup.nimbus.core.ServerDrivenConfig
+import br.com.zup.nimbus.core.log.LogLevel
+import br.com.zup.nimbus.core.log.Logger
+import br.com.zup.nimbus.core.network.HttpClient
+import br.com.zup.nimbus.core.network.ServerDrivenRequest
+import br.com.zup.nimbus.core.network.ServerDrivenResponse
 
 enum class NimbusMode { Development, Release }
 

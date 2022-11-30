@@ -18,7 +18,7 @@ import br.zup.com.nimbus.compose.Nimbus
 import br.zup.com.nimbus.compose.ProvideNavigatorState
 import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
 import br.zup.com.nimbus.compose.VIEW_URL
-import com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 
 @Composable

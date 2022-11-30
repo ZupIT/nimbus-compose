@@ -13,13 +13,13 @@ import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
 import br.zup.com.nimbus.compose.ui.components.ErrorDefault
 import br.zup.com.nimbus.compose.ui.components.LoadingDefault
 import br.zup.com.nimbus.compose.ui.composeUILibrary
-import com.zup.nimbus.core.Nimbus
-import com.zup.nimbus.core.ServerDrivenConfig
-import com.zup.nimbus.core.log.Logger
-import com.zup.nimbus.core.network.HttpClient
-import com.zup.nimbus.core.network.UrlBuilder
-import com.zup.nimbus.core.network.ViewClient
-import com.zup.nimbus.core.tree.IdManager
+import br.com.zup.nimbus.core.Nimbus
+import br.com.zup.nimbus.core.ServerDrivenConfig
+import br.com.zup.nimbus.core.log.Logger
+import br.com.zup.nimbus.core.network.HttpClient
+import br.com.zup.nimbus.core.network.UrlBuilder
+import br.com.zup.nimbus.core.network.ViewClient
+import br.com.zup.nimbus.core.tree.IdManager
 import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
 
 typealias ComponentHandler = @Composable (ComponentData) -> Unit

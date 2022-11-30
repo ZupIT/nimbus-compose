@@ -3,7 +3,7 @@ package test.compiler
 import androidx.compose.runtime.Composable
 import br.com.zup.nimbus.processor.ComponentData
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.zup.nimbus.core.ActionTriggeredEvent
+import br.com.zup.nimbus.core.ActionTriggeredEvent
 import test.TestResult
 import test.utils.MockAction
 import test.utils.MockEvent

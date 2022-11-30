@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import br.zup.com.nimbus.compose.internal.NimbusNavHost
-import com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 
 const val SHOW_VIEW = "showView"

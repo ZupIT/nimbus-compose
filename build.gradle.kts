@@ -10,7 +10,7 @@ plugins{
 
 buildscript {
     val compose_version by extra("1.3.0")
-    val nimbus_core_version by extra("1.0.0-alpha9")
+    val nimbus_core_version by extra("1.0.0-alpha10")
     repositories {
         gradlePluginPortal()
         google()

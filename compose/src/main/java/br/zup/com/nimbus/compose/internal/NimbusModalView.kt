@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.network.ViewRequest
 
 @Composable
 internal fun NimbusModalView(
