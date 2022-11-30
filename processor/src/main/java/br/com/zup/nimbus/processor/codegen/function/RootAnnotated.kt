@@ -1,12 +1,9 @@
-package com.zup.nimbus.processor.codegen.function
+package br.com.zup.nimbus.processor.codegen.function
 
-import br.com.zup.nimbus.processor.codegen.function.AutoDeserialized
-import br.com.zup.nimbus.processor.codegen.function.CustomDeserialized
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import br.com.zup.nimbus.processor.codegen.RootPropertyCalculator
 import br.com.zup.nimbus.processor.codegen.function.FunctionWriter.PROPERTIES_REF
-import br.com.zup.nimbus.processor.codegen.function.FunctionWriterContext
 import br.com.zup.nimbus.processor.error.InvalidUseOfRoot
 
 /**

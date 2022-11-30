@@ -92,7 +92,7 @@ class AutoDeserializedTest: BaseRuntimeTest() {
     fun setup() {
         compilation = TestCompiler.compile(
             """
-                import com.zup.nimbus.core.ServerDrivenState
+                import br.com.zup.nimbus.core.ServerDrivenState
                 
                 // Testing nested and recursive auto-deserialized structures
                 

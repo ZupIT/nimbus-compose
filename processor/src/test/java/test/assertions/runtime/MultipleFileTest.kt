@@ -88,7 +88,7 @@ class MultipleFileTest: BaseRuntimeTest() {
         package br.com.myApp.deserialization
 
         import br.com.zup.nimbus.annotation.Deserializer
-        import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+        import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
         import java.util.Date
 
         @Deserializer

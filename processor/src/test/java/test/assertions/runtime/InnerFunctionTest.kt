@@ -28,7 +28,7 @@ class InnerFunctionTest: BaseRuntimeTest() {
             import test.utils.MockNode
             import test.utils.MockAction
             import test.utils.MockEvent
-            import com.zup.nimbus.core.ActionTriggeredEvent
+            import br.com.zup.nimbus.core.ActionTriggeredEvent
             
             $declaration {
                 ${createContent("""

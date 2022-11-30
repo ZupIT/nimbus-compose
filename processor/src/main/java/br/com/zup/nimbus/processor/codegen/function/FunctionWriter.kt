@@ -3,7 +3,6 @@ package br.com.zup.nimbus.processor.codegen.function
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
-import com.zup.nimbus.processor.codegen.function.RootAnnotated
 import br.com.zup.nimbus.processor.model.FunctionWriterResult
 import br.com.zup.nimbus.processor.model.IdentifiableKSType
 import br.com.zup.nimbus.processor.model.Property

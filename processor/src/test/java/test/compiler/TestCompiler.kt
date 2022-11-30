@@ -43,7 +43,7 @@ object TestCompiler {
             import test.TestResult
             import br.com.zup.nimbus.annotation.AutoDeserialize
             import br.com.zup.nimbus.annotation.Deserializer
-            import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+            import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
             import br.com.zup.nimbus.processor.deserialization.DeserializationContext
             import androidx.compose.runtime.Composable
 
