@@ -1,7 +1,7 @@
 package br.zup.com.nimbus.compose.ui
 
+import br.com.zup.nimbus.core.ui.UILibraryManager
 import br.zup.com.nimbus.compose.ComponentHandler
-import com.zup.nimbus.core.ui.UILibraryManager
 
 fun UILibraryManager.getComponent(identifier: String): ComponentHandler? {
     val (namespace, name) = UILibraryManager.splitIdentifier(identifier) ?: return null

@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
 import br.zup.com.nimbus.compose.JSON
 import br.zup.com.nimbus.compose.model.Page
-import com.zup.nimbus.core.ServerDrivenNavigator
-import com.zup.nimbus.core.ServerDrivenState
-import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.ServerDrivenNavigator
+import br.com.zup.nimbus.core.ServerDrivenState
+import br.com.zup.nimbus.core.ServerDrivenView
+import br.com.zup.nimbus.core.network.ViewRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

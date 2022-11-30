@@ -4,13 +4,9 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspWithCompilation
 import com.tschuchort.compiletesting.symbolProcessorProviders
-import com.zup.nimbus.processor.Main
-import org.junit.jupiter.api.extension.ExtensionContext
-import java.io.ByteArrayOutputStream
+import br.com.zup.nimbus.processor.Main
 import java.io.File
 import java.io.OutputStream
-import java.lang.reflect.Method
-import java.util.Optional
 import java.util.UUID
 
 object TestCompiler {
@@ -47,8 +43,8 @@ object TestCompiler {
             import test.TestResult
             import br.com.zup.nimbus.annotation.AutoDeserialize
             import br.com.zup.nimbus.annotation.Deserializer
-            import com.zup.nimbus.core.deserialization.AnyServerDrivenData
-            import br.zup.com.nimbus.compose.deserialization.DeserializationContext
+            import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
+            import br.com.zup.nimbus.processor.deserialization.DeserializationContext
             import androidx.compose.runtime.Composable
 
             $code

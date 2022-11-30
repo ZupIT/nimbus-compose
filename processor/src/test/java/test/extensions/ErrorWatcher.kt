@@ -1,6 +1,6 @@
 package test.extensions
 
-import br.zup.com.nimbus.compose.MockLogger
+import br.com.zup.nimbus.processor.MockLogger
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestWatcher
 import test.compiler.CompilationResult

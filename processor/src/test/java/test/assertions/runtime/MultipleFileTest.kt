@@ -2,18 +2,13 @@ package test.assertions.runtime
 
 import androidx.compose.material.printedByTextComponent
 import androidx.compose.ui.graphics.Color
-import br.zup.com.nimbus.compose.MockLogger
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.io.TempDir
 import test.BaseRuntimeTest
-import test.compiler.CompilationResult
 import test.utils.Snippets
 import test.compiler.TestCompiler
-import java.io.File
 import java.util.Date
 import kotlin.test.assertEquals
 
@@ -93,7 +88,7 @@ class MultipleFileTest: BaseRuntimeTest() {
         package br.com.myApp.deserialization
 
         import br.com.zup.nimbus.annotation.Deserializer
-        import com.zup.nimbus.core.deserialization.AnyServerDrivenData
+        import br.com.zup.nimbus.core.deserialization.AnyServerDrivenData
         import java.util.Date
 
         @Deserializer

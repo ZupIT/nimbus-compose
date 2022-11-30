@@ -9,10 +9,10 @@ import br.zup.com.nimbus.compose.internal.util.invokeHiddenMethod
 import br.zup.com.nimbus.compose.internal.util.observe
 import br.zup.com.nimbus.compose.model.NimbusPageState
 import br.zup.com.nimbus.compose.model.Page
-import com.zup.nimbus.core.ServerDrivenNavigator
-import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.network.ViewRequest
-import com.zup.nimbus.core.tree.dynamic.node.RootNode
+import br.com.zup.nimbus.core.ServerDrivenNavigator
+import br.com.zup.nimbus.core.ServerDrivenView
+import br.com.zup.nimbus.core.network.ViewRequest
+import br.com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.mockk.Runs
 import io.mockk.clearMocks
 import io.mockk.coEvery

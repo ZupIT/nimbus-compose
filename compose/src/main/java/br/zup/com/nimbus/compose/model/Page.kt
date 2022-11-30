@@ -5,9 +5,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import br.zup.com.nimbus.compose.Nimbus.Companion.instance
 import br.zup.com.nimbus.compose.internal.HandleNimbusPageState
-import com.zup.nimbus.core.ServerDrivenView
-import com.zup.nimbus.core.tree.ServerDrivenNode
-import com.zup.nimbus.core.tree.dynamic.node.RootNode
+import br.com.zup.nimbus.core.ServerDrivenView
+import br.com.zup.nimbus.core.tree.ServerDrivenNode
+import br.com.zup.nimbus.core.tree.dynamic.node.RootNode
 import kotlinx.coroutines.flow.MutableStateFlow
 
 sealed class NimbusPageState {

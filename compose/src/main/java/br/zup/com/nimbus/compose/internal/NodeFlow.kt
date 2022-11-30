@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import com.zup.nimbus.core.dependency.Dependent
-import com.zup.nimbus.core.tree.ServerDrivenNode
+import br.com.zup.nimbus.core.dependency.Dependent
+import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
