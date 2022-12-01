@@ -3,7 +3,7 @@ package test.assertions.runtime.category
 import androidx.compose.material.printedByTextComponent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import br.com.zup.nimbus.processor.MockLogger
+import br.com.zup.nimbus.compose.MockLogger
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

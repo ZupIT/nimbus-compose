@@ -31,7 +31,7 @@ jobs:
         id: gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: detekt lintDebug testDebugUnitTest
+          arguments: detekt lintDebug testDebugUnitTest processor:test --stacktrace
 
       - name: "Add build scan URL as PR comment"
         uses: actions/github-script@v5

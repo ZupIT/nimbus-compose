@@ -1,6 +1,6 @@
 package test.utils
 
-import br.com.zup.nimbus.processor.NimbusCompose
+import br.com.zup.nimbus.compose.NimbusCompose
 import br.com.zup.nimbus.core.ActionTriggeredEvent
 import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.ServerDrivenNavigator

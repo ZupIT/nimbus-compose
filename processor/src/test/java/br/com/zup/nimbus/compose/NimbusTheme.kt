@@ -1,4 +1,4 @@
-package br.com.zup.nimbus.processor
+package br.com.zup.nimbus.compose
 
 import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.ServerDrivenConfig
@@ -52,6 +52,6 @@ object NimbusCompose: Nimbus(
     var mode = NimbusMode.Development
 }
 
-object NimbusTheme {
-    val nimbus = NimbusCompose
+object Nimbus {
+    val instance = NimbusCompose
 }

@@ -1,6 +1,6 @@
-package br.com.zup.nimbus.processor.deserialization
+package br.com.zup.nimbus.compose.deserialization
 
-import br.com.zup.nimbus.processor.ComponentData
+import br.com.zup.nimbus.compose.ComponentData
 import br.com.zup.nimbus.core.ActionTriggeredEvent
 
 class DeserializationContext(
