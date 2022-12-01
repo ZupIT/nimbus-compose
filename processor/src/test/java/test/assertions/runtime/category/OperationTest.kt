@@ -9,6 +9,7 @@ import test.compiler.TestCompiler
 import java.lang.reflect.InvocationTargetException
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 /**
@@ -128,8 +129,8 @@ class OperationTest: BaseRuntimeTest() {
     fun `should format currency`() {
         val arguments = listOf("BRL", 25899.87)
         val result = compilation.runOperation("formatCurrency", arguments)
-        // \u00A0 is NBSP, which, visually, is a space character.
-        assertEquals("R$\u00A025.899,87", result)
+        assertTrue(result.toString().startsWith("R$"))
+        assertTrue(result.toString().endsWith("25.899,87"))
     }
 
     @Test
@@ -147,8 +148,8 @@ class OperationTest: BaseRuntimeTest() {
     fun `should format currency with missing optional parameter`() {
         val arguments = listOf("BRL")
         val result = compilation.runOperation("formatCurrency", arguments)
-        // \u00A0 is NBSP, which, visually, is a space character.
-        assertEquals("R$\u00A00,00", result)
+        assertTrue(result.toString().startsWith("R$"))
+        assertTrue(result.toString().endsWith("0,00"))
     }
 
     @Test
