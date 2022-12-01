@@ -131,7 +131,8 @@ class OperationTest: BaseRuntimeTest() {
         val result = compilation.runOperation("formatCurrency", arguments)
         assertTrue(result.toString().startsWith("R$"),
             "Received result: $result")
-        assertTrue(result.toString().endsWith("25.899,87"),
+        assertTrue(result.toString().endsWith("25.899,87")
+                || result.toString().endsWith("25,899.87"),
                 "Received result: $result"
             )
     }
@@ -153,7 +154,8 @@ class OperationTest: BaseRuntimeTest() {
         val result = compilation.runOperation("formatCurrency", arguments)
         assertTrue(result.toString().startsWith("R$"),
             "Received result: $result")
-        assertTrue(result.toString().endsWith("0,00"),
+        assertTrue(result.toString().endsWith("0,00") ||
+                result.toString().endsWith("0.00"),
             "Received result: $result")
     }
 
