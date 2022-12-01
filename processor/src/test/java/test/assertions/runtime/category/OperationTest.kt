@@ -129,8 +129,11 @@ class OperationTest: BaseRuntimeTest() {
     fun `should format currency`() {
         val arguments = listOf("BRL", 25899.87)
         val result = compilation.runOperation("formatCurrency", arguments)
-        assertTrue(result.toString().startsWith("R$"))
-        assertTrue(result.toString().endsWith("25.899,87"))
+        assertTrue(result.toString().startsWith("R$"),
+            "Received result: $result")
+        assertTrue(result.toString().endsWith("25.899,87"),
+                "Received result: $result"
+            )
     }
 
     @Test
@@ -148,8 +151,10 @@ class OperationTest: BaseRuntimeTest() {
     fun `should format currency with missing optional parameter`() {
         val arguments = listOf("BRL")
         val result = compilation.runOperation("formatCurrency", arguments)
-        assertTrue(result.toString().startsWith("R$"))
-        assertTrue(result.toString().endsWith("0,00"))
+        assertTrue(result.toString().startsWith("R$"),
+            "Received result: $result")
+        assertTrue(result.toString().endsWith("0,00"),
+            "Received result: $result")
     }
 
     @Test
