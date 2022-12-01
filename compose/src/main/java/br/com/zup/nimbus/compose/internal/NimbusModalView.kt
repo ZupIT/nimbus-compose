@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize

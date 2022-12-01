@@ -1,9 +1,9 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import br.zup.com.nimbus.compose.SHOW_VIEW
-import br.zup.com.nimbus.compose.VIEW_URL
+import br.com.zup.nimbus.compose.SHOW_VIEW
+import br.com.zup.nimbus.compose.VIEW_URL
 
 internal fun NavHostController.nimbusPopTo(url: String) {
     if (removeFromStackMatchingArg(

@@ -1,9 +1,9 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import br.zup.com.nimbus.compose.CoroutineDispatcherLib
+import br.com.zup.nimbus.compose.CoroutineDispatcherLib
 import br.com.zup.nimbus.core.dependency.Dependent
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope

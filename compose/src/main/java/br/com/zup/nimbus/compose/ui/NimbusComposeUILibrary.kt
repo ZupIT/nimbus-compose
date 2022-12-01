@@ -1,10 +1,10 @@
-package br.zup.com.nimbus.compose.ui
+package br.com.zup.nimbus.compose.ui
 
 import br.com.zup.nimbus.core.ActionHandler
 import br.com.zup.nimbus.core.ActionInitializationHandler
 import br.com.zup.nimbus.core.OperationHandler
 import br.com.zup.nimbus.core.ui.UILibrary
-import br.zup.com.nimbus.compose.ComponentHandler
+import br.com.zup.nimbus.compose.ComponentHandler
 
 class NimbusComposeUILibrary(namespace: String = ""): UILibrary(namespace) {
     private val components = HashMap<String, ComponentHandler>()

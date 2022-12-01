@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,11 +13,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import br.zup.com.nimbus.compose.JSON
-import br.zup.com.nimbus.compose.Nimbus
-import br.zup.com.nimbus.compose.ProvideNavigatorState
-import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION
-import br.zup.com.nimbus.compose.VIEW_URL
+import br.com.zup.nimbus.compose.JSON
+import br.com.zup.nimbus.compose.Nimbus
+import br.com.zup.nimbus.compose.ProvideNavigatorState
+import br.com.zup.nimbus.compose.SHOW_VIEW_DESTINATION
+import br.com.zup.nimbus.compose.VIEW_URL
 import br.com.zup.nimbus.core.network.ViewRequest
 import java.util.UUID
 

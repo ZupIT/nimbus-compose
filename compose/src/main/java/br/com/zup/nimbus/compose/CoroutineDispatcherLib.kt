@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose
+package br.com.zup.nimbus.compose
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

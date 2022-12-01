@@ -1,7 +1,7 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
-import br.zup.com.nimbus.compose.CoroutineDispatcherLib
-import br.zup.com.nimbus.compose.model.Page
+import br.com.zup.nimbus.compose.CoroutineDispatcherLib
+import br.com.zup.nimbus.compose.model.Page
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

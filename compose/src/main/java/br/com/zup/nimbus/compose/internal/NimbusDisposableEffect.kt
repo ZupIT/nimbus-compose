@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect

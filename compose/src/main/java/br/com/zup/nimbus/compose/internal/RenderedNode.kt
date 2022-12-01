@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -6,10 +6,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import br.zup.com.nimbus.compose.ComponentData
-import br.zup.com.nimbus.compose.Nimbus
-import br.zup.com.nimbus.compose.NimbusMode
-import br.zup.com.nimbus.compose.ui.getComponent
+import br.com.zup.nimbus.compose.ComponentData
+import br.com.zup.nimbus.compose.Nimbus
+import br.com.zup.nimbus.compose.NimbusMode
+import br.com.zup.nimbus.compose.ui.getComponent
 
 @Composable
 internal fun ComponentNotFound(name: String) {

@@ -1,8 +1,8 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import br.zup.com.nimbus.compose.CoroutineDispatcherLib
+import br.com.zup.nimbus.compose.CoroutineDispatcherLib
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest

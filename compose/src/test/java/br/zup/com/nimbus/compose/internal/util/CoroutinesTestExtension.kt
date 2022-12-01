@@ -1,6 +1,6 @@
 package br.zup.com.nimbus.compose.internal.util
 
-import br.zup.com.nimbus.compose.CoroutineDispatcherLib
+import br.com.zup.nimbus.compose.CoroutineDispatcherLib
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScheduler

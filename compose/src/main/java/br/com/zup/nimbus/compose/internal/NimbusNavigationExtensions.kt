@@ -1,14 +1,14 @@
-package br.zup.com.nimbus.compose.internal
+package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import br.zup.com.nimbus.compose.ErrorHandler
-import br.zup.com.nimbus.compose.LoadingHandler
-import br.zup.com.nimbus.compose.SHOW_VIEW_DESTINATION_PARAM
-import br.zup.com.nimbus.compose.VIEW_URL
-import br.zup.com.nimbus.compose.model.NimbusPageState
-import br.zup.com.nimbus.compose.model.Page
+import br.com.zup.nimbus.compose.ErrorHandler
+import br.com.zup.nimbus.compose.LoadingHandler
+import br.com.zup.nimbus.compose.SHOW_VIEW_DESTINATION_PARAM
+import br.com.zup.nimbus.compose.VIEW_URL
+import br.com.zup.nimbus.compose.model.NimbusPageState
+import br.com.zup.nimbus.compose.model.Page
 
 internal fun NavBackStackEntry.getPageUrl() : String? {
     val arguments = requireNotNull(this.arguments)

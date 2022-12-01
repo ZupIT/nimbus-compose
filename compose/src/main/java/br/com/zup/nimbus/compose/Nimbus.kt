@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose
+package br.com.zup.nimbus.compose
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -7,12 +7,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import br.zup.com.nimbus.compose.Nimbus.Companion.staticState
-import br.zup.com.nimbus.compose.internal.NimbusNavHostHelper
-import br.zup.com.nimbus.compose.ui.NimbusComposeUILibrary
-import br.zup.com.nimbus.compose.ui.components.ErrorDefault
-import br.zup.com.nimbus.compose.ui.components.LoadingDefault
-import br.zup.com.nimbus.compose.ui.composeUILibrary
+import br.com.zup.nimbus.compose.Nimbus.Companion.staticState
+import br.com.zup.nimbus.compose.internal.NimbusNavHostHelper
+import br.com.zup.nimbus.compose.ui.NimbusComposeUILibrary
+import br.com.zup.nimbus.compose.ui.components.ErrorDefault
+import br.com.zup.nimbus.compose.ui.components.LoadingDefault
+import br.com.zup.nimbus.compose.ui.composeUILibrary
 import br.com.zup.nimbus.core.Nimbus
 import br.com.zup.nimbus.core.ServerDrivenConfig
 import br.com.zup.nimbus.core.log.Logger
@@ -20,7 +20,7 @@ import br.com.zup.nimbus.core.network.HttpClient
 import br.com.zup.nimbus.core.network.UrlBuilder
 import br.com.zup.nimbus.core.network.ViewClient
 import br.com.zup.nimbus.core.tree.IdManager
-import br.zup.com.nimbus.compose.Nimbus as NimbusCompose
+import br.com.zup.nimbus.compose.Nimbus as NimbusCompose
 
 typealias ComponentHandler = @Composable (ComponentData) -> Unit
 typealias LoadingHandler = @Composable () -> Unit

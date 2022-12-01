@@ -1,10 +1,10 @@
-package br.zup.com.nimbus.compose.model
+package br.com.zup.nimbus.compose.model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import br.zup.com.nimbus.compose.Nimbus.Companion.instance
-import br.zup.com.nimbus.compose.internal.HandleNimbusPageState
+import br.com.zup.nimbus.compose.Nimbus.Companion.instance
+import br.com.zup.nimbus.compose.internal.HandleNimbusPageState
 import br.com.zup.nimbus.core.ServerDrivenView
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import br.com.zup.nimbus.core.tree.dynamic.node.RootNode

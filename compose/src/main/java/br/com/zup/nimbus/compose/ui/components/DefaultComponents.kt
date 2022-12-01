@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose.ui.components
+package br.com.zup.nimbus.compose.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button

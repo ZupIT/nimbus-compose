@@ -1,4 +1,4 @@
-package br.zup.com.nimbus.compose
+package br.com.zup.nimbus.compose
 
 import androidx.compose.runtime.Composable
 import br.com.zup.nimbus.core.tree.ServerDrivenNode

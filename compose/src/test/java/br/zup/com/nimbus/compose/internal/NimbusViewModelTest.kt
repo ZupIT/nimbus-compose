@@ -1,14 +1,18 @@
 package br.zup.com.nimbus.compose.internal
 
 import app.cash.turbine.test
+import br.com.zup.nimbus.compose.internal.NimbusViewModel
+import br.com.zup.nimbus.compose.internal.NimbusViewModelModalState
+import br.com.zup.nimbus.compose.internal.NimbusViewModelNavigationState
+import br.com.zup.nimbus.compose.internal.PagesManager
 import br.zup.com.nimbus.compose.internal.util.CoroutinesTestExtension
 import br.zup.com.nimbus.compose.internal.util.PageStateObserver
 import br.zup.com.nimbus.compose.internal.util.RandomData
 import br.zup.com.nimbus.compose.internal.util.RandomData.jsonExample
 import br.zup.com.nimbus.compose.internal.util.invokeHiddenMethod
 import br.zup.com.nimbus.compose.internal.util.observe
-import br.zup.com.nimbus.compose.model.NimbusPageState
-import br.zup.com.nimbus.compose.model.Page
+import br.com.zup.nimbus.compose.model.NimbusPageState
+import br.com.zup.nimbus.compose.model.Page
 import br.com.zup.nimbus.core.ServerDrivenNavigator
 import br.com.zup.nimbus.core.ServerDrivenView
 import br.com.zup.nimbus.core.network.ViewRequest

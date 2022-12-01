@@ -1,6 +1,7 @@
 package br.zup.com.nimbus.compose.internal
 
-import br.zup.com.nimbus.compose.Nimbus
+import br.com.zup.nimbus.compose.Nimbus
+import br.com.zup.nimbus.compose.internal.PagesManager
 import br.com.zup.nimbus.core.network.ViewClient
 import br.com.zup.nimbus.core.tree.dynamic.node.RootNode
 import io.mockk.coEvery

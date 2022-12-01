@@ -11,10 +11,10 @@ import br.com.zup.nimbus.compose.sample.components.customLib
 import br.com.zup.nimbus.compose.sample.components.layoutLib
 import br.com.zup.nimbus.compose.sample.components.materialLib
 import br.com.zup.nimbus.compose.sample.theme.AppTheme
-import br.zup.com.nimbus.compose.Nimbus
-import br.zup.com.nimbus.compose.NimbusMode
-import br.zup.com.nimbus.compose.ProvideNimbus
-import br.zup.com.nimbus.compose.NimbusNavigator
+import br.com.zup.nimbus.compose.Nimbus
+import br.com.zup.nimbus.compose.NimbusMode
+import br.com.zup.nimbus.compose.ProvideNimbus
+import br.com.zup.nimbus.compose.NimbusNavigator
 import br.com.zup.nimbus.core.network.ViewRequest
 
 class MainActivity : ComponentActivity() {
