@@ -24,7 +24,7 @@ class InnerFunctionTest: BaseRuntimeTest() {
             else content
 
         return """
-            import br.com.zup.nimbus.processor.ComponentData
+            import br.com.zup.nimbus.compose.ComponentData
             import test.utils.MockNode
             import test.utils.MockAction
             import test.utils.MockEvent

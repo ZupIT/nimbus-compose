@@ -1,6 +1,6 @@
 package br.zup.com.nimbus.compose.internal.util
 
-import br.zup.com.nimbus.compose.model.NimbusPageState
+import br.com.zup.nimbus.compose.model.NimbusPageState
 import kotlinx.coroutines.CompletableDeferred
 
 class PageStateObserver {
