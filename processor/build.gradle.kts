@@ -27,6 +27,9 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    minHeapSize = "512m"
+    maxHeapSize = "1024m"
+    jvmArgs = listOf("-XX:MaxPermSize=512m")
 }
 
 apply("$rootDir/maven-publish.gradle")
