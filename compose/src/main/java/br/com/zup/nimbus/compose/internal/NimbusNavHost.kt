@@ -28,14 +28,16 @@ internal fun NimbusNavHost(
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
     nimbusConfig: Nimbus = Nimbus.instance,
+    modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper,
+    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper,
+    json: String = "",
     nimbusViewModel: NimbusViewModel = viewModel(
         //Creates a new viewmodel for each unique key
         key = viewModelKey,
-        factory = NimbusViewModel.provideFactory(nimbusConfig = nimbusConfig)
+        factory = NimbusViewModel.provideFactory(nimbusConfig = nimbusConfig,
+            viewRequest = viewRequest,
+            json = json)
     ),
-    modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
-    nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper(),
-    json: String = "",
 ) {
 
     CollectFlow(nimbusViewModel.nimbusViewNavigationState) { navigationState ->
@@ -47,7 +49,6 @@ internal fun NimbusNavHost(
 
     NimbusDisposableEffect(
         onCreate = {
-            initNavHost(nimbusViewModel, viewRequest, json)
             configureNavHostHelper(nimbusNavHostHelper, nimbusViewModel)
         })
 
@@ -99,23 +100,10 @@ private fun configureNavHostHelper(
     }
 }
 
-private fun initNavHost(
-    nimbusViewModel: NimbusViewModel,
-    viewRequest: ViewRequest?,
-    json: String,
-) {
-    if (viewRequest != null) {
-        nimbusViewModel.initFirstViewWithRequest(viewRequest = viewRequest)
-    }
-    else {
-        nimbusViewModel.initFirstViewWithJson(json = json)
-    }
-}
-
 /**
  * This helper can be used to control some behaviour from outside the NimbusNavHost composable
  */
-class NimbusNavHostHelper {
+object NimbusNavHostHelper {
 
     var nimbusNavHostExecutor: NimbusNavHostExecutor? = null
     fun isFirstScreen(): Boolean = nimbusNavHostExecutor?.isFirstScreen() ?: false

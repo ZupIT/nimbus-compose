@@ -43,7 +43,7 @@ internal fun ModalTransitionDialog(
         .fillMaxSize()
         .background(Color.White),
     dismissOnBackPress: Boolean = true,
-    modalTransitionDialogHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
+    modalTransitionDialogHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper,
     content: @Composable (ModalTransitionDialogHelper) -> Unit
 ) {
 
@@ -98,7 +98,7 @@ private suspend fun startDismissWithExitAnimation(
  * composables that implement the [ModalTransitionDialog] to hide
  * the [Dialog] with a modal transition animation
  */
-internal class ModalTransitionDialogHelper {
+internal object ModalTransitionDialogHelper {
     var coroutineScope: CoroutineScope? = null
     var onCloseFlow: MutableStateFlow<Boolean>? = null
     fun triggerAnimatedClose() {

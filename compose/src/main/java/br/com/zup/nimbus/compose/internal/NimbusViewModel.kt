@@ -32,7 +32,20 @@ internal sealed class NimbusViewModelNavigationState {
 internal class NimbusViewModel(
     private val nimbusConfig: Nimbus,
     private val pagesManager: PagesManager = PagesManager(),
+    viewRequest: ViewRequest? = null,
+    json: String = ""
 ) : ViewModel() {
+
+
+    init {
+
+        if (viewRequest != null) {
+            initFirstViewWithRequest(viewRequest = viewRequest)
+        } else {
+            initFirstViewWithJson(json = json)
+        }
+    }
+
 
     private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
         MutableStateFlow(NimbusViewModelModalState.RootState)
@@ -50,10 +63,14 @@ internal class NimbusViewModel(
     companion object {
         fun provideFactory(
             nimbusConfig: Nimbus,
+            viewRequest: ViewRequest? = null,
+            json: String = ""
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return NimbusViewModel(nimbusConfig = nimbusConfig) as T
+                return NimbusViewModel(nimbusConfig = nimbusConfig,
+                    viewRequest = viewRequest,
+                json = json ) as T
             }
         }
     }
