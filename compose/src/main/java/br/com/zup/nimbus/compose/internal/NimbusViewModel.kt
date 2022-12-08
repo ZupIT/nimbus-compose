@@ -36,45 +36,6 @@ internal class NimbusViewModel(
     json: String = ""
 ) : ViewModel() {
 
-
-    init {
-
-        if (viewRequest != null) {
-            initFirstViewWithRequest(viewRequest = viewRequest)
-        } else {
-            initFirstViewWithJson(json = json)
-        }
-    }
-
-
-    private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
-        MutableStateFlow(NimbusViewModelModalState.RootState)
-
-    val nimbusViewModelModalState: StateFlow<NimbusViewModelModalState>
-        get() = _nimbusViewModelModalState
-
-
-    private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> =
-        MutableStateFlow(NimbusViewModelNavigationState.RootState)
-
-    val nimbusViewNavigationState: StateFlow<NimbusViewModelNavigationState>
-        get() = _nimbusViewNavigationState
-
-    companion object {
-        fun provideFactory(
-            nimbusConfig: Nimbus,
-            viewRequest: ViewRequest? = null,
-            json: String = ""
-        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return NimbusViewModel(nimbusConfig = nimbusConfig,
-                    viewRequest = viewRequest,
-                json = json ) as T
-            }
-        }
-    }
-
     private val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
         override fun dismiss() {
             setNimbusViewModelModalState(NimbusViewModelModalState.OnHideModalState)
@@ -96,6 +57,44 @@ internal class NimbusViewModel(
             doPushWithViewRequest(request)
         }
     }
+
+    private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
+        MutableStateFlow(NimbusViewModelModalState.RootState)
+
+    val nimbusViewModelModalState: StateFlow<NimbusViewModelModalState>
+        get() = _nimbusViewModelModalState
+
+
+    private var _nimbusViewNavigationState: MutableStateFlow<NimbusViewModelNavigationState> =
+        MutableStateFlow(NimbusViewModelNavigationState.RootState)
+
+    val nimbusViewNavigationState: StateFlow<NimbusViewModelNavigationState>
+        get() = _nimbusViewNavigationState
+
+    init {
+        if (viewRequest != null) {
+            initFirstViewWithRequest(viewRequest = viewRequest)
+        } else {
+            initFirstViewWithJson(json = json)
+        }
+    }
+
+    companion object {
+        fun provideFactory(
+            nimbusConfig: Nimbus,
+            viewRequest: ViewRequest? = null,
+            json: String = ""
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return NimbusViewModel(nimbusConfig = nimbusConfig,
+                    viewRequest = viewRequest,
+                json = json ) as T
+            }
+        }
+    }
+
+
 
     fun setModalHiddenState() {
         setNimbusViewModelModalState(NimbusViewModelModalState.RootState)
