@@ -48,9 +48,10 @@ internal class NimbusViewModel(
 
     val nimbusViewNavigationState: StateFlow<NimbusViewModelNavigationState>
         get() = _nimbusViewNavigationState
+    var serverDrivenNavigator: ServerDrivenNavigator
 
     init {
-        val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
+        serverDrivenNavigator = object : ServerDrivenNavigator {
             override fun dismiss() {
                 setNimbusViewModelModalState(NimbusViewModelModalState.OnHideModalState)
             }
