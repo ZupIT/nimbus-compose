@@ -28,7 +28,7 @@ internal fun NimbusNavHost(
     viewModelKey: String = UUID.randomUUID().toString(),
     viewRequest: ViewRequest? = null,
     nimbusConfig: Nimbus = Nimbus.instance,
-    modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper,
+    modalParentHelper: ModalTransitionDialogHelper = ModalTransitionDialogHelper(),
     nimbusNavHostHelper: NimbusNavHostHelper = NimbusNavHostHelper,
     json: String = "",
     nimbusViewModel: NimbusViewModel = viewModel(
