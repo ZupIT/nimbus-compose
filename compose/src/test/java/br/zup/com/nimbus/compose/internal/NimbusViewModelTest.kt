@@ -97,7 +97,7 @@ class NimbusViewModelTest : BaseTest() {
             coEvery { nimbusConfig.viewClient.fetch(any()) } throws expectedException
 
             //When
-            viewModel.initFirstViewWithRequest(viewRequest)
+            viewModel.initFirstViewWithRequest(viewRequest, viewModel.serverDrivenNavigator)
             val observer = pageObserverSlot.last()
 
             //Then
@@ -125,7 +125,7 @@ class NimbusViewModelTest : BaseTest() {
             )
 
             //When
-            paramsViewModel.initFirstViewWithRequest(viewRequest)
+            paramsViewModel.initFirstViewWithRequest(viewRequest, viewModel.serverDrivenNavigator)
 
             val page = paramsViewModel.getPageBy(pageUrl)
             assertNotNull(page)
@@ -143,7 +143,7 @@ class NimbusViewModelTest : BaseTest() {
         shouldEmitRenderNodeFromCore(serverDrivenNode)
 
         //When
-        viewModel.initFirstViewWithRequest(viewRequest)
+        viewModel.initFirstViewWithRequest(viewRequest, viewModel.serverDrivenNavigator)
         return pageObserverSlot.last()
     }
 
@@ -160,7 +160,7 @@ class NimbusViewModelTest : BaseTest() {
             shouldEmitRenderNodeFromCore(serverDrivenNode)
 
             //When
-            viewModel.initFirstViewWithJson(json)
+            viewModel.initFirstViewWithJson(json, viewModel.serverDrivenNavigator)
 
             val observer = pageObserverSlot.last()
 
@@ -187,7 +187,7 @@ class NimbusViewModelTest : BaseTest() {
             shouldEmitExceptionFromCore(expectedException)
 
             //When
-            viewModel.initFirstViewWithJson(json)
+            viewModel.initFirstViewWithJson(json, viewModel.serverDrivenNavigator)
 
             val observer = pageObserverSlot.last()
 

@@ -36,17 +36,6 @@ internal class NimbusViewModel(
     json: String = ""
 ) : ViewModel() {
 
-
-    init {
-
-        if (viewRequest != null) {
-            initFirstViewWithRequest(viewRequest = viewRequest)
-        } else {
-            initFirstViewWithJson(json = json)
-        }
-    }
-
-
     private var _nimbusViewModelModalState: MutableStateFlow<NimbusViewModelModalState> =
         MutableStateFlow(NimbusViewModelModalState.RootState)
 
@@ -59,6 +48,37 @@ internal class NimbusViewModel(
 
     val nimbusViewNavigationState: StateFlow<NimbusViewModelNavigationState>
         get() = _nimbusViewNavigationState
+    var serverDrivenNavigator: ServerDrivenNavigator
+
+    init {
+        serverDrivenNavigator = object : ServerDrivenNavigator {
+            override fun dismiss() {
+                setNimbusViewModelModalState(NimbusViewModelModalState.OnHideModalState)
+            }
+
+            override fun popTo(url: String) {
+                popNavigationTo(url)
+            }
+
+            override fun present(request: ViewRequest) {
+                setNimbusViewModelModalState(NimbusViewModelModalState.OnShowModalModalState(request))
+            }
+
+            override fun pop() {
+                popNavigation()
+            }
+
+            override fun push(request: ViewRequest) {
+                doPushWithViewRequest(request, this)
+            }
+        }
+
+        if (viewRequest != null) {
+            initFirstViewWithRequest(viewRequest = viewRequest, serverDrivenNavigator)
+        } else {
+            initFirstViewWithJson(json = json, serverDrivenNavigator)
+        }
+    }
 
     companion object {
         fun provideFactory(
@@ -75,28 +95,6 @@ internal class NimbusViewModel(
         }
     }
 
-    private val serverDrivenNavigator: ServerDrivenNavigator = object : ServerDrivenNavigator {
-        override fun dismiss() {
-            setNimbusViewModelModalState(NimbusViewModelModalState.OnHideModalState)
-        }
-
-        override fun popTo(url: String) {
-            popNavigationTo(url)
-        }
-
-        override fun present(request: ViewRequest) {
-            setNimbusViewModelModalState(NimbusViewModelModalState.OnShowModalModalState(request))
-        }
-
-        override fun pop() {
-            popNavigation()
-        }
-
-        override fun push(request: ViewRequest) {
-            doPushWithViewRequest(request)
-        }
-    }
-
     fun setModalHiddenState() {
         setNimbusViewModelModalState(NimbusViewModelModalState.RootState)
     }
@@ -110,12 +108,12 @@ internal class NimbusViewModel(
         }
     }
 
-    fun initFirstViewWithRequest(viewRequest: ViewRequest) {
-        doPushWithViewRequest(viewRequest, initialRequest = true)
+    fun initFirstViewWithRequest(viewRequest: ViewRequest, serverDrivenNavigator: ServerDrivenNavigator) {
+        doPushWithViewRequest(viewRequest, serverDrivenNavigator, initialRequest = true)
     }
 
-    fun initFirstViewWithJson(json: String) {
-        doPushWithJson(json)
+    fun initFirstViewWithJson(json: String, serverDrivenNavigator: ServerDrivenNavigator) {
+        doPushWithJson(json, serverDrivenNavigator)
     }
 
     fun getPageBy(url: String?): Page? {
@@ -165,7 +163,9 @@ internal class NimbusViewModel(
             }
         }
 
-    private fun doPushWithViewRequest(request: ViewRequest, initialRequest: Boolean = false) =
+    private fun doPushWithViewRequest(request: ViewRequest,
+                                      serverDrivenNavigator: ServerDrivenNavigator,
+                                      initialRequest: Boolean = false) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             val stateInstances = request.params?.map { ServerDrivenState(it.key, it.value) }
             val view = ServerDrivenView(
@@ -209,7 +209,8 @@ internal class NimbusViewModel(
         }
     }
 
-    private fun doPushWithJson(json: String) =
+    private fun doPushWithJson(json: String,
+                               serverDrivenNavigator: ServerDrivenNavigator) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
             val view = ServerDrivenView(
                 nimbus = nimbusConfig,
