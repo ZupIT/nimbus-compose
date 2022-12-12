@@ -1,4 +1,3 @@
-#!/bin/bash
 
 #
 # Copyright 2023 ZUP IT SERVICOS EM TECNOLOGIA E INOVACAO SA
@@ -16,21 +15,25 @@
 # limitations under the License.
 #
 
-create_gradle_properties() {
-  KEYID="$1"
-  PASSWORD="$2"
-  GPG_KEY_CONTENTS="$3"
-  GPG_LOCATION=~/.gradle/release.gpg
-  GRADLE_PROPERTIES_LOCATION=~/.gradle/gradle.properties
+name: Header license check
 
-  mkdir -p ~/.gradle
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+    branches: [ main, release/* ]
 
-  rm -f $GPG_LOCATION
-  rm -f $GRADLE_PROPERTIES_LOCATION
+  workflow_dispatch:
 
-  echo "$GPG_KEY_CONTENTS" | base64 -d > "$GPG_LOCATION"
+jobs:
+  license-validation:
+    name: License validation
+    runs-on: ubuntu-latest
 
-  printf "signing.keyId=%s\nsigning.password=%s\nsigning.secretKeyRingFile=%s\n" "$KEYID" "$PASSWORD" "$GPG_LOCATION" >> $GRADLE_PROPERTIES_LOCATION
-}
-
-create_gradle_properties "$ORG_GRADLE_PROJECT_SIGNINGKEYID" "$ORG_GRADLE_PROJECT_SIGNINGPASSWORD" "$GPG_KEY_CONTENTS"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check License and license year on Pull Requests
+        uses: ZupIT/header-license-checker@635176fe2d08208c8256fd96cebae5c9a47e633c
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          FORCE_COLOR: 3
