@@ -16,7 +16,6 @@
 
 package br.com.zup.nimbus.compose.internal
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -24,10 +23,8 @@ import br.com.zup.nimbus.compose.CoroutineDispatcherLib
 import br.com.zup.nimbus.core.dependency.Dependent
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 
 class NodeState(
     private val node: ServerDrivenNode,
@@ -37,11 +34,9 @@ class NodeState(
     operator fun component2() = children
 }
 
-class NodeFlow(
-    private val node: ServerDrivenNode,
-    private val scope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
-): Dependent {
+class NodeFlow(private val node: ServerDrivenNode): Dependent {
     private var memoizedChildren: MutableMap<String, NodeFlow> = mutableMapOf()
+    private val scope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
     private val current = MutableStateFlow(NodeState(node, calculateChildren()))
     val id: String get() = node.id
 
