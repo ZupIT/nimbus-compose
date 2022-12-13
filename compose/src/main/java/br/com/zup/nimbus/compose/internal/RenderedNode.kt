@@ -16,6 +16,7 @@
 
 package br.com.zup.nimbus.compose.internal
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -59,12 +60,12 @@ fun RenderedNode(flow: NodeFlow) {
                         key(it.id) { RenderedNode(it) }
                     }
                 },
-                childrenAsList = childrenList(children)
+                childrenAsList = { childrenList(children) }
             )
         )
 }
 
-fun childrenList(children: List<NodeFlow>?): List<@Composable () -> Unit> {
+private fun childrenList(children: List<NodeFlow>?): List<@Composable () -> Unit> {
     val mutableList = mutableListOf<@Composable () -> Unit>()
 
     children?.forEach {

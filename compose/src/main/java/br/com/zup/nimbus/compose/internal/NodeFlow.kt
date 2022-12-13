@@ -37,11 +37,10 @@ class NodeState(
 class NodeFlow(private val node: ServerDrivenNode): Dependent {
     private var memoizedChildren: MutableMap<String, NodeFlow> = mutableMapOf()
     private val scope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
-    private val current = MutableStateFlow(NodeState(node, emptyList()))
+    private val current = MutableStateFlow(NodeState(node, calculateChildren()))
     val id: String get() = node.id
 
     init {
-        update()
         node.addDependent(this)
     }
 
@@ -52,13 +51,17 @@ class NodeFlow(private val node: ServerDrivenNode): Dependent {
     @Composable
     fun collectAsState(): State<NodeState> = current.collectAsState()
 
-    override fun update() {
-        val children = node.children?.map { child ->
-            if (memoizedChildren[child.id] == null) {
-                memoizedChildren[child.id] = NodeFlow(child)
-            }
-            memoizedChildren[child.id]!!
+    private fun calculateChildren() = node.children?.map { child ->
+        var result = memoizedChildren[child.id]
+        if (result == null) {
+            result = NodeFlow(child)
+            memoizedChildren[child.id] = result
         }
+        result
+    }
+
+    override fun update() {
+        val children = calculateChildren()
         scope.launch {
             current.emit(NodeState(node, children))
         }
