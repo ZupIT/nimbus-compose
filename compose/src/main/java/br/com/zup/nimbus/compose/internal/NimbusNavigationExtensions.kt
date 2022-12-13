@@ -1,6 +1,9 @@
 package br.com.zup.nimbus.compose.internal
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import br.com.zup.nimbus.compose.ErrorHandler

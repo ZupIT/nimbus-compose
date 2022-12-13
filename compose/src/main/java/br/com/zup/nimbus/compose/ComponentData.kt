@@ -6,5 +6,5 @@ import br.com.zup.nimbus.core.tree.ServerDrivenNode
 class ComponentData(
     val node: ServerDrivenNode,
     val children: @Composable () -> Unit,
-    val childrenAsList: List<@Composable () -> Unit>,
+    val childrenAsList: () -> List<@Composable () -> Unit>,
 )

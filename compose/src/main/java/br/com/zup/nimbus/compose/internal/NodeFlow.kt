@@ -1,5 +1,6 @@
 package br.com.zup.nimbus.compose.internal
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -7,8 +8,10 @@ import br.com.zup.nimbus.compose.CoroutineDispatcherLib
 import br.com.zup.nimbus.core.dependency.Dependent
 import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 
 class NodeState(
     private val node: ServerDrivenNode,
@@ -18,14 +21,15 @@ class NodeState(
     operator fun component2() = children
 }
 
-class NodeFlow(private val node: ServerDrivenNode): Dependent {
+class NodeFlow(
+    private val node: ServerDrivenNode,
+    private val scope: CoroutineScope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
+): Dependent {
     private var memoizedChildren: MutableMap<String, NodeFlow> = mutableMapOf()
-    private val scope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
-    private val current = MutableStateFlow(NodeState(node, emptyList()))
+    private val current = MutableStateFlow(NodeState(node, calculateChildren()))
     val id: String get() = node.id
 
     init {
-        update()
         node.addDependent(this)
     }
 
@@ -36,13 +40,17 @@ class NodeFlow(private val node: ServerDrivenNode): Dependent {
     @Composable
     fun collectAsState(): State<NodeState> = current.collectAsState()
 
-    override fun update() {
-        val children = node.children?.map { child ->
-            if (memoizedChildren[child.id] == null) {
-                memoizedChildren[child.id] = NodeFlow(child)
-            }
-            memoizedChildren[child.id]!!
+    private fun calculateChildren() = node.children?.map { child ->
+        var result = memoizedChildren[child.id]
+        if (result == null) {
+            result = NodeFlow(child)
+            memoizedChildren[child.id] = result
         }
+        result
+    }
+
+    override fun update() {
+        val children = calculateChildren()
         scope.launch {
             current.emit(NodeState(node, children))
         }
