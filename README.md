@@ -3,6 +3,7 @@
 Nimbus Compose is a library for implementing Server Driven UI in projects built with Jetpack Compose.
 
 To know more about Nimbus SDUI as a whole, please check our [main documentation](https://github.com/ZupIT/nimbus-docs/blob/main/readme.md).
+
 To get started with Nimbus Compose, please check the [documentation for Nimbus Compose](https://github.com/ZupIT/nimbus-docs/blob/main/compose/index.md).
 
 # Development stage
