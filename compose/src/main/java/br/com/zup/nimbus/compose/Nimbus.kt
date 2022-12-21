@@ -104,10 +104,10 @@ private val LocalNavigator = staticCompositionLocalOf<NimbusNavigatorState> {
 @Composable
 fun ProvideNimbus(
     nimbus: NimbusCompose,
-    applicationContext: Context = LocalContext.current.applicationContext,
+    context: Context = LocalContext.current,
     content: @Composable () -> Unit,
 ) {
-    configureStaticState(applicationContext)
+    configureStaticState(context)
 
     val nimbusComposeState = remember(
         nimbus
@@ -117,10 +117,11 @@ fun ProvideNimbus(
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
-private fun configureStaticState(applicationContext: Context) {
+private fun configureStaticState(context: Context) {
     if (staticState == null) {
         staticState =
-            NimbusComposeStaticState(applicationContext = applicationContext)
+            NimbusComposeStaticState(
+            context = context)
     }
 }
 
@@ -144,4 +145,4 @@ internal fun ProvideNavigatorState(
  * Exposes a singleton state for non compose functions.
  * Should only expose singleton properties here
  */
-class NimbusComposeStaticState(val applicationContext: Context)
+class NimbusComposeStaticState(val context: Context)
