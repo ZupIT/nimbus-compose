@@ -23,7 +23,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import br.com.zup.nimbus.compose.Nimbus.Companion.staticState
 import br.com.zup.nimbus.compose.internal.NimbusNavHostHelper
 import br.com.zup.nimbus.compose.ui.NimbusComposeUILibrary
 import br.com.zup.nimbus.compose.ui.components.ErrorDefault
@@ -35,6 +34,7 @@ import br.com.zup.nimbus.core.log.Logger
 import br.com.zup.nimbus.core.network.HttpClient
 import br.com.zup.nimbus.core.network.UrlBuilder
 import br.com.zup.nimbus.core.network.ViewClient
+import br.com.zup.nimbus.core.scope.CommonScope
 import br.com.zup.nimbus.core.tree.IdManager
 import br.com.zup.nimbus.compose.Nimbus as NimbusCompose
 
@@ -43,6 +43,7 @@ typealias LoadingHandler = @Composable () -> Unit
 typealias ErrorHandler = @Composable (throwable: Throwable, retry: () -> Unit) -> Unit
 
 const val PLATFORM_NAME = "android"
+private const val NIMBUS_LOCAL_CONTEXT_KEY = "NIMBUS_LOCAL_CONTEXT_KEY"
 
 @Stable
 class NimbusNavigatorState(
@@ -78,10 +79,6 @@ class Nimbus(
     idManager = idManager
 )) {
     companion object {
-        @get:Synchronized
-        @set:Synchronized
-        var staticState: NimbusComposeStaticState? = null
-            internal set
 
         val instance: NimbusCompose
             @Composable
@@ -104,10 +101,10 @@ private val LocalNavigator = staticCompositionLocalOf<NimbusNavigatorState> {
 @Composable
 fun ProvideNimbus(
     nimbus: NimbusCompose,
-    applicationContext: Context = LocalContext.current.applicationContext,
+    context: Context = LocalContext.current,
     content: @Composable () -> Unit,
 ) {
-    configureStaticState(applicationContext)
+    nimbus.configureScope(context)
 
     val nimbusComposeState = remember(
         nimbus
@@ -117,11 +114,15 @@ fun ProvideNimbus(
     CompositionLocalProvider(LocalNimbus provides nimbusComposeState, content = content)
 }
 
-private fun configureStaticState(applicationContext: Context) {
-    if (staticState == null) {
-        staticState =
-            NimbusComposeStaticState(applicationContext = applicationContext)
-    }
+private fun NimbusCompose.configureScope(context: Context) {
+    set(
+        key = NIMBUS_LOCAL_CONTEXT_KEY,
+        value = context
+    )
+}
+
+fun CommonScope.context(): Context? {
+    return get(key = NIMBUS_LOCAL_CONTEXT_KEY) as? Context
 }
 
 @Composable
@@ -139,9 +140,3 @@ internal fun ProvideNavigatorState(
     }
     CompositionLocalProvider(LocalNavigator provides nimbusNavigatorState, content = content)
 }
-
-/**
- * Exposes a singleton state for non compose functions.
- * Should only expose singleton properties here
- */
-class NimbusComposeStaticState(val applicationContext: Context)
