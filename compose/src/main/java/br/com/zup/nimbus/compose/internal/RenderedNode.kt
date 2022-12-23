@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -43,9 +44,13 @@ fun RenderedNode(flow: NodeFlow) {
     val ui = Nimbus.instance.uiLibraryManager
     val handler = remember(node.component) { ui.getComponent(node.component) }
 
+    LaunchedEffect(Unit) {
+        flow.attach()
+    }
+
     DisposableEffect(Unit) {
         onDispose {
-            flow.dispose()
+            flow.detach()
         }
     }
 

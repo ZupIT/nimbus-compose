@@ -21,6 +21,9 @@ import br.com.zup.nimbus.compose.ui.NimbusComposeUILibrary
 
 val layoutLib = NimbusComposeUILibrary("layout")
     .addComponent("container") @Composable { NimbusContainer(it) }
+    .addComponent("column") @Composable { NimbusContainer(it) }
+    .addComponent("text") @Composable { NimbusText(it) }
+
 
 val customLib = NimbusComposeUILibrary("custom")
     .addComponent("text") @Composable { NimbusText(it) }
@@ -29,3 +32,19 @@ val customLib = NimbusComposeUILibrary("custom")
 val materialLib = NimbusComposeUILibrary("material")
     .addComponent("text") @Composable { NimbusText(it) }
     .addComponent("button") @Composable { NimbusButton(it) }
+    .addComponent("textInput") @Composable { TextInput(it) }
+    .addOperation("filterNotes") { arguments ->
+        val notesByDate = arguments.first() as Map<String, List<Map<String, Any>>>
+        val term = arguments[1] as String
+        if (term.isBlank()) notesByDate
+        else {
+            val result = mutableMapOf<String, List<Map<String, Any>>>()
+            notesByDate.forEach { entry ->
+                val filtered = entry.value.filter {
+                    (it["title"] as String).contains(term) || (it["description"] as String).contains(term)
+                }
+                if (filtered.isNotEmpty()) result[entry.key] = filtered
+            }
+            result
+        }
+    }

@@ -38,14 +38,30 @@ class NodeFlow(private val node: ServerDrivenNode): Dependent {
     private var memoizedChildren: MutableMap<String, NodeFlow> = mutableMapOf()
     private val scope = CoroutineScope(CoroutineDispatcherLib.backgroundPool)
     private val current = MutableStateFlow(NodeState(node, calculateChildren()))
+    // whether this state is attached to the dependency graph or not
+    private var isAttached = false
     val id: String get() = node.id
 
-    init {
-        node.addDependent(this)
+    /**
+     * Attaches this state to Nimbus dependency graph if it's not yet attached.
+     * This allows the state to respond to updates from Nimbus.
+     */
+    fun attach() {
+        if (!isAttached) {
+            node.addDependent(this)
+            isAttached = true
+        }
     }
 
-    fun dispose() {
-        node.removeDependent(this)
+    /**
+     * Detaches this state from Nimbus dependency graph if it is attached.
+     * This makes this state stop responding to updates from Nimbus.
+     */
+    fun detach() {
+        if (isAttached) {
+            node.removeDependent(this)
+            isAttached = false
+        }
     }
 
     @Composable

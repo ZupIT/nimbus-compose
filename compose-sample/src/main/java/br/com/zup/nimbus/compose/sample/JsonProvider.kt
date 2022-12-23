@@ -133,3 +133,189 @@ const val UPDATE_TEST = """{
   ]
 }
 """
+
+const val FILTER_TEST = """{
+  "_:component":"layout:column",
+  "id":"container",
+  "state":{
+    "searchTerm": "",
+    "notes":{
+      "1671408000000": [
+        {
+          "id": 11,
+          "title": "Buy cereal for the kids",
+          "description": "5 boxes",
+          "date": 1671408000000,
+          "isDone": false
+        },
+        {
+          "id": 10,
+          "title": "Hairdresser appointment",
+          "description": "2PM, on 8th avenue",
+          "date": 1671408000000,
+          "isDone": false
+        },
+        {
+          "id": 9,
+          "title": "Research dates and prices for family trip",
+          "description": "Beach cities",
+          "date": 1671408000000,
+          "isDone": false
+        },
+        {
+          "id": 8,
+          "title": "Pick up clothes at the shop",
+          "description": "They're opened until 6PM",
+          "date": 1671408000000,
+          "isDone": true
+        },
+        {
+          "id": 7,
+          "title": "Pay credit card bill",
+          "description": "",
+          "date": 1671408000000,
+          "isDone": false
+        },
+        {
+          "id": 6,
+          "title": "Pick up kids at school",
+          "description": "",
+          "date": 1671408000000,
+          "isDone": true
+        }
+      ],
+      "1671148800000": [
+        {
+          "id": 5,
+          "title": "Julia's birthday",
+          "description": "Must buy a small gift",
+          "date": 1671148800000,
+          "isDone": false
+        },
+        {
+          "id": 4,
+          "title": "Remember to eat more healthily",
+          "description": "Must lose some pounds",
+          "date": 1671148800000,
+          "isDone": false
+        },
+        {
+          "id": 3,
+          "title": "Cancel streaming subscription",
+          "description": "Netflix and Disney+",
+          "date": 1671148800000,
+          "isDone": true
+        }
+      ],
+      "1670976000000": [
+        {
+          "id": 2,
+          "title": "Prepare special breakfast",
+          "description": "Anniversary",
+          "date": 1670976000000,
+          "isDone": true
+        },
+        {
+          "id": 1,
+          "title": "Finish marketing campaign",
+          "description": "Also prepare presentation",
+          "date": 1670976000000,
+          "isDone": true
+        },
+        {
+          "id": 0,
+          "title": "Need to cook dinner today",
+          "description": "Meat balls spaghetti",
+          "date": 1670889600000,
+          "isDone": false
+        },
+        {
+          "id": 12,
+          "title": "Buy new edition of Forbes Magazine",
+          "description": "When at the mall",
+          "date": 1670889600000,
+          "isDone": true
+        }
+      ]
+    },
+    "filtered": {}
+  },
+  "children":[
+    {
+      "_:component":"material:button",
+      "id":"start",
+      "properties":{
+        "text":"Start",
+        "onPress":[
+          {
+            "_:action":"setState",
+            "properties":{
+              "path":"filtered",
+              "value":"@{notes}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component":"material:textInput",
+      "id":"filter",
+      "properties":{
+        "label": "search",
+        "value": "@{searchTerm}",
+        "onChange":[
+          {
+            "_:action":"setState",
+            "properties":{
+              "path":"searchTerm",
+              "value":"@{onChange}"
+            }
+          },
+          {
+            "_:action":"setState",
+            "properties":{
+              "path":"filtered",
+              "value":"@{filterNotes(notes, onChange)}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "_:component":"forEach",
+      "properties":{
+        "key":"key",
+        "items":"@{entries(filtered)}"
+      },
+      "children":[
+        {
+          "_:component":"layout:column",
+          "id": "section",
+          "children": [
+            {
+              "_:component":"layout:text",
+              "properties":{
+                "text":"@{item.key}"
+              }
+            },
+            {
+              "_:component":"forEach",
+              "properties":{
+                "key":"id",
+                "items":"@{item.value}"
+              },
+              "children":[
+                {
+                  "_:component":"layout:text",
+                  "properties":{
+                    "text":"@{item.id}: @{item.title}: @{item.description}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"""
