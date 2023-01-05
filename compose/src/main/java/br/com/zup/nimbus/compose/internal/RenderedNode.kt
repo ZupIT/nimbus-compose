@@ -16,7 +16,6 @@
 
 package br.com.zup.nimbus.compose.internal
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -44,8 +43,9 @@ fun RenderedNode(flow: NodeFlow) {
     val handler = remember(node.component) { ui.getComponent(node.component) }
 
     DisposableEffect(Unit) {
+        flow.subscribe()
         onDispose {
-            flow.dispose()
+            flow.unsubscribe()
         }
     }
 
