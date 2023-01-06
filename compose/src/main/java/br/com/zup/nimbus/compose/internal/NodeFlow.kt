@@ -27,6 +27,7 @@ import br.com.zup.nimbus.core.tree.ServerDrivenNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @Stable
 class NodeState(
@@ -35,9 +36,14 @@ class NodeState(
 ) {
     operator fun component1() = node
     operator fun component2() = children
+    private val hash = Random.nextInt()
 
     override fun equals(other: Any?): Boolean {
         return this === other
+    }
+
+    override fun hashCode(): Int {
+        return hash
     }
 }
 
