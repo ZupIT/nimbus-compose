@@ -137,7 +137,7 @@ class NimbusViewModelTest : BaseTest() {
             val pageUrl = RandomData.httpUrl()
             val viewRequest = ViewRequest(
                 url = pageUrl,
-                params = mapOf("testParamState" to "test state param value")
+                state = mapOf("testParamState" to "test state param value")
             )
 
             //When

@@ -183,12 +183,13 @@ internal class NimbusViewModel(
                                       serverDrivenNavigator: ServerDrivenNavigator,
                                       initialRequest: Boolean = false) =
         viewModelScope.launch(CoroutineDispatcherLib.inputOutputPool) {
-            val stateInstances = request.params?.map { ServerDrivenState(it.key, it.value) }
+            val viewStates = request.state?.map { ServerDrivenState(it.key, it.value) }
             val view = ServerDrivenView(
                 nimbus = nimbusConfig,
                 getNavigator = { serverDrivenNavigator },
                 description = request.url,
-                states = stateInstances,
+                states = viewStates,
+                events = request.events,
             )
             val url = request.url
             val page = Page(
