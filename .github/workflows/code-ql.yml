@@ -18,8 +18,6 @@
 name: "CodeQL Scan"
 
 on:
-  push:
-    branches: [ci/app-sec]
   schedule:
     #        ┌───────────── minute (0 - 59)
     #        │  ┌───────────── hour (0 - 23)
@@ -30,7 +28,7 @@ on:
     #        │  │ │ │ │
     #        │  │ │ │ │
     #        *  * * * *
-    - cron: '0 0 * * 0'
+    - cron: '0 0 * * *'
 
 jobs:
   CodeQL-Build:
