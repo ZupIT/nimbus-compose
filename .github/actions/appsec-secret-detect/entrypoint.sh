@@ -58,5 +58,6 @@ if [ "$RESULTS" = "{}" ]; then
     exit 0
 else
     echo "[INFO] Scan finished, LEAKS were found"
+    echo "$RESULTS"
     exit 1
 fi
